@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model System {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users         User[]
+  systemConfigs SystemConfig[]
+  featureFlags  FeatureFlag[]
+  labResults    LabResult[]
+  actionPlans   ActionPlan[]
+
+  @@map("systems")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
+  password     String
+  language     String   @default("en")
+  profileType  String   @map("profile_type")
+  journeyType  String   @map("journey_type")
+  systemId     String   @map("system_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  system        System         @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+  labResults    LabResult[]
+  actionPlans   ActionPlan[]
+
+  @@index([systemId])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model SystemConfig {
+  id         String   @id @default(uuid())
+  systemId   String   @map("system_id")
+  configKey  String   @map("config_key")
+  configValue String  @map("config_value")
+  dataType   String   @map("data_type")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  system System @relation(fields: [systemId], references: [id], onDelete: Cascade)
+
+  @@unique([systemId, configKey])
+  @@index([systemId])
+  @@map("system_configs")
+}
+
+model FeatureFlag {
+  id                String   @id @default(uuid())
+  systemId          String   @map("system_id")
+  flagName          String   @map("flag_name")
+  isEnabled         Boolean  @default(false) @map("is_enabled")
+  rolloutPercentage Int      @default(0) @map("rollout_percentage")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  system System @relation(fields: [systemId], references: [id], onDelete: Cascade)
+
+  @@unique([systemId, flagName])
+  @@index([systemId])
+  @@map("feature_flags")
+}
+
+model LabResult {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  systemId         String   @map("system_id")
+  fileName         String   @map("file_name")
+  s3Key            String   @map("s3_key")
+  s3Url            String   @map("s3_url")
+  uploadedAt       DateTime @default(now()) @map("uploaded_at")
+  processingStatus String   @default("pending") @map("processing_status")
+  rawOcrText       String?  @map("raw_ocr_text")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  system     System       @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  biomarkers Biomarker[]
+
+  @@index([userId])
+  @@index([systemId])
+  @@map("lab_results")
+}
+
+model Biomarker {
+  id                 String    @id @default(uuid())
+  labResultId        String    @map("lab_result_id")
+  testName           String    @map("test_name")
+  value              String
+  unit               String?
+  referenceRangeLow  String?   @map("reference_range_low")
+  referenceRangeHigh String?   @map("reference_range_high")
+  testDate           DateTime? @map("test_date")
+  notes              String?
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  labResult LabResult @relation(fields: [labResultId], references: [id], onDelete: Cascade)
+
+  @@index([labResultId])
+  @@index([testName])
+  @@map("biomarkers")
+}
+
+model ActionPlan {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  systemId    String   @map("system_id")
+  title       String
+  description String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  system      System       @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  actionItems ActionItem[]
+
+  @@index([userId])
+  @@index([systemId])
+  @@map("action_plans")
+}
+
+model ActionItem {
+  id           String    @id @default(uuid())
+  actionPlanId String    @map("action_plan_id")
+  title        String
+  description  String?
+  dueDate      DateTime? @map("due_date")
+  completedAt  DateTime? @map("completed_at")
+  priority     String    @default("medium")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  actionPlan ActionPlan @relation(fields: [actionPlanId], references: [id], onDelete: Cascade)
+
+  @@index([actionPlanId])
+  @@map("action_items")
+}
