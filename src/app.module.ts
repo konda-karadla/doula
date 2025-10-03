@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { LabsModule } from './labs/labs.module';
 import { ActionPlansModule } from './action-plans/action-plans.module';
 import { InsightsModule } from './insights/insights.module';
+import { ProfileModule } from './profile/profile.module';
 import configuration from './config/configuration';
 import { validate } from './config/env.validation';
 
@@ -33,6 +34,7 @@ import { validate } from './config/env.validation';
     LabsModule,
     ActionPlansModule,
     InsightsModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
