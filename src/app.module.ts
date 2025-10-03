@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { LabsModule } from './labs/labs.module';
 import { ActionPlansModule } from './action-plans/action-plans.module';
+import { InsightsModule } from './insights/insights.module';
 import configuration from './config/configuration';
 import { validate } from './config/env.validation';
 
@@ -31,6 +32,7 @@ import { validate } from './config/env.validation';
     AuthModule,
     LabsModule,
     ActionPlansModule,
+    InsightsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
