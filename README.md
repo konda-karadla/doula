@@ -38,13 +38,31 @@ A comprehensive NestJS-based backend for health management platforms, featuring 
 
 ## 🎯 Quick Start
 
+### ⚡ TL;DR - Most Common Commands
+```bash
+# First time setup (run once)
+npm install && npx prisma db push && npx prisma db seed
+
+# Daily development (run every time)
+npm run start:dev
+
+# Testing
+npm test
+
+# Production
+npm run build && npm run start:prod
+```
+
 ### Prerequisites
 - Node.js 18+ LTS
 - PostgreSQL 12+ (or Supabase account)
 - Redis 6+
 - AWS S3 bucket
 
-### Installation
+## 📋 Command Reference
+
+### 🔧 One-Time Setup Commands
+Run these commands **once** when setting up the project:
 
 ```bash
 # Install dependencies
@@ -54,26 +72,80 @@ npm install
 cp .env.example .env
 # Edit .env with your credentials
 
-# Run database migrations
-npx prisma migrate deploy
+# Run database migrations (creates tables)
+npx prisma db push
 
-# Seed initial data
-npm run prisma:seed
+# Seed initial data (creates 3 systems)
+npx prisma db seed
 ```
 
-### Development
+### 🚀 Daily Development Commands
+Run these commands **every time** you work on the project:
 
 ```bash
-# Start development server
+# Start development server (with hot reload)
 npm run start:dev
+```
 
-# Run tests
+### 🧪 Testing Commands
+Run these commands to **test your code**:
+
+```bash
+# Run all tests
 npm test
 
-# Run tests with coverage
+# Run tests with coverage report
 npm run test:cov
 
-# Build for production
+# Run tests in watch mode (re-runs on file changes)
+npm run test:watch
+
+# Run end-to-end tests
+npm run test:e2e
+```
+
+### 🏭 Production Commands
+Run these commands for **production deployment**:
+
+```bash
+# Build the application
+npm run build
+
+# Start production server
+npm run start:prod
+
+# Start with debugging
+npm run start:debug
+```
+
+### 📊 Database Commands
+Run these commands when you **modify the database**:
+
+```bash
+# Apply schema changes to database
+npx prisma db push
+
+# Generate Prisma client (auto-runs with db push)
+npx prisma generate
+
+# View database in browser
+npx prisma studio
+
+# Reset database (⚠️ deletes all data)
+npx prisma db push --force-reset
+```
+
+### 🔍 Utility Commands
+Run these commands for **development utilities**:
+
+```bash
+# Format code
+npm run format
+
+# Lint code
+npm run lint
+
+# Build without starting
 npm run build
 ```
 

@@ -4,6 +4,48 @@ Complete guide for deploying the health platform backend to production.
 
 ---
 
+## 📋 Command Reference
+
+### 🔧 One-Time Setup Commands
+```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your credentials
+
+# Run database migrations
+npx prisma db push
+
+# Seed initial data
+npx prisma db seed
+```
+
+### 🚀 Daily Development Commands
+```bash
+# Start development server
+npm run start:dev
+```
+
+### 🏭 Production Commands
+```bash
+# Build application
+npm run build
+
+# Start production server
+npm run start:prod
+```
+
+### 🧪 Testing Commands
+```bash
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:cov
+```
+
 ## Prerequisites
 
 ### Required Services
@@ -72,12 +114,12 @@ createdb health_platform
 
 ### 2. Run Migrations
 ```bash
-npx prisma migrate deploy
+npx prisma db push
 ```
 
 ### 3. Seed Initial Data
 ```bash
-npm run prisma:seed
+npx prisma db seed
 ```
 
 This creates 3 default systems:
