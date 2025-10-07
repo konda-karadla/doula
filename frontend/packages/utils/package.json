@@ -11,7 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@health-platform/types": "workspace:*"
+    "@health-platform/types": "*"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

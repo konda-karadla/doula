@@ -25,7 +25,9 @@ export interface RegisterRequest {
   email: string;
   username: string;
   password: string;
-  systemId: string;
+  systemSlug: string;
+  profileType?: 'patient' | 'provider' | 'admin';
+  journeyType?: 'prenatal' | 'postnatal' | 'general';
 }
 
 export interface RefreshTokenRequest {

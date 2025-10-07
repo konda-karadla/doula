@@ -94,7 +94,7 @@ export interface TokenData {
 
 export interface AuthState {
   isAuthenticated: boolean;
-  user: User | null;
+  user: any | null;
   token: string | null;
   refreshToken: string | null;
 }
@@ -216,7 +216,7 @@ export interface WebSocketMessage {
 
 // Export utility types
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-export type Required<T, K extends keyof T> = T & Required<Pick<T, K>>;
+export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };

@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserProfileDto } from './dto/user-profile.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { HealthStatsDto } from './dto/health-stats.dto';
 
 @Injectable()
 export class ProfileService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getProfile(userId: string, systemId: string): Promise<UserProfileDto> {
     const user = await this.prisma.user.findFirst({
@@ -98,6 +99,52 @@ export class ProfileService {
       lastLabUpload: lastLabResult?.uploadedAt,
       lastActionPlanUpdate: lastActionPlan?.updatedAt,
       memberSince: user.createdAt,
+    };
+  }
+
+  async updateProfile(
+    userId: string,
+    systemId: string,
+    update: UpdateProfileDto,
+  ): Promise<UserProfileDto> {
+    const existing = await this.prisma.user.findFirst({
+      where: { id: userId, systemId },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('User profile not found');
+    }
+
+    const updateData: any = {};
+    if (typeof update.email === 'string' && update.email.trim() !== '') {
+      updateData.email = update.email.trim();
+    }
+    const sanitizedProfileType =
+      typeof update.profileType === 'string' ? update.profileType.trim() : '';
+    const sanitizedJourneyType =
+      typeof update.journeyType === 'string' ? update.journeyType.trim() : '';
+
+    if (sanitizedProfileType !== '') {
+      updateData.profileType = sanitizedProfileType;
+    }
+    if (sanitizedJourneyType !== '') {
+      updateData.journeyType = sanitizedJourneyType;
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      profileType: user.profileType,
+      journeyType: user.journeyType,
+      systemId: user.systemId,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 

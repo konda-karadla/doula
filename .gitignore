@@ -10,6 +10,10 @@ build/
 .next/
 out/
 
+# Common nested build outputs in a monorepo
+**/dist/
+**/build/
+
 # Environment variables
 .env
 .env.local
@@ -120,6 +124,7 @@ prisma/migrations/
 
 # Testing
 coverage-reports/
+frontend/coverage-reports/
 
 # Backend specific
 backend/dist/
@@ -129,3 +134,9 @@ backend/coverage/
 frontend/.next/
 frontend/out/
 frontend/build/
+frontend/packages/*/dist/
+frontend/packages/*/build/
+
+# Lockfiles for non-npm managers (we use npm)
+yarn.lock
+pnpm-lock.yaml

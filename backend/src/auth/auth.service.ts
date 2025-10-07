@@ -21,8 +21,9 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, username, password, profileType, journeyType, systemSlug } =
-      registerDto;
+    const { email, username, password, systemSlug } = registerDto;
+    const providedProfileType = (registerDto as any).profileType as string | undefined;
+    const providedJourneyType = (registerDto as any).journeyType as string | undefined;
 
     const existingUser = await this.prisma.user.findFirst({
       where: {
@@ -49,8 +50,9 @@ export class AuthService {
         email,
         username,
         password: hashedPassword,
-        profileType,
-        journeyType,
+        // Default to sensible values if not provided at signup
+        profileType: providedProfileType && providedProfileType.trim() !== '' ? providedProfileType : 'patient',
+        journeyType: providedJourneyType && providedJourneyType.trim() !== '' ? providedJourneyType : 'general',
         systemId: system.id,
       },
       include: {

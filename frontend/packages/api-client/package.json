@@ -11,10 +11,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@health-platform/types": "workspace:*",
-    "@health-platform/config": "workspace:*",
+    "@health-platform/types": "*",
+    "@health-platform/config": "*",
     "axios": "^1.6.0",
-    "@tanstack/react-query": "^5.0.0"
+    "@tanstack/react-query": "^5.90.2"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

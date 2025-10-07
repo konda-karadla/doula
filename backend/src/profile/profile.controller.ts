@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -10,6 +10,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TenantIsolationGuard } from '../common/guards/tenant-isolation.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserProfileDto } from './dto/user-profile.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { HealthStatsDto } from './dto/health-stats.dto';
 
 @ApiTags('profile')
@@ -43,5 +44,17 @@ export class ProfileController {
   @ApiResponse({ status: 404, description: 'Profile not found' })
   async getHealthStats(@CurrentUser() user: any): Promise<HealthStatsDto> {
     return this.profileService.getHealthStats(user.userId, user.systemId);
+  }
+
+  @Patch()
+  @ApiOperation({ summary: 'Update current user profile' })
+  @ApiResponse({ status: 200, description: 'Updated profile', type: UserProfileDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Profile not found' })
+  async updateProfile(
+    @CurrentUser() user: any,
+    @Body() body: UpdateProfileDto,
+  ): Promise<UserProfileDto> {
+    return this.profileService.updateProfile(user.userId, user.systemId, body);
   }
 }

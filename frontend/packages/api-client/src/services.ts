@@ -5,7 +5,6 @@ import type {
   LoginRequest,
   RegisterRequest,
   RefreshTokenRequest,
-  User,
   LabResult,
   Biomarker,
   ActionPlan,
@@ -115,6 +114,9 @@ export const profileService = {
   
   getStats: (): Promise<HealthStats> =>
     api.get<HealthStats>(apiEndpoints.profile.stats),
+
+  update: (data: Partial<{ email: string; profileType: string; journeyType: string }>): Promise<UserProfile> =>
+    api.patch<UserProfile>(apiEndpoints.profile.update, data),
 };
 
 // Export all services

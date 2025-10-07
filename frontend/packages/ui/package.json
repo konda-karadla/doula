@@ -11,8 +11,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@health-platform/types": "workspace:*",
-    "@health-platform/utils": "workspace:*",
+    "@health-platform/types": "*",
+    "@health-platform/utils": "*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "class-variance-authority": "^0.7.0",

@@ -114,10 +114,10 @@ npm run lint
 
 ## 📚 Documentation
 
-- [Backend API Reference](./backend/API_REFERENCE.md)
-- [Backend Deployment Guide](./backend/DEPLOYMENT.md)
+- [Backend API Reference](./API_REFERENCE.md)
+- [Backend Deployment Guide](./DEPLOYMENT.md)
 - [Frontend Documentation](./frontend/README.md)
-- [Development Tasks](./backend/TASKS.md)
+- [Development Tasks](../TASKS.md)
 
 ## 🤝 Contributing
 
@@ -169,6 +169,6 @@ Built with:
 ## 📞 Support
 
 - Documentation: See `/docs` folder
-- API Reference: [backend/API_REFERENCE.md](./backend/API_REFERENCE.md)
-- Deployment: [backend/DEPLOYMENT.md](./backend/DEPLOYMENT.md)
+- API Reference: [backend/API_REFERENCE.md](./API_REFERENCE.md)
+- Deployment: [backend/DEPLOYMENT.md](./DEPLOYMENT.md)
 - Swagger UI: http://localhost:3000/api
