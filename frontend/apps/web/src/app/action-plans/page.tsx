@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { DashboardNav } from '@/components/layout/dashboard-nav'
 import { ActionPlansList } from '@/components/action-plans/action-plans-list'
 import { ActionPlanCreator } from '@/components/action-plans/action-plan-creator'
@@ -9,11 +10,17 @@ import { Button } from '@/components/ui/button'
 import { Plus, Filter, Target } from 'lucide-react'
 
 export default function ActionPlansPage() {
+  const searchParams = useSearchParams()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  useEffect(() => {
+    if (searchParams.get('create') === '1') {
+      setShowCreateModal(true)
+    }
+  }, [searchParams])
   const [showFilters, setShowFilters] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <DashboardNav />
 
       {/* Main Content */}
@@ -21,10 +28,10 @@ export default function ActionPlansPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
               Action Plans
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-slate-600 dark:text-slate-400 mt-2">
               Create and track your personalized health improvement plans
             </p>
           </div>

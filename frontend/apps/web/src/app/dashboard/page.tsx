@@ -7,6 +7,7 @@ import { HealthMetricsCard } from '@/components/dashboard/health-metrics-card'
 import { RecentActivityCard } from '@/components/dashboard/recent-activity-card'
 import { HealthChart } from '@/components/dashboard/health-chart'
 import { useHealthStats, useRecentLabResults, useRecentActionPlans, useHealthTrends, useBiomarkerData } from '@/hooks/use-health-data'
+import Link from 'next/link'
 import { Heart, FileText, Target, User, TrendingUp } from 'lucide-react'
 
 function DashboardContent() {
@@ -115,35 +116,35 @@ function DashboardContent() {
             Quick Actions
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
+            <Link href="/lab-results?upload=1" className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border transition hover:shadow-md cursor-pointer block no-underline text-gray-900 dark:text-white">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-white">Upload Lab Results</h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Add new lab results for analysis</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Add new lab results for analysis</p>
                 </div>
                 <FileText className="w-8 h-8 text-blue-500" />
               </div>
-            </div>
+            </Link>
             
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border opacity-60 cursor-not-allowed select-none">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-white">View Insights</h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Get AI-powered health insights</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Coming soon</p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-green-500" />
               </div>
             </div>
             
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
+            <Link href="/action-plans?create=1" className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border transition hover:shadow-md cursor-pointer block no-underline text-gray-900 dark:text-white">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-white">Create Action Plan</h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Start a new health improvement plan</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Start a new health improvement plan</p>
                 </div>
                 <Target className="w-8 h-8 text-purple-500" />
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </main>

@@ -1,62 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import { Settings, Save, RefreshCw, ToggleRight, Shield, Database } from 'lucide-react'
-
-// Mock system configuration data
-const mockSystemConfig = {
-  general: {
-    platformName: 'Health Platform',
-    supportEmail: 'support@healthplatform.com',
-    maxFileSize: '10',
-    sessionTimeout: '30',
-  },
-  features: {
-    userRegistration: true,
-    labUpload: true,
-    actionPlans: true,
-    notifications: true,
-    analytics: true,
-    darkMode: false,
-  },
-  systems: {
-    doula: {
-      enabled: true,
-      name: 'Doula Care System',
-      description: 'Comprehensive doula and fertility care platform',
-      primaryColor: '#3B82F6',
-    },
-    functional_health: {
-      enabled: true,
-      name: 'Functional Health System',
-      description: 'Advanced functional medicine and wellness platform',
-      primaryColor: '#8B5CF6',
-    },
-    elderly_care: {
-      enabled: true,
-      name: 'Elderly Care System',
-      description: 'Specialized care platform for elderly patients',
-      primaryColor: '#F59E0B',
-    },
-  },
-}
+import { Settings, Save, RefreshCw, ToggleRight, Shield, Database, Loader2 } from 'lucide-react'
+import { useSystemConfig, useUpdateSystemConfig } from '@/hooks/use-admin-api'
 
 export default function SettingsPage() {
-  const [config, setConfig] = useState(mockSystemConfig)
-  const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+  const { data: initialConfig, isLoading: isLoadingConfig } = useSystemConfig()
+  const updateConfigMutation = useUpdateSystemConfig()
+  
+  const [config, setConfig] = useState(initialConfig)
+
+  // Update local state when data loads
+  useEffect(() => {
+    if (initialConfig) {
+      setConfig(initialConfig)
+    }
+  }, [initialConfig])
 
   const handleSave = async () => {
-    setIsLoading(true)
+    if (!config) return
+    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await updateConfigMutation.mutateAsync(config)
       toast({
         title: 'Settings saved',
         description: 'System configuration has been updated successfully',
@@ -68,29 +40,33 @@ export default function SettingsPage() {
         description: 'Failed to save settings',
         variant: 'destructive',
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
   const handleReset = () => {
     if (confirm('Are you sure you want to reset all settings to default values?')) {
-      setConfig(mockSystemConfig)
-      toast({
-        title: 'Settings reset',
-        description: 'All settings have been reset to default values',
-      })
+      if (initialConfig) {
+        setConfig(initialConfig)
+        toast({
+          title: 'Settings reset',
+          description: 'All settings have been reset to default values',
+        })
+      }
     }
   }
 
   const toggleFeature = (feature: string) => {
-    setConfig(prev => ({
-      ...prev,
-      features: {
-        ...prev.features,
-        [feature]: !prev.features[feature],
-      },
-    }))
+    if (!config) return
+    setConfig(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        features: {
+          ...prev.features,
+          [feature]: !prev.features[feature],
+        },
+      }
+    })
   }
 
   const toggleSystem = (system: string) => {
@@ -116,6 +92,26 @@ export default function SettingsPage() {
     }))
   }
 
+  if (isLoadingConfig) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  if (!config) {
+    return (
+      <AdminLayout>
+        <div className="text-center py-12">
+          <p className="text-red-600">Failed to load system configuration</p>
+        </div>
+      </AdminLayout>
+    )
+  }
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -129,9 +125,18 @@ export default function SettingsPage() {
               <RefreshCw className="h-4 w-4 mr-2" />
               Reset
             </Button>
-            <Button onClick={handleSave} disabled={isLoading}>
-              <Save className="h-4 w-4 mr-2" />
-              {isLoading ? 'Saving...' : 'Save Changes'}
+            <Button onClick={handleSave} disabled={updateConfigMutation.isPending}>
+              {updateConfigMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </>
+              )}
             </Button>
           </div>
         </div>

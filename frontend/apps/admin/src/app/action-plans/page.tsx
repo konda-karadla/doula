@@ -1,68 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import { Search, Plus, Edit, Trash2, Eye, Filter, Target, Users, Calendar } from 'lucide-react'
-
-// Mock action plans data
-const mockActionPlans = [
-  {
-    id: '1',
-    title: 'Fertility Optimization Plan',
-    description: 'Comprehensive plan for improving fertility outcomes',
-    userId: '1',
-    userName: 'John Doe',
-    system: 'doula',
-    status: 'active',
-    items: 8,
-    completedItems: 5,
-    createdAt: '2024-01-15',
-    updatedAt: '2024-01-20',
-  },
-  {
-    id: '2',
-    title: 'Hormone Balance Protocol',
-    description: 'Action plan for balancing hormones naturally',
-    userId: '2',
-    userName: 'Jane Smith',
-    system: 'functional_health',
-    status: 'active',
-    items: 12,
-    completedItems: 3,
-    createdAt: '2024-01-10',
-    updatedAt: '2024-01-19',
-  },
-  {
-    id: '3',
-    title: 'Senior Wellness Program',
-    description: 'Comprehensive wellness plan for elderly care',
-    userId: '3',
-    userName: 'Mike Wilson',
-    system: 'elderly_care',
-    status: 'completed',
-    items: 6,
-    completedItems: 6,
-    createdAt: '2024-01-05',
-    updatedAt: '2024-01-18',
-  },
-  {
-    id: '4',
-    title: 'Preconception Preparation',
-    description: 'Preparing for healthy conception',
-    userId: '4',
-    userName: 'Sarah Johnson',
-    system: 'doula',
-    status: 'draft',
-    items: 10,
-    completedItems: 0,
-    createdAt: '2024-01-12',
-    updatedAt: '2024-01-17',
-  },
-]
+import { Search, Plus, Edit, Trash2, Eye, Filter, Target, Users, Calendar, Loader2 } from 'lucide-react'
+import { useActionPlans, useDeleteActionPlan, useActionItems } from '@/hooks/use-admin-api'
+import { format } from 'date-fns'
 
 export default function ActionPlansPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -70,17 +16,25 @@ export default function ActionPlansPage() {
   const [filterSystem, setFilterSystem] = useState('all')
   const { toast } = useToast()
 
-  const filteredPlans = mockActionPlans.filter(plan => {
-    const matchesSearch = plan.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         plan.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         plan.userName.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = filterStatus === 'all' || plan.status === filterStatus
-    const matchesSystem = filterSystem === 'all' || plan.system === filterSystem
+  const { data: actionPlans, isLoading, error } = useActionPlans()
+  const deleteActionPlanMutation = useDeleteActionPlan()
+
+  const filteredPlans = useMemo(() => {
+    if (!actionPlans) return []
     
-    return matchesSearch && matchesStatus && matchesSystem
-  })
+    return actionPlans.filter(plan => {
+      const matchesSearch = plan.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           plan.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      // Note: Status and system filtering would need additional data
+      const matchesStatus = filterStatus === 'all' // TODO: Add status when available
+      const matchesSystem = filterSystem === 'all' // TODO: Add system filtering when user data available
+      
+      return matchesSearch && matchesStatus && matchesSystem
+    })
+  }, [actionPlans, searchTerm, filterStatus, filterSystem])
 
   const handleViewPlan = (planId: string) => {
+    // TODO: Navigate to action plan detail page
     toast({
       title: 'View action plan',
       description: 'Action plan details will be displayed',
@@ -88,26 +42,42 @@ export default function ActionPlansPage() {
   }
 
   const handleEditPlan = (planId: string) => {
+    // TODO: Navigate to action plan editor
     toast({
       title: 'Edit action plan',
       description: 'Action plan editor will be opened',
     })
   }
 
-  const handleDeletePlan = (planId: string, planTitle: string) => {
+  const handleDeletePlan = async (planId: string, planTitle: string) => {
     if (confirm(`Are you sure you want to delete "${planTitle}"?`)) {
-      toast({
-        title: 'Action plan deleted',
-        description: `${planTitle} has been deleted successfully`,
-      })
+      try {
+        await deleteActionPlanMutation.mutateAsync(planId)
+        toast({
+          title: 'Action plan deleted',
+          description: `${planTitle} has been deleted successfully`,
+        })
+      } catch (error) {
+        toast({
+          title: 'Delete failed',
+          description: 'Failed to delete action plan',
+          variant: 'destructive',
+        })
+      }
     }
   }
 
   const handleCreatePlan = () => {
+    // TODO: Open action plan creation modal/page
     toast({
       title: 'Create action plan',
       description: 'Action plan creation form will be opened',
     })
+  }
+
+  const getProgressPercentage = (completedCount: number, totalCount: number) => {
+    if (totalCount === 0) return 0
+    return Math.round((completedCount / totalCount) * 100)
   }
 
   const getStatusBadge = (status: string) => {
@@ -138,9 +108,93 @@ export default function ActionPlansPage() {
     }
   }
 
-  const getProgressPercentage = (completed: number, total: number) => {
-    if (total === 0) return 0
-    return Math.round((completed / total) * 100)
+  // Action Plan Item component to encapsulate each card
+  const ActionPlanCard = ({ plan }: { plan: any }) => {
+    // Count items for this plan (would need useActionItems hook)
+    const totalItems = plan.items?.length || 0
+    const completedItems = plan.items?.filter((item: any) => item.status === 'completed').length || 0
+
+    return (
+      <Card className="hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <CardTitle className="text-lg">{plan.title}</CardTitle>
+              <CardDescription className="mt-1">
+                {plan.description || 'No description'}
+              </CardDescription>
+            </div>
+            <div className="flex space-x-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleViewPlan(plan.id)}
+                title="View plan"
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleEditPlan(plan.id)}
+                title="Edit plan"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleDeletePlan(plan.id, plan.title)}
+                title="Delete plan"
+                className="text-red-600 hover:text-red-700"
+                disabled={deleteActionPlanMutation.isPending}
+              >
+                {deleteActionPlanMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Progress */}
+            <div>
+              <div className="flex items-center justify-between text-sm mb-1">
+                <span className="text-gray-600">Progress</span>
+                <span className="text-gray-900">
+                  {completedItems}/{totalItems} items
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${getProgressPercentage(completedItems, totalItems)}%`,
+                  }}
+                />
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {getProgressPercentage(completedItems, totalItems)}% complete
+              </div>
+            </div>
+
+            {/* Dates */}
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <div className="flex items-center">
+                <Calendar className="h-3 w-3 mr-1" />
+                Created: {format(new Date(plan.createdAt), 'MMM d, yyyy')}
+              </div>
+              <div>
+                Updated: {format(new Date(plan.updatedAt), 'MMM d, yyyy')}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -232,111 +286,29 @@ export default function ActionPlansPage() {
         </Card>
 
         {/* Action Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPlans.map((plan) => (
-            <Card key={plan.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{plan.title}</CardTitle>
-                    <CardDescription className="mt-1">
-                      {plan.description}
-                    </CardDescription>
-                  </div>
-                  <div className="flex space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleViewPlan(plan.id)}
-                      title="View plan"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEditPlan(plan.id)}
-                      title="Edit plan"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeletePlan(plan.id, plan.title)}
-                      title="Delete plan"
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* User and System Info */}
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center text-gray-600">
-                      <Users className="h-4 w-4 mr-1" />
-                      {plan.userName}
-                    </div>
-                    <span className={getSystemBadge(plan.system)}>
-                      {plan.system.replace('_', ' ')}
-                    </span>
-                  </div>
-
-                  {/* Status */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Status</span>
-                    <span className={getStatusBadge(plan.status)}>
-                      {plan.status}
-                    </span>
-                  </div>
-
-                  {/* Progress */}
-                  <div>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-gray-600">Progress</span>
-                      <span className="text-gray-900">
-                        {plan.completedItems}/{plan.items} items
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{
-                          width: `${getProgressPercentage(plan.completedItems, plan.items)}%`,
-                        }}
-                      />
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {getProgressPercentage(plan.completedItems, plan.items)}% complete
-                    </div>
-                  </div>
-
-                  {/* Dates */}
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      Created: {new Date(plan.createdAt).toLocaleDateString()}
-                    </div>
-                    <div>
-                      Updated: {new Date(plan.updatedAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {filteredPlans.length === 0 && (
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          </div>
+        ) : error ? (
+          <Card>
+            <CardContent className="text-center py-8">
+              <p className="text-red-600">Failed to load action plans</p>
+            </CardContent>
+          </Card>
+        ) : filteredPlans.length === 0 ? (
           <Card>
             <CardContent className="text-center py-8">
               <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No action plans found matching your criteria</p>
             </CardContent>
           </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPlans.map((plan) => (
+              <ActionPlanCard key={plan.id} plan={plan} />
+            ))}
+          </div>
         )}
 
         {/* Statistics */}
@@ -347,7 +319,9 @@ export default function ActionPlansPage() {
                 <Target className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Plans</p>
-                  <p className="text-2xl font-bold text-gray-900">{mockActionPlans.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {actionPlans?.length || 0}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -360,9 +334,9 @@ export default function ActionPlansPage() {
                   <div className="h-3 w-3 bg-green-600 rounded-full"></div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Active</p>
+                  <p className="text-sm font-medium text-gray-600">With Items</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {mockActionPlans.filter(p => p.status === 'active').length}
+                    {actionPlans?.filter(p => p.items && p.items.length > 0).length || 0}
                   </p>
                 </div>
               </div>
@@ -376,9 +350,9 @@ export default function ActionPlansPage() {
                   <div className="h-3 w-3 bg-blue-600 rounded-full"></div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Completed</p>
+                  <p className="text-sm font-medium text-gray-600">Total Items</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {mockActionPlans.filter(p => p.status === 'completed').length}
+                    {actionPlans?.reduce((sum, p) => sum + (p.items?.length || 0), 0) || 0}
                   </p>
                 </div>
               </div>
@@ -388,13 +362,15 @@ export default function ActionPlansPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center">
-                  <div className="h-3 w-3 bg-gray-600 rounded-full"></div>
+                <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
+                  <div className="h-3 w-3 bg-purple-600 rounded-full"></div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Drafts</p>
+                  <p className="text-sm font-medium text-gray-600">Completed Items</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {mockActionPlans.filter(p => p.status === 'draft').length}
+                    {actionPlans?.reduce((sum, p) => 
+                      sum + (p.items?.filter((item: any) => item.status === 'completed').length || 0), 0
+                    ) || 0}
                   </p>
                 </div>
               </div>

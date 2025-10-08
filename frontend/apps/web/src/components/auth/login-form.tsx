@@ -40,9 +40,20 @@ export function LoginForm() {
     try {
       console.log('🔍 Attempting login with:', data)
       await login(data)
-      console.log('✅ Login successful, redirecting to dashboard')
-      // Check if user needs onboarding (for now, redirect to dashboard)
-      // In real implementation, check user profile completion status
+      console.log('✅ Login successful')
+      
+      // Check if user role is 'user'
+      const { user } = useAuthStore.getState()
+      if (user?.role !== 'user') {
+        console.log('🚫 Non-user role blocked from user app')
+        await useAuthStore.getState().logout()
+        useAuthStore.setState({ 
+          error: 'Access denied. This app is for regular users only.' 
+        })
+        return
+      }
+      
+      console.log('👤 User role confirmed, redirecting to dashboard')
       router.push('/dashboard')
     } catch (error) {
       console.error('❌ Login error:', error)

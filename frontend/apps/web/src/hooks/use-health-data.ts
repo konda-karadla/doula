@@ -20,6 +20,7 @@ const mockRecentLabs = [
     type: 'lab_result' as const,
     status: 'completed' as const,
     timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    href: '/lab-results/1',
     actionLabel: 'View',
     onAction: () => console.log('View lab result')
   },
@@ -30,6 +31,7 @@ const mockRecentLabs = [
     type: 'lab_result' as const,
     status: 'completed' as const,
     timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
+    href: '/lab-results/2',
     actionLabel: 'View',
     onAction: () => console.log('View lab result')
   }
@@ -43,6 +45,7 @@ const mockRecentActionPlans = [
     type: 'action_plan' as const,
     status: 'pending' as const,
     timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    href: '/action-plans/1',
     actionLabel: 'Continue',
     onAction: () => console.log('Continue action plan')
   },
@@ -53,6 +56,7 @@ const mockRecentActionPlans = [
     type: 'action_plan' as const,
     status: 'pending' as const,
     timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    href: '/action-plans/2',
     actionLabel: 'Continue',
     onAction: () => console.log('Continue action plan')
   }

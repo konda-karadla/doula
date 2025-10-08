@@ -92,6 +92,13 @@ const mockLabResult = {
 
 export function LabResultDetail({ labResultId }: LabResultDetailProps) {
   const [viewMode, setViewMode] = useState<'pdf' | 'data'>('data')
+  
+  // Differentiate mock content per id so pages are visibly different
+  const titleById: Record<string, string> = {
+    '1': 'Complete Blood Count (CBC)',
+    '2': 'Lipid Panel',
+  }
+  const effectiveTitle = titleById[labResultId] || `${mockLabResult.title} (ID: ${labResultId})`
 
   const getStatusIcon = (status: Biomarker['status']) => {
     switch (status) {
@@ -144,7 +151,7 @@ export function LabResultDetail({ labResultId }: LabResultDetailProps) {
             <div className="flex items-center space-x-3">
               <FileText className="w-6 h-6 text-blue-600" />
               <div>
-                <CardTitle>{mockLabResult.title}</CardTitle>
+                <CardTitle>{effectiveTitle}</CardTitle>
                 <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-1" />

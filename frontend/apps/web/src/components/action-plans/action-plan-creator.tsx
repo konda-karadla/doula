@@ -198,8 +198,8 @@ Your action plan is now active and ready to track!`)
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center">
             <Target className="w-5 h-5 mr-2" />
@@ -231,7 +231,7 @@ Your action plan is now active and ready to track!`)
                   <Label htmlFor="description">Description</Label>
                   <textarea
                     id="description"
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Describe what this action plan aims to achieve..."
                     {...register('description')}
                   />
@@ -258,7 +258,7 @@ Your action plan is now active and ready to track!`)
                   <Label htmlFor="category">Category</Label>
                   <select
                     id="category"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                     {...register('category')}
                   >
                     <option value="">Select category</option>
@@ -277,7 +277,7 @@ Your action plan is now active and ready to track!`)
                   <Label htmlFor="priority">Priority</Label>
                   <select
                     id="priority"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                     {...register('priority')}
                   >
                     <option value="low">🟢 Low Priority</option>
@@ -318,12 +318,12 @@ Your action plan is now active and ready to track!`)
 
               {/* AI Recommendations */}
               {showAIInsights && aiRecommendations.length > 0 && (
-                <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                <div className="p-4 bg-indigo-50 dark:bg-indigo-950/20 rounded-lg">
                   <div className="flex items-center mb-3">
-                    <Sparkles className="w-4 h-4 text-blue-600 mr-2" />
-                    <h4 className="font-medium text-blue-900 dark:text-blue-100">AI Recommendations</h4>
+                    <Sparkles className="w-4 h-4 text-indigo-600 mr-2" />
+                    <h4 className="font-medium text-indigo-900 dark:text-indigo-100">AI Recommendations</h4>
                     {aiRecommendations[0] === 'Loading AI recommendations...' && (
-                      <div className="ml-2 w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      <div className="ml-2 w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                     )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -333,8 +333,8 @@ Your action plan is now active and ready to track!`)
                         type="button"
                         className={`text-left p-2 rounded border transition-colors ${
                           recommendation === 'Loading AI recommendations...'
-                            ? 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed'
-                            : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'
+                            ? 'bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 cursor-not-allowed'
+                            : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer'
                         }`}
                         onClick={() => {
                           if (recommendation !== 'Loading AI recommendations...') {
@@ -347,9 +347,9 @@ Your action plan is now active and ready to track!`)
                         }}
                         disabled={recommendation === 'Loading AI recommendations...'}
                       >
-                        <p className="text-sm text-gray-700 dark:text-gray-300">{recommendation}</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{recommendation}</p>
                         {recommendation !== 'Loading AI recommendations...' && (
-                          <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                          <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">
                             Click to add as action item
                           </p>
                         )}
@@ -360,7 +360,7 @@ Your action plan is now active and ready to track!`)
               )}
 
               {/* Add Action Item */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
                 <div>
                   <Label htmlFor="itemTitle">Item Title</Label>
                   <Input
@@ -384,7 +384,7 @@ Your action plan is now active and ready to track!`)
                     <Label htmlFor="itemPriority">Priority</Label>
                     <select
                       id="itemPriority"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                       value={currentItem.priority}
                       onChange={(e) => setCurrentItem(prev => ({ ...prev, priority: e.target.value as any }))}
                     >
@@ -431,7 +431,7 @@ Your action plan is now active and ready to track!`)
             </div>
 
             {/* Actions */}
-            <div className="flex justify-between items-center pt-4 border-t">
+            <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-800">
               <div className="text-sm text-muted-foreground">
                 {actionItems.length > 0 ? (
                   <span className="text-green-600 dark:text-green-400">

@@ -5,6 +5,8 @@ Complete API documentation for all endpoints.
 **Base URL:** `http://localhost:3000`
 **Swagger UI:** `http://localhost:3000/api`
 
+> **📌 Admin API:** For admin-specific endpoints (user management, system configuration, analytics), see [ADMIN_API_REFERENCE.md](./ADMIN_API_REFERENCE.md)
+
 ---
 
 ## Table of Contents
@@ -14,7 +16,8 @@ Complete API documentation for all endpoints.
 4. [Action Items](#action-items)
 5. [Health Insights](#health-insights)
 6. [User Profile](#user-profile)
-7. [Error Handling](#error-handling)
+7. [Admin Endpoints](./ADMIN_API_REFERENCE.md) ⭐ NEW
+8. [Error Handling](#error-handling)
 
 ---
 

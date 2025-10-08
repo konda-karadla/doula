@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { config } from '@health-platform/config'
 
 interface User {
   id: string
@@ -31,6 +32,13 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       
       login: (user, token, refreshToken) => {
+        // Store tokens in both Zustand and localStorage for API client compatibility
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(config.appConfig.auth.tokenStorageKey, token)
+          localStorage.setItem(config.appConfig.auth.refreshTokenStorageKey, refreshToken)
+          localStorage.setItem(config.appConfig.auth.userStorageKey, JSON.stringify(user))
+        }
+        
         set({
           user,
           token,
@@ -41,6 +49,13 @@ export const useAuthStore = create<AuthState>()(
       },
       
       logout: () => {
+        // Clear tokens from both Zustand and localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(config.appConfig.auth.tokenStorageKey)
+          localStorage.removeItem(config.appConfig.auth.refreshTokenStorageKey)
+          localStorage.removeItem(config.appConfig.auth.userStorageKey)
+        }
+        
         set({
           user: null,
           token: null,
@@ -57,8 +72,13 @@ export const useAuthStore = create<AuthState>()(
       updateUser: (userData) => {
         const currentUser = get().user
         if (currentUser) {
+          const updatedUser = { ...currentUser, ...userData }
+          // Update localStorage as well
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(config.appConfig.auth.userStorageKey, JSON.stringify(updatedUser))
+          }
           set({
-            user: { ...currentUser, ...userData }
+            user: updatedUser
           })
         }
       },

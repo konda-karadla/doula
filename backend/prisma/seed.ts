@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -67,6 +68,53 @@ async function main() {
     );
   }
 
+  // Create sample users (including admin)
+  console.log('\n👥 Creating sample users...');
+  
+  const doulaSystem = await prisma.system.findUnique({
+    where: { slug: 'doula' },
+  });
+
+  if (doulaSystem) {
+    // Create admin user
+    const adminPassword = await bcrypt.hash('admin123', 10);
+    const adminUser = await prisma.user.upsert({
+      where: { email: 'admin@healthplatform.com' },
+      update: {
+        role: 'admin', // Ensure role is set to admin
+      },
+      create: {
+        email: 'admin@healthplatform.com',
+        username: 'admin',
+        password: adminPassword,
+        role: 'admin',
+        language: 'en',
+        profileType: 'individual',
+        journeyType: 'optimizer',
+        systemId: doulaSystem.id,
+      },
+    });
+    console.log(`✅ Admin user: ${adminUser.email} (password: admin123)`);
+
+    // Create sample regular user
+    const userPassword = await bcrypt.hash('user123', 10);
+    const regularUser = await prisma.user.upsert({
+      where: { email: 'user@healthplatform.com' },
+      update: {},
+      create: {
+        email: 'user@healthplatform.com',
+        username: 'johndoe',
+        password: userPassword,
+        role: 'user',
+        language: 'en',
+        profileType: 'individual',
+        journeyType: 'optimizer',
+        systemId: doulaSystem.id,
+      },
+    });
+    console.log(`✅ Regular user: ${regularUser.email} (password: user123)`);
+  }
+
   console.log('');
   console.log('🎉 Seed completed successfully!');
   console.log('');
@@ -74,6 +122,11 @@ async function main() {
   console.log(`  - Systems: ${systems.length}`);
   console.log(`  - System Configs: ${systems.length}`);
   console.log(`  - Feature Flags: ${systems.length}`);
+  console.log(`  - Users: 2 (1 admin, 1 regular)`);
+  console.log('');
+  console.log('🔑 Default Credentials:');
+  console.log('  Admin:  admin@healthplatform.com / admin123');
+  console.log('  User:   user@healthplatform.com / user123');
 }
 
 main()

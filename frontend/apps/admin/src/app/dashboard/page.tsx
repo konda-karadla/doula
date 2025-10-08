@@ -2,67 +2,57 @@
 
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, FileText, Target, Activity } from 'lucide-react'
-
-const stats = [
-  {
-    name: 'Total Users',
-    value: '1,234',
-    change: '+12%',
-    changeType: 'positive',
-    icon: Users,
-  },
-  {
-    name: 'Lab Results',
-    value: '5,678',
-    change: '+8%',
-    changeType: 'positive',
-    icon: FileText,
-  },
-  {
-    name: 'Action Plans',
-    value: '890',
-    change: '+15%',
-    changeType: 'positive',
-    icon: Target,
-  },
-  {
-    name: 'Active Sessions',
-    value: '45',
-    change: '-3%',
-    changeType: 'negative',
-    icon: Activity,
-  },
-]
-
-const recentActivities = [
-  {
-    id: 1,
-    type: 'user_registration',
-    description: 'New user registered: john.doe@example.com',
-    timestamp: '2 minutes ago',
-  },
-  {
-    id: 2,
-    type: 'lab_upload',
-    description: 'Lab results uploaded for user: jane.smith@example.com',
-    timestamp: '15 minutes ago',
-  },
-  {
-    id: 3,
-    type: 'action_plan',
-    description: 'Action plan created for user: mike.wilson@example.com',
-    timestamp: '1 hour ago',
-  },
-  {
-    id: 4,
-    type: 'user_login',
-    description: 'User logged in: sarah.johnson@example.com',
-    timestamp: '2 hours ago',
-  },
-]
+import { Users, FileText, Target, Activity, TrendingUp, TrendingDown } from 'lucide-react'
+import { useAdminStats, useRecentActivities } from '@/hooks/use-admin-api'
+import { formatDistanceToNow } from 'date-fns'
 
 export default function DashboardPage() {
+  const { data: stats, isLoading: statsLoading } = useAdminStats()
+  const activities = useRecentActivities()
+
+  const statsCards = [
+    {
+      name: 'Total Users',
+      value: stats?.totalUsers.toLocaleString() || '0',
+      change: '+12%',
+      changeType: 'positive',
+      icon: Users,
+    },
+    {
+      name: 'Lab Results',
+      value: stats?.labResults.toLocaleString() || '0',
+      change: '+8%',
+      changeType: 'positive',
+      icon: FileText,
+    },
+    {
+      name: 'Action Plans',
+      value: stats?.actionPlans.toLocaleString() || '0',
+      change: '+15%',
+      changeType: 'positive',
+      icon: Target,
+    },
+    {
+      name: 'Active Sessions',
+      value: stats?.activeSessions.toLocaleString() || '0',
+      change: '-3%',
+      changeType: 'negative',
+      icon: Activity,
+    },
+  ]
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'lab_upload':
+        return '📄'
+      case 'action_plan':
+        return '🎯'
+      case 'user_registration':
+        return '👤'
+      default:
+        return '📌'
+    }
+  }
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -73,7 +63,7 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
+          {statsCards.map((stat) => (
             <Card key={stat.name}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-gray-600">
@@ -82,12 +72,26 @@ export default function DashboardPage() {
                 <stat.icon className="h-4 w-4 text-gray-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className={`text-xs ${
-                  stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {stat.change} from last month
-                </p>
+                {statsLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded w-20 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <p className={`text-xs flex items-center ${
+                      stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {stat.changeType === 'positive' ? (
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                      ) : (
+                        <TrendingDown className="h-3 w-3 mr-1" />
+                      )}
+                      {stat.change} from last month
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -104,17 +108,23 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivities.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      <div className="h-2 w-2 bg-blue-600 rounded-full mt-2" />
+                {activities.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4">No recent activities</p>
+                ) : (
+                  activities.map((activity) => (
+                    <div key={activity.id} className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="text-lg">{getActivityIcon(activity.type)}</div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-900">{activity.description}</p>
+                        <p className="text-xs text-gray-500">
+                          {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">{activity.description}</p>
-                      <p className="text-xs text-gray-500">{activity.timestamp}</p>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>

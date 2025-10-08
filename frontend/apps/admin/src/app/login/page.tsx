@@ -38,26 +38,50 @@ export default function AdminLoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true)
     try {
-      // Mock admin authentication - replace with actual API call
-      if (data.email === 'admin@healthplatform.com' && data.password === 'admin123') {
-        const mockUser = {
-          id: '1',
+      // Use real authentication API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3002'}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           email: data.email,
-          name: 'Admin User',
+          password: data.password,
+        }),
+      })
+
+      if (response.ok) {
+        const authData = await response.json()
+        
+        // Check if user has admin role
+        if (authData.user.role !== 'admin') {
+          toast({
+            title: 'Access denied',
+            description: 'Admin access required',
+            variant: 'destructive',
+          })
+          return
+        }
+
+        const adminUser = {
+          id: authData.user.id,
+          email: authData.user.email,
+          name: authData.user.username,
           role: 'admin' as const,
-          system: 'all',
+          system: authData.user.system?.slug || 'all',
         }
         
-        login(mockUser, 'mock-token', 'mock-refresh-token')
+        login(adminUser, authData.accessToken, authData.refreshToken)
         toast({
           title: 'Login successful',
           description: 'Welcome to the admin dashboard',
         })
         router.push('/dashboard')
       } else {
+        const errorData = await response.json()
         toast({
           title: 'Login failed',
-          description: 'Invalid email or password',
+          description: errorData.message || 'Invalid email or password',
           variant: 'destructive',
         })
       }

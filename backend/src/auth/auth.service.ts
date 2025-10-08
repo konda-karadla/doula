@@ -126,6 +126,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         username: user.username,
+        role: user.role,
         profileType: user.profileType,
         journeyType: user.journeyType,
         system: user.system,
@@ -163,6 +164,7 @@ export class AuthService {
       systemId: storedToken.user.systemId,
     });
 
+    // Delete the old refresh token before saving the new one
     await this.prisma.refreshToken.delete({
       where: { id: storedToken.id },
     });
@@ -174,6 +176,7 @@ export class AuthService {
         id: storedToken.user.id,
         email: storedToken.user.email,
         username: storedToken.user.username,
+        role: storedToken.user.role,
         profileType: storedToken.user.profileType,
         journeyType: storedToken.user.journeyType,
         system: storedToken.user.system,

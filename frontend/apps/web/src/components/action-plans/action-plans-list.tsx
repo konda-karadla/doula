@@ -11,9 +11,9 @@ import {
   CheckCircle, 
   Clock, 
   TrendingUp,
-  Users,
   Star,
-  MoreHorizontal
+  MoreHorizontal,
+  Plus
 } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -123,8 +123,9 @@ const mockActionPlans: ActionPlan[] = [
 ]
 
 export function ActionPlansList() {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const router = useRouter()
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [menuPosition, setMenuPosition] = useState<'bottom' | 'top'>('bottom')
 
   const getStatusBadge = (status: ActionPlan['status']) => {
     switch (status) {
@@ -169,6 +170,23 @@ export function ActionPlansList() {
       default:
         return '📋'
     }
+  }
+
+  const calculateMenuPosition = (buttonElement: HTMLElement) => {
+    const rect = buttonElement.getBoundingClientRect()
+    const viewportHeight = window.innerHeight
+    const menuHeight = 280 // Approximate height of the menu with all options
+    
+    // Check if there's enough space below the button
+    const spaceBelow = viewportHeight - rect.bottom
+    const spaceAbove = rect.top
+    
+    // If not enough space below but enough space above, position menu above
+    if (spaceBelow < menuHeight && spaceAbove > menuHeight) {
+      return 'top'
+    }
+    
+    return 'bottom'
   }
 
   return (
@@ -235,13 +253,7 @@ export function ActionPlansList() {
         {mockActionPlans.map((plan) => (
           <Card 
             key={plan.id} 
-            className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-              selectedPlan === plan.id ? 'ring-2 ring-blue-500' : ''
-            }`}
-            onClick={() => {
-              setSelectedPlan(plan.id)
-              router.push(`/action-plans/${plan.id}`)
-            }}
+            className={`transition-all duration-200 hover:shadow-md`}
           >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
@@ -309,7 +321,7 @@ export function ActionPlansList() {
               </div>
               
               {/* Action Buttons */}
-              <div className="flex space-x-2 pt-2">
+              <div className="flex space-x-2 pt-2 relative">
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -321,16 +333,116 @@ export function ActionPlansList() {
                 >
                   View Details
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    console.log('Edit plan:', plan.id)
-                  }}
-                >
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
+                <div className="relative">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (openMenuId === plan.id) {
+                        setOpenMenuId(null)
+                      } else {
+                        const position = calculateMenuPosition(e.currentTarget)
+                        setMenuPosition(position)
+                        setOpenMenuId(plan.id)
+                      }
+                    }}
+                    aria-haspopup="menu"
+                    aria-expanded={openMenuId === plan.id}
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+                  {openMenuId === plan.id && (
+                    <div
+                      role="menu"
+                      className={`absolute right-0 z-10 w-44 rounded-md border bg-white dark:bg-gray-800 shadow-lg py-1 text-sm ${
+                        menuPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'
+                      }`}
+                    >
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          console.log('Edit plan:', plan.id)
+                          setOpenMenuId(null)
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <div className="px-3 py-1 text-xs text-gray-500 dark:text-gray-400">Change status</div>
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          console.log('Mark active:', plan.id)
+                          setOpenMenuId(null)
+                        }}
+                      >
+                        Mark Active
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          console.log('Pause plan:', plan.id)
+                          setOpenMenuId(null)
+                        }}
+                      >
+                        Pause
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          console.log('Complete plan:', plan.id)
+                          setOpenMenuId(null)
+                        }}
+                      >
+                        Mark Completed
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          console.log('Duplicate plan:', plan.id)
+                          setOpenMenuId(null)
+                        }}
+                      >
+                        Duplicate
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        onClick={async (e) => {
+                          e.stopPropagation()
+                          try {
+                            const link = `${window.location.origin}/action-plans/${plan.id}`
+                            await navigator.clipboard.writeText(link)
+                            console.log('Copied link to clipboard:', link)
+                          } catch (err) {
+                            console.warn('Clipboard not available')
+                          }
+                          setOpenMenuId(null)
+                        }}
+                      >
+                        Share link
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // Confirm only; no deletion implemented yet
+                          const yes = window.confirm('Are you sure you want to delete this action plan?')
+                          if (yes) {
+                            console.log('Delete plan:', plan.id)
+                          }
+                          setOpenMenuId(null)
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

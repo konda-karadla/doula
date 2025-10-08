@@ -28,6 +28,7 @@ model User {
   email        String   @unique
   username     String   @unique
   password     String
+  role         String   @default("user")
   language     String   @default("en")
   profileType  String   @map("profile_type")
   journeyType  String   @map("journey_type")
@@ -41,6 +42,7 @@ model User {
   actionPlans   ActionPlan[]
 
   @@index([systemId])
+  @@index([role])
   @@map("users")
 }
 

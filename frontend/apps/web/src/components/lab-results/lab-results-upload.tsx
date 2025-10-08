@@ -98,8 +98,8 @@ export function LabResultsUpload({ onClose }: LabResultsUploadProps) {
   const totalFiles = uploadedFiles.length
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Upload Lab Results</CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -112,20 +112,20 @@ export function LabResultsUpload({ onClose }: LabResultsUploadProps) {
           <div
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-              isDragActive 
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20' 
-                : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/10'
+              isDragActive
+                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/20'
+                : 'border-slate-300 dark:border-slate-700 hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10'
             }`}
           >
             <input {...getInputProps()} />
-            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <Upload className="w-12 h-12 text-slate-500 dark:text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
               {isDragActive ? 'Drop files here' : 'Upload Lab Results'}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-slate-700 dark:text-slate-200 mb-4">
               Drag and drop your lab result files here, or click to select files
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
               Supports PDF, PNG, JPG files up to 10MB each
             </p>
           </div>

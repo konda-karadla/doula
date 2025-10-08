@@ -1,52 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import { Search, Plus, Edit, Trash2, Eye, Filter } from 'lucide-react'
-
-// Mock user data
-const mockUsers = [
-  {
-    id: '1',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    system: 'doula',
-    status: 'active',
-    createdAt: '2024-01-15',
-    lastLogin: '2024-01-20',
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    email: 'jane.smith@example.com',
-    system: 'functional_health',
-    status: 'active',
-    createdAt: '2024-01-10',
-    lastLogin: '2024-01-19',
-  },
-  {
-    id: '3',
-    name: 'Mike Wilson',
-    email: 'mike.wilson@example.com',
-    system: 'elderly_care',
-    status: 'inactive',
-    createdAt: '2024-01-05',
-    lastLogin: '2024-01-15',
-  },
-  {
-    id: '4',
-    name: 'Sarah Johnson',
-    email: 'sarah.johnson@example.com',
-    system: 'doula',
-    status: 'active',
-    createdAt: '2024-01-12',
-    lastLogin: '2024-01-20',
-  },
-]
+import { Search, Plus, Edit, Trash2, Eye, Filter, Loader2 } from 'lucide-react'
+import { useUsers, useDeleteUser } from '@/hooks/use-admin-api'
+import { format } from 'date-fns'
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -54,25 +16,42 @@ export default function UsersPage() {
   const [filterStatus, setFilterStatus] = useState('all')
   const { toast } = useToast()
 
-  const filteredUsers = mockUsers.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesSystem = filterSystem === 'all' || user.system === filterSystem
-    const matchesStatus = filterStatus === 'all' || user.status === filterStatus
-    
-    return matchesSearch && matchesSystem && matchesStatus
-  })
+  const { data: users, isLoading, error } = useUsers()
+  const deleteUserMutation = useDeleteUser()
 
-  const handleDeleteUser = (userId: string, userName: string) => {
+  const filteredUsers = useMemo(() => {
+    if (!users) return []
+    
+    return users.filter(user => {
+      const matchesSearch = user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesSystem = filterSystem === 'all' || user.system === filterSystem
+      const matchesStatus = filterStatus === 'all' || user.status === filterStatus
+      
+      return matchesSearch && matchesSystem && matchesStatus
+    })
+  }, [users, searchTerm, filterSystem, filterStatus])
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
     if (confirm(`Are you sure you want to delete ${userName}?`)) {
-      toast({
-        title: 'User deleted',
-        description: `${userName} has been deleted successfully`,
-      })
+      try {
+        await deleteUserMutation.mutateAsync(userId)
+        toast({
+          title: 'User deleted',
+          description: `${userName} has been deleted successfully`,
+        })
+      } catch (error) {
+        toast({
+          title: 'Delete failed',
+          description: 'Failed to delete user',
+          variant: 'destructive',
+        })
+      }
     }
   }
 
   const handleEditUser = (userId: string) => {
+    // TODO: Navigate to edit user page or open modal
     toast({
       title: 'Edit user',
       description: 'Edit user functionality will be implemented',
@@ -80,6 +59,7 @@ export default function UsersPage() {
   }
 
   const handleViewUser = (userId: string) => {
+    // TODO: Navigate to user detail page or open modal
     toast({
       title: 'View user',
       description: 'View user details functionality will be implemented',
@@ -204,98 +184,115 @@ export default function UsersPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      System
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Created
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Last Login
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredUsers.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {user.email}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={getSystemBadge(user.system)}>
-                          {user.system.replace('_', ' ')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={getStatusBadge(user.status)}>
-                          {user.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(user.lastLogin).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleViewUser(user.id)}
-                            title="View user"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditUser(user.id)}
-                            title="Edit user"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteUser(user.id, user.name)}
-                            title="Delete user"
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            {filteredUsers.length === 0 && (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No users found matching your criteria</p>
+            {isLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
               </div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <p className="text-red-600">Failed to load users</p>
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          User
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          System
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Created
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Last Login
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredUsers.map((user) => (
+                        <tr key={user.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {user.name}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {user.email}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={getSystemBadge(user.system)}>
+                              {user.system.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={getStatusBadge(user.status)}>
+                              {user.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {format(new Date(user.createdAt), 'MMM d, yyyy')}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {format(new Date(user.lastLogin), 'MMM d, yyyy')}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleViewUser(user.id)}
+                                title="View user"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditUser(user.id)}
+                                title="Edit user"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteUser(user.id, user.name)}
+                                title="Delete user"
+                                className="text-red-600 hover:text-red-700"
+                                disabled={deleteUserMutation.isPending}
+                              >
+                                {deleteUserMutation.isPending ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {filteredUsers.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No users found matching your criteria</p>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

@@ -3,6 +3,7 @@ export interface User {
   id: string;
   email: string;
   username: string;
+  role?: string;
   systemId: string;
   profileType?: 'patient' | 'provider' | 'admin';
   journeyType?: 'prenatal' | 'postnatal' | 'general';

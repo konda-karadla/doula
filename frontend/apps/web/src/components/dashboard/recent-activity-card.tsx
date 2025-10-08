@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { FileText, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
@@ -15,6 +16,7 @@ interface ActivityItem {
   timestamp: Date
   actionLabel?: string
   onAction?: () => void
+  href?: string
 }
 
 interface RecentActivityCardProps {
@@ -119,15 +121,22 @@ export function RecentActivityCard({
                     </p>
                   </div>
                 </div>
-                {activity.actionLabel && activity.onAction && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={activity.onAction}
-                  >
-                    {activity.actionLabel}
-                  </Button>
-                )}
+                {activity.actionLabel && (() => {
+                  const fallbackHref =
+                    activity.type === 'lab_result'
+                      ? `/lab-results/${activity.id}`
+                      : activity.type === 'action_plan'
+                      ? `/action-plans/${activity.id}`
+                      : '/dashboard'
+
+                  const targetHref = activity.href || fallbackHref
+
+                  return (
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={targetHref}>{activity.actionLabel}</Link>
+                    </Button>
+                  )
+                })()}
               </div>
             ))}
           </div>

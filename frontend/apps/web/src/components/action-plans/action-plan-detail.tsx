@@ -105,6 +105,13 @@ const mockActionPlan = {
 
 export function ActionPlanDetail({ actionPlanId }: ActionPlanDetailProps) {
   const [newItem, setNewItem] = useState({ title: '', description: '', priority: 'medium' as const })
+  
+  // Differentiate mock content per id so pages are visibly different
+  const titleById: Record<string, string> = {
+    '1': 'Nutrition Optimization Plan',
+    '2': 'Exercise Routine Plan',
+  }
+  const effectiveTitle = titleById[actionPlanId] || `${mockActionPlan.title} (ID: ${actionPlanId})`
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -171,7 +178,7 @@ export function ActionPlanDetail({ actionPlanId }: ActionPlanDetailProps) {
               <span className="text-3xl">{getCategoryIcon(mockActionPlan.category)}</span>
               <div>
                 <CardTitle className="flex items-center space-x-2">
-                  <span>{mockActionPlan.title}</span>
+                  <span>{effectiveTitle}</span>
                   {getPriorityIcon(mockActionPlan.priority)}
                 </CardTitle>
                 <div className="flex items-center space-x-4 mt-2">

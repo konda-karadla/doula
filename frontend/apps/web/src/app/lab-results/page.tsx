@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { DashboardNav } from '@/components/layout/dashboard-nav'
 import { LabResultsList } from '@/components/lab-results/lab-results-list'
 import { LabResultsUpload } from '@/components/lab-results/lab-results-upload'
@@ -9,7 +10,13 @@ import { Button } from '@/components/ui/button'
 import { Plus, Upload, Filter } from 'lucide-react'
 
 export default function LabResultsPage() {
+  const searchParams = useSearchParams()
   const [showUploadModal, setShowUploadModal] = useState(false)
+  useEffect(() => {
+    if (searchParams.get('upload') === '1') {
+      setShowUploadModal(true)
+    }
+  }, [searchParams])
   const [showFilters, setShowFilters] = useState(false)
   const [appliedFilters, setAppliedFilters] = useState<{
     search?: string
@@ -19,7 +26,7 @@ export default function LabResultsPage() {
   }>({})
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <DashboardNav />
 
       {/* Main Content */}
@@ -27,10 +34,10 @@ export default function LabResultsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
               Lab Results
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-slate-600 dark:text-slate-400 mt-2">
               View and manage your health biomarkers and lab results
             </p>
           </div>

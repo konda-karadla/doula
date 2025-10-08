@@ -1,6 +1,4 @@
 'use client'
-
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,11 +7,12 @@ import {
   FileText, 
   Calendar, 
   Eye, 
-  Download, 
-  Trash2, 
+  Download,
+  Trash2,
   TrendingUp,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Upload
 } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -82,11 +81,11 @@ interface LabResultsListProps {
 }
 
 export function LabResultsList({ filters }: LabResultsListProps = {}) {
-  const [selectedResult, setSelectedResult] = useState<string | null>(null)
   const router = useRouter()
 
   // Filter lab results based on applied filters
   const filteredResults = mockLabResults.filter(result => {
+  
     if (!filters) return true
 
     // Search filter
@@ -215,13 +214,7 @@ export function LabResultsList({ filters }: LabResultsListProps = {}) {
         {filteredResults.map((result) => (
           <Card 
             key={result.id} 
-            className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-              selectedResult === result.id ? 'ring-2 ring-blue-500' : ''
-            }`}
-            onClick={() => {
-              setSelectedResult(result.id)
-              router.push(`/lab-results/${result.id}`)
-            }}
+            className={`transition-all duration-200 hover:shadow-md`}
           >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
@@ -273,7 +266,7 @@ export function LabResultsList({ filters }: LabResultsListProps = {}) {
                   className="flex-1"
                   onClick={(e) => {
                     e.stopPropagation()
-                    console.log('View result:', result.id)
+                    router.push(`/lab-results/${result.id}`)
                   }}
                 >
                   <Eye className="w-4 h-4 mr-2" />
@@ -282,20 +275,16 @@ export function LabResultsList({ filters }: LabResultsListProps = {}) {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    console.log('Download result:', result.id)
-                  }}
+                  disabled
+                  title="Coming soon"
                 >
                   <Download className="w-4 h-4" />
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    console.log('Delete result:', result.id)
-                  }}
+                  disabled
+                  title="Coming soon"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
