@@ -275,7 +275,7 @@ export default function LabResultsPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleDownloadResult(result.fileUrl, result.fileName || 'lab-result.pdf')}
+                                onClick={() => handleDownloadResult(result.s3Url, result.fileName || 'lab-result.pdf')}
                                 title="Download result"
                               >
                                 <Download className="h-4 w-4" />

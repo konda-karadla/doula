@@ -61,6 +61,22 @@ export const apiEndpoints = {
     stats: '/profile/stats',
     update: '/profile',
   },
+  
+  // Admin endpoints
+  admin: {
+    users: '/admin/users',
+    user: (id: string) => `/admin/users/${id}`,
+    createUser: '/admin/users',
+    updateUser: (id: string) => `/admin/users/${id}`,
+    deleteUser: (id: string) => `/admin/users/${id}`,
+    systemConfig: '/admin/system-config',
+    updateSystemConfig: '/admin/system-config',
+    analytics: {
+      users: '/admin/analytics/users',
+      labs: '/admin/analytics/labs',
+      actionPlans: '/admin/analytics/action-plans',
+    },
+  },
 } as const;
 
 // Multi-tenant system configuration

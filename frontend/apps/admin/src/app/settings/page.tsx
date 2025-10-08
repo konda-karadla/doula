@@ -57,7 +57,7 @@ export default function SettingsPage() {
 
   const toggleFeature = (feature: string) => {
     if (!config) return
-    setConfig(prev => {
+    setConfig((prev: typeof config) => {
       if (!prev) return prev
       return {
         ...prev,
@@ -70,7 +70,7 @@ export default function SettingsPage() {
   }
 
   const toggleSystem = (system: string) => {
-    setConfig(prev => ({
+    setConfig((prev: typeof config) => ({
       ...prev,
       systems: {
         ...prev.systems,
@@ -83,7 +83,7 @@ export default function SettingsPage() {
   }
 
   const updateGeneralSetting = (key: string, value: string) => {
-    setConfig(prev => ({
+    setConfig((prev: typeof config) => ({
       ...prev,
       general: {
         ...prev.general,
@@ -247,36 +247,38 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {Object.entries(config.systems).map(([systemKey, system]) => (
+              {Object.entries(config.systems).map(([systemKey, system]) => {
+                const typedSystem = system as {name: string; description: string; enabled: boolean; primaryColor: string};
+                return (
                 <div key={systemKey} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h4 className="text-lg font-medium text-gray-900">{system.name}</h4>
-                      <p className="text-sm text-gray-500">{system.description}</p>
+                      <h4 className="text-lg font-medium text-gray-900">{typedSystem.name}</h4>
+                      <p className="text-sm text-gray-500">{typedSystem.description}</p>
                     </div>
                     <button
                       onClick={() => toggleSystem(systemKey)}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        system.enabled ? 'bg-blue-600' : 'bg-gray-200'
+                        typedSystem.enabled ? 'bg-blue-600' : 'bg-gray-200'
                       }`}
                     >
                       <span
                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          system.enabled ? 'translate-x-6' : 'translate-x-1'
+                          typedSystem.enabled ? 'translate-x-6' : 'translate-x-1'
                         }`}
                       />
                     </button>
                   </div>
                   
-                  {system.enabled && (
+                  {typedSystem.enabled && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor={`${systemKey}-name`}>System Name</Label>
                         <Input
                           id={`${systemKey}-name`}
-                          value={system.name}
+                          value={typedSystem.name}
                           onChange={(e) => {
-                            setConfig(prev => ({
+                            setConfig((prev: typeof config) => ({
                               ...prev,
                               systems: {
                                 ...prev.systems,
@@ -295,9 +297,9 @@ export default function SettingsPage() {
                           <Input
                             id={`${systemKey}-color`}
                             type="color"
-                            value={system.primaryColor}
+                            value={typedSystem.primaryColor}
                             onChange={(e) => {
-                              setConfig(prev => ({
+                              setConfig((prev: typeof config) => ({
                                 ...prev,
                                 systems: {
                                   ...prev.systems,
@@ -311,9 +313,9 @@ export default function SettingsPage() {
                             className="w-16 h-10 p-1"
                           />
                           <Input
-                            value={system.primaryColor}
+                            value={typedSystem.primaryColor}
                             onChange={(e) => {
-                              setConfig(prev => ({
+                              setConfig((prev: typeof config) => ({
                                 ...prev,
                                 systems: {
                                   ...prev.systems,
@@ -332,9 +334,9 @@ export default function SettingsPage() {
                         <Label htmlFor={`${systemKey}-description`}>Description</Label>
                         <Input
                           id={`${systemKey}-description`}
-                          value={system.description}
+                          value={typedSystem.description}
                           onChange={(e) => {
-                            setConfig(prev => ({
+                            setConfig((prev: typeof config) => ({
                               ...prev,
                               systems: {
                                 ...prev.systems,
@@ -350,7 +352,7 @@ export default function SettingsPage() {
                     </div>
                   )}
                 </div>
-              ))}
+              )})}
             </div>
           </CardContent>
         </Card>

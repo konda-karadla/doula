@@ -75,7 +75,7 @@ export default function OnboardingPage() {
             Health Platform
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Let's set up your personalized health journey
+            Let&apos;s set up your personalized health journey
           </p>
         </div>
 

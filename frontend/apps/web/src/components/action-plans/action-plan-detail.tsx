@@ -340,7 +340,7 @@ export function ActionPlanDetail({ actionPlanId }: ActionPlanDetailProps) {
               <select
                 className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm"
                 value={newItem.priority}
-                onChange={(e) => setNewItem(prev => ({ ...prev, priority: e.target.value as any }))}
+                onChange={(e) => setNewItem(prev => ({ ...prev, priority: e.target.value as 'low' | 'medium' | 'high' }))}
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>

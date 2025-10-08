@@ -31,7 +31,7 @@ function DashboardContent() {
             Dashboard
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Welcome back, {user?.email}. Here's your health overview.
+            Welcome back, {user?.email}. Here&apos;s your health overview.
           </p>
         </div>
 

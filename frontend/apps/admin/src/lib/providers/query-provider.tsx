@@ -12,9 +12,9 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
           queries: {
             staleTime: 60 * 1000, // 1 minute
             gcTime: 5 * 60 * 1000, // 5 minutes
-            retry: (failureCount, error: any) => {
+            retry: (failureCount, error: Error & { response?: { status: number } }) => {
               // Don't retry on 4xx errors
-              if (error?.response?.status >= 400 && error?.response?.status < 500) {
+              if (error?.response?.status && error.response.status >= 400 && error.response.status < 500) {
                 return false
               }
               return failureCount < 3

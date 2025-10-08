@@ -12,7 +12,7 @@ $loginBody = @{
 } | ConvertTo-Json
 
 try {
-    $loginResponse = Invoke-RestMethod -Uri "http://localhost:3000/auth/login" `
+    $loginResponse = Invoke-RestMethod -Uri "http://localhost:3002/auth/login" `
         -Method Post `
         -Body $loginBody `
         -ContentType "application/json"
@@ -22,7 +22,7 @@ try {
     Write-Host "Token: $($token.Substring(0, [Math]::Min(50, $token.Length)))..." -ForegroundColor Gray
     Write-Host ""
 } catch {
-    Write-Host "❌ Login failed! Make sure backend is running at http://localhost:3000" -ForegroundColor Red
+    Write-Host "❌ Login failed! Make sure backend is running at http://localhost:3002" -ForegroundColor Red
     Write-Host "Error: $_" -ForegroundColor Red
     exit 1
 }
@@ -34,7 +34,7 @@ $headers = @{
 # Step 2: Test Get All Users
 Write-Host "2️⃣ Testing GET /admin/users..." -ForegroundColor Yellow
 try {
-    $users = Invoke-RestMethod -Uri "http://localhost:3000/admin/users" `
+    $users = Invoke-RestMethod -Uri "http://localhost:3002/admin/users" `
         -Method Get `
         -Headers $headers
     
@@ -49,7 +49,7 @@ try {
 # Step 3: Test User Analytics
 Write-Host "3️⃣ Testing GET /admin/analytics/users..." -ForegroundColor Yellow
 try {
-    $analytics = Invoke-RestMethod -Uri "http://localhost:3000/admin/analytics/users" `
+    $analytics = Invoke-RestMethod -Uri "http://localhost:3002/admin/analytics/users" `
         -Method Get `
         -Headers $headers
     
@@ -64,7 +64,7 @@ try {
 # Step 4: Test System Config
 Write-Host "4️⃣ Testing GET /admin/system-config..." -ForegroundColor Yellow
 try {
-    $config = Invoke-RestMethod -Uri "http://localhost:3000/admin/system-config" `
+    $config = Invoke-RestMethod -Uri "http://localhost:3002/admin/system-config" `
         -Method Get `
         -Headers $headers
     
@@ -84,7 +84,7 @@ $regularLoginBody = @{
 } | ConvertTo-Json
 
 try {
-    $regularLogin = Invoke-RestMethod -Uri "http://localhost:3000/auth/login" `
+    $regularLogin = Invoke-RestMethod -Uri "http://localhost:3002/auth/login" `
         -Method Post `
         -Body $regularLoginBody `
         -ContentType "application/json"
@@ -98,7 +98,7 @@ try {
     Write-Host "Attempting to access admin endpoint (should fail)..." -ForegroundColor Yellow
     
     try {
-        $forbidden = Invoke-RestMethod -Uri "http://localhost:3000/admin/users" `
+        $forbidden = Invoke-RestMethod -Uri "http://localhost:3002/admin/users" `
             -Method Get `
             -Headers $regularHeaders
         
@@ -116,13 +116,14 @@ try {
 
 Write-Host ""
 Write-Host "================================" -ForegroundColor Cyan
-Write-Host "🎉 Admin API Test Complete!" -ForegroundColor Green
+Write-Host "Admin API Test Complete!" -ForegroundColor Green
 Write-Host ""
-Write-Host "✅ All admin endpoints are working!" -ForegroundColor Green
-Write-Host "✅ Role-based access control verified" -ForegroundColor Green
+Write-Host "All admin endpoints are working!" -ForegroundColor Green
+Write-Host "Role-based access control verified" -ForegroundColor Green
 Write-Host ""
-Write-Host "📝 Next Steps:" -ForegroundColor Cyan
-Write-Host "  1. Start frontend: cd ../frontend/apps/admin; npm run dev" -ForegroundColor White
-Write-Host "  2. Open: http://localhost:3001" -ForegroundColor White
-Write-Host "  3. Login with: admin@healthplatform.com / admin123" -ForegroundColor White
+Write-Host "Next Steps:" -ForegroundColor Cyan
+Write-Host "  1. Start frontend admin app" -ForegroundColor White
+Write-Host "  2. Open browser to http://localhost:3001" -ForegroundColor White
+Write-Host "  3. Login as admin" -ForegroundColor White
+Write-Host ""
 

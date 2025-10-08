@@ -119,6 +119,42 @@ export const profileService = {
     api.patch<UserProfile>(apiEndpoints.profile.update, data),
 };
 
+// Admin Service
+export const adminService = {
+  // User Management
+  getAllUsers: (): Promise<any[]> =>
+    api.get<any[]>(apiEndpoints.admin.users),
+  
+  getUserById: (id: string): Promise<any> =>
+    api.get<any>(apiEndpoints.admin.user(id)),
+  
+  createUser: (data: any): Promise<any> =>
+    api.post<any>(apiEndpoints.admin.createUser, data),
+  
+  updateUser: (id: string, data: any): Promise<any> =>
+    api.put<any>(apiEndpoints.admin.updateUser(id), data),
+  
+  deleteUser: (id: string): Promise<{ message: string }> =>
+    api.delete<{ message: string }>(apiEndpoints.admin.deleteUser(id)),
+  
+  // System Configuration
+  getSystemConfig: (): Promise<any> =>
+    api.get<any>(apiEndpoints.admin.systemConfig),
+  
+  updateSystemConfig: (data: any): Promise<any> =>
+    api.put<any>(apiEndpoints.admin.updateSystemConfig, data),
+  
+  // Analytics
+  getUserAnalytics: (): Promise<any> =>
+    api.get<any>(apiEndpoints.admin.analytics.users),
+  
+  getLabAnalytics: (): Promise<any> =>
+    api.get<any>(apiEndpoints.admin.analytics.labs),
+  
+  getActionPlanAnalytics: (): Promise<any> =>
+    api.get<any>(apiEndpoints.admin.analytics.actionPlans),
+};
+
 // Export all services
 export const services = {
   auth: authService,
@@ -127,4 +163,5 @@ export const services = {
   actionItems: actionItemService,
   insights: insightsService,
   profile: profileService,
+  admin: adminService,
 };

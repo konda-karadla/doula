@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast'
 import { Search, Plus, Edit, Trash2, Eye, Filter, Target, Users, Calendar, Loader2 } from 'lucide-react'
 import { useActionPlans, useDeleteActionPlan, useActionItems } from '@/hooks/use-admin-api'
 import { format } from 'date-fns'
+import type { ActionPlan } from '@health-platform/types'
 
 export default function ActionPlansPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -109,10 +110,10 @@ export default function ActionPlansPage() {
   }
 
   // Action Plan Item component to encapsulate each card
-  const ActionPlanCard = ({ plan }: { plan: any }) => {
+  const ActionPlanCard = ({ plan }: { plan: ActionPlan }) => {
     // Count items for this plan (would need useActionItems hook)
-    const totalItems = plan.items?.length || 0
-    const completedItems = plan.items?.filter((item: any) => item.status === 'completed').length || 0
+    const totalItems = plan.actionItems?.length || 0
+    const completedItems = plan.actionItems?.filter((item) => item.completedAt !== null && item.completedAt !== undefined).length || 0
 
     return (
       <Card className="hover:shadow-lg transition-shadow">
@@ -336,7 +337,7 @@ export default function ActionPlansPage() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">With Items</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {actionPlans?.filter(p => p.items && p.items.length > 0).length || 0}
+                    {actionPlans?.filter(p => p.actionItems && p.actionItems.length > 0).length || 0}
                   </p>
                 </div>
               </div>
@@ -352,7 +353,7 @@ export default function ActionPlansPage() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Items</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {actionPlans?.reduce((sum, p) => sum + (p.items?.length || 0), 0) || 0}
+                    {actionPlans?.reduce((sum, p) => sum + (p.actionItems?.length || 0), 0) || 0}
                   </p>
                 </div>
               </div>
@@ -369,7 +370,7 @@ export default function ActionPlansPage() {
                   <p className="text-sm font-medium text-gray-600">Completed Items</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {actionPlans?.reduce((sum, p) => 
-                      sum + (p.items?.filter((item: any) => item.status === 'completed').length || 0), 0
+                      sum + (p.actionItems?.filter((item) => item.completedAt !== null && item.completedAt !== undefined).length || 0), 0
                     ) || 0}
                   </p>
                 </div>

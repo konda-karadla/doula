@@ -21,7 +21,7 @@ npm run prisma:seed
 ```bash
 npm run start:dev
 ```
-Backend running at: `http://localhost:3000`
+Backend running at: `http://localhost:3002`
 
 ### 3. Start Admin Portal
 ```bash
@@ -42,15 +42,15 @@ Password: admin123
 
 ```bash
 # Get admin token
-TOKEN=$(curl -s -X POST http://localhost:3000/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:3002/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@healthplatform.com","password":"admin123"}' \
   | jq -r '.accessToken')
 
 # Test admin endpoints
-curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/admin/users
-curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/admin/analytics/users
-curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/admin/system-config
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3002/admin/users
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3002/admin/analytics/users
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3002/admin/system-config
 ```
 
 ---
@@ -85,8 +85,8 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/admin/system-config
 
 | Service | URL |
 |---------|-----|
-| Backend API | http://localhost:3000 |
-| Swagger UI | http://localhost:3000/api |
+| Backend API | http://localhost:3002 |
+| Swagger UI | http://localhost:3002/api |
 | Admin Portal | http://localhost:3001 |
 
 ---

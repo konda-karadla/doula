@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { services } from '@health-platform/api-client'
+import type { User } from '@health-platform/types'
 
 // Query keys
 const queryKeys = {
@@ -39,6 +40,17 @@ export const useLabBiomarkers = (id: string) => {
   })
 }
 
+export const useDeleteLabResult = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: services.labs.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.labs })
+    },
+  })
+}
+
 // Action Plans Hooks
 export const useActionPlans = () => {
   return useQuery({
@@ -53,6 +65,25 @@ export const useActionPlan = (id: string) => {
     queryKey: queryKeys.actionPlan(id),
     queryFn: () => services.actionPlans.get(id),
     enabled: !!id,
+  })
+}
+
+export const useDeleteActionPlan = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: services.actionPlans.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.actionPlans })
+    },
+  })
+}
+
+export const useActionItems = (planId: string) => {
+  return useQuery({
+    queryKey: queryKeys.actionItems(planId),
+    queryFn: () => services.actionItems.list(planId),
+    enabled: !!planId,
   })
 }
 
@@ -77,21 +108,22 @@ export const adminQueryKeys = {
 
 // Admin Dashboard Statistics Hook
 export const useAdminStats = () => {
-  const { data: labs, isLoading: labsLoading } = useLabResults()
-  const { data: actionPlans, isLoading: plansLoading } = useActionPlans()
-  const { data: insights } = useInsightsSummary()
+  const { data: userAnalytics, isLoading: usersLoading } = useUserAnalytics()
+  const { data: labAnalytics, isLoading: labsLoading } = useLabAnalytics()
+  const { data: planAnalytics, isLoading: plansLoading } = useActionPlanAnalytics()
 
   return {
     data: {
-      totalUsers: 1234, // Mock - will need backend endpoint
-      labResults: labs?.length || 0,
-      actionPlans: actionPlans?.length || 0,
-      activeSessions: 45, // Mock - will need backend endpoint
-      processedLabs: labs?.filter(lab => lab.processingStatus === 'completed').length || 0,
-      processingLabs: labs?.filter(lab => lab.processingStatus === 'processing').length || 0,
-      errorLabs: labs?.filter(lab => lab.processingStatus === 'failed').length || 0,
+      totalUsers: userAnalytics?.totalUsers || 0,
+      recentRegistrations: userAnalytics?.recentRegistrations || 0,
+      labResults: labAnalytics?.totalLabs || 0,
+      actionPlans: planAnalytics?.totalPlans || 0,
+      processedLabs: labAnalytics?.byStatus?.find((s: { status: string; count: number }) => s.status === 'completed')?.count || 0,
+      processingLabs: labAnalytics?.byStatus?.find((s: { status: string; count: number }) => s.status === 'processing')?.count || 0,
+      errorLabs: labAnalytics?.byStatus?.find((s: { status: string; count: number }) => s.status === 'failed')?.count || 0,
+      completionRate: planAnalytics?.completionRate || 0,
     },
-    isLoading: labsLoading || plansLoading,
+    isLoading: usersLoading || labsLoading || plansLoading,
   }
 }
 
@@ -134,53 +166,20 @@ export const useRecentActivities = () => {
   return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5)
 }
 
-// Mock User Management Hooks (until backend endpoints are created)
+// User Management Hooks
 export const useUsers = () => {
   return useQuery({
     queryKey: adminQueryKeys.users,
-    queryFn: async () => {
-      // Mock data - will need actual endpoint: GET /admin/users
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return [
-        {
-          id: '1',
-          name: 'John Doe',
-          email: 'john.doe@example.com',
-          system: 'doula',
-          status: 'active',
-          createdAt: '2024-01-15',
-          lastLogin: '2024-01-20',
-        },
-        {
-          id: '2',
-          name: 'Jane Smith',
-          email: 'jane.smith@example.com',
-          system: 'functional_health',
-          status: 'active',
-          createdAt: '2024-01-10',
-          lastLogin: '2024-01-19',
-        },
-        {
-          id: '3',
-          name: 'Mike Wilson',
-          email: 'mike.wilson@example.com',
-          system: 'elderly_care',
-          status: 'inactive',
-          createdAt: '2024-01-05',
-          lastLogin: '2024-01-15',
-        },
-        {
-          id: '4',
-          name: 'Sarah Johnson',
-          email: 'sarah.johnson@example.com',
-          system: 'doula',
-          status: 'active',
-          createdAt: '2024-01-12',
-          lastLogin: '2024-01-20',
-        },
-      ]
-    },
+    queryFn: services.admin.getAllUsers,
     staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+}
+
+export const useUser = (id: string) => {
+  return useQuery({
+    queryKey: adminQueryKeys.user(id),
+    queryFn: () => services.admin.getUserById(id),
+    enabled: !!id,
   })
 }
 
@@ -188,11 +187,30 @@ export const useDeleteUser = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (userId: string) => {
-      // Mock delete - will need actual endpoint: DELETE /admin/users/:id
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return { message: 'User deleted successfully' }
+    mutationFn: services.admin.deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.users })
     },
+  })
+}
+
+export const useCreateUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: services.admin.createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.users })
+    },
+  })
+}
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<User> }) =>
+      services.admin.updateUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminQueryKeys.users })
     },
@@ -202,46 +220,7 @@ export const useDeleteUser = () => {
 export const useSystemConfig = () => {
   return useQuery({
     queryKey: adminQueryKeys.systemConfig,
-    queryFn: async () => {
-      // Mock config - will need actual endpoint: GET /admin/system-config
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return {
-        general: {
-          platformName: 'Health Platform',
-          supportEmail: 'support@healthplatform.com',
-          maxFileSize: '10',
-          sessionTimeout: '30',
-        },
-        features: {
-          userRegistration: true,
-          labUpload: true,
-          actionPlans: true,
-          notifications: true,
-          analytics: true,
-          darkMode: false,
-        },
-        systems: {
-          doula: {
-            enabled: true,
-            name: 'Doula Care System',
-            description: 'Comprehensive doula and fertility care platform',
-            primaryColor: '#3B82F6',
-          },
-          functional_health: {
-            enabled: true,
-            name: 'Functional Health System',
-            description: 'Advanced functional medicine and wellness platform',
-            primaryColor: '#8B5CF6',
-          },
-          elderly_care: {
-            enabled: true,
-            name: 'Elderly Care System',
-            description: 'Specialized care platform for elderly patients',
-            primaryColor: '#F59E0B',
-          },
-        },
-      }
-    },
+    queryFn: services.admin.getSystemConfig,
     staleTime: 10 * 60 * 1000, // 10 minutes
   })
 }
@@ -250,14 +229,35 @@ export const useUpdateSystemConfig = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (config: any) => {
-      // Mock update - will need actual endpoint: PUT /admin/system-config
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      return config
-    },
+    mutationFn: services.admin.updateSystemConfig,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminQueryKeys.systemConfig })
     },
+  })
+}
+
+// Analytics Hooks
+export const useUserAnalytics = () => {
+  return useQuery({
+    queryKey: [...adminQueryKeys.analytics, 'users'] as const,
+    queryFn: services.admin.getUserAnalytics,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+}
+
+export const useLabAnalytics = () => {
+  return useQuery({
+    queryKey: [...adminQueryKeys.analytics, 'labs'] as const,
+    queryFn: services.admin.getLabAnalytics,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+}
+
+export const useActionPlanAnalytics = () => {
+  return useQuery({
+    queryKey: [...adminQueryKeys.analytics, 'action-plans'] as const,
+    queryFn: services.admin.getActionPlanAnalytics,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
 

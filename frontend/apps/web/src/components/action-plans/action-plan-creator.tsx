@@ -386,7 +386,7 @@ Your action plan is now active and ready to track!`)
                       id="itemPriority"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                       value={currentItem.priority}
-                      onChange={(e) => setCurrentItem(prev => ({ ...prev, priority: e.target.value as any }))}
+                      onChange={(e) => setCurrentItem(prev => ({ ...prev, priority: e.target.value as 'low' | 'medium' | 'high' }))}
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
