@@ -1,37 +1,52 @@
-# 📦 Archived Documentation
+# Documentation Archive
 
-This directory contains documentation files that have been archived but may still be useful for reference.
+This folder contains historical documentation from various development phases.
 
-## 📋 Archived Files
+## Structure
 
-### Backend Documentation
-- **E2E_TEST_REPORT.md** - End-to-end test results and coverage reports
-- **PHASE4_REQUIREMENTS.md** - Detailed Phase 4 specifications and requirements
-- **LOCAL_SETUP_GUIDE.md** - Development environment setup guide
+### `/admin/`
+Documentation from admin panel development and integration:
+- Admin setup guides
+- Integration test results
+- Verification summaries
 
-## 🔍 Why These Files Were Archived
+### `/backend/`
+Backend development documentation:
+- Phase requirements and summaries
+- E2E test reports
+- Local setup guides
 
-These files were moved to archive because:
-1. **E2E_TEST_REPORT.md** - Test reports are time-sensitive and can be regenerated
-2. **PHASE4_REQUIREMENTS.md** - Phase 4 is complete, requirements are now in implementation docs
-3. **LOCAL_SETUP_GUIDE.md** - Setup instructions are covered in main README files
+### `/mobile/`
+Mobile app initialization and monorepo migration:
+- Expo initialization
+- Monorepo migration plans
+- Architecture decisions
 
-## 📚 Accessing Archived Documentation
+### `/orange-health/`
+Orange Health API integration documentation:
+- API assessments
+- Integration architecture
+- PRD alignment
+- QA guides
+- Call preparation
 
-To access archived documentation:
-1. Check the main documentation first in the root directory
-2. If you need specific historical details, refer to these archived files
-3. For current setup instructions, use the main README files
+### `/setup/`
+Project setup and handoff documentation:
+- Initial setup completion
+- Final summaries
+- Documentation cleanup records
+- Handoff documentation
 
-## 🗑️ Cleanup Policy
+## Active Documentation
 
-Archived files will be reviewed quarterly and may be removed if:
-- Information is outdated and superseded by current documentation
-- Files are no longer referenced by active development
-- Storage space becomes a concern
+For current, active documentation, see:
+- `/README.md` - Main project README
+- `/PROJECT_STATUS.md` - Current project status
+- `/DOCUMENTATION_INDEX.md` - Index of active docs
+- `/frontend/apps/mobile/MOBILE_TASKS.md` - Mobile development tasks
+- `/backend/API_REFERENCE.md` - Backend API reference
+- `/CLIENT_DOCUMENTATION.md` - Client-facing documentation
 
----
+## Note
 
-**Archive Date:** Documentation cleanup
-**Review Date:** Next quarter
-**Status:** Archived for reference
+These archived documents are kept for historical reference and context. They may contain outdated information. Always refer to active documentation for current project state.

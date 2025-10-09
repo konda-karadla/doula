@@ -8,10 +8,10 @@ This is a comprehensive multi-tenant health platform with three applications (Do
 ### 🔴 **CRITICAL DOCUMENTATION** (Essential for Development)
 
 #### **Project Overview & Status**
-- **[FINAL_SUMMARY.md](./FINAL_SUMMARY.md)** - Complete project overview, architecture, and final status
-- **[HANDOFF_SUMMARY.md](./HANDOFF_SUMMARY.md)** - Critical handoff information for new developers
-- **[NEXT_STEPS.md](./NEXT_STEPS.md)** - Essential roadmap for continued development
-- **[PROJECT_PREVIEW.md](./PROJECT_PREVIEW.md)** - Comprehensive project preview for stakeholders
+- **[README.md](./README.md)** - Main project entry point (START HERE)
+- **[PROJECT_STATUS.md](./PROJECT_STATUS.md)** - Current project status
+- **[CLIENT_DOCUMENTATION.md](./CLIENT_DOCUMENTATION.md)** - Complete documentation
+- **[NEXT_STEPS.md](./NEXT_STEPS.md)** - Development roadmap
 
 #### **Backend Documentation**
 - **[backend/README.md](./backend/README.md)** - Main backend documentation and quick start guide
@@ -23,37 +23,52 @@ This is a comprehensive multi-tenant health platform with three applications (Do
 #### **Frontend Documentation**
 - **[frontend/README.md](./frontend/README.md)** - Frontend monorepo documentation
 - **[frontend/tasks.md](./frontend/tasks.md)** - Detailed task breakdown and development roadmap
+- **[frontend/apps/mobile/MOBILE_TASKS.md](./frontend/apps/mobile/MOBILE_TASKS.md)** - Mobile app development tasks
+- **[frontend/apps/mobile/README.md](./frontend/apps/mobile/README.md)** - Mobile app setup guide
+- **[frontend/apps/web/README.md](./frontend/apps/web/README.md)** - Web app documentation
+- **[frontend/apps/admin/README.md](./frontend/apps/admin/README.md)** - Admin panel documentation
 
-### 🟡 **IMPORTANT REFERENCE DOCS** (Keep for Reference)
+### 📦 **ARCHIVED DOCUMENTATION** (Historical Reference)
 
-#### **Backend Phase Summaries**
-- **[backend/PHASE3_SUMMARY.md](./backend/PHASE3_SUMMARY.md)** - Authentication implementation details
-- **[backend/PHASE4_SUMMARY.md](./backend/PHASE4_SUMMARY.md)** - Lab results & OCR system
-- **[backend/PHASE5_SUMMARY.md](./backend/PHASE5_SUMMARY.md)** - Action plans management
-- **[backend/PHASE6_SUMMARY.md](./backend/PHASE6_SUMMARY.md)** - Health insights engine
-- **[backend/PHASE7_SUMMARY.md](./backend/PHASE7_SUMMARY.md)** - User profile & statistics
-- **[backend/PHASE8_SUMMARY.md](./backend/PHASE8_SUMMARY.md)** - Testing & documentation
+See **[docs-archive/README.md](./docs-archive/README.md)** for complete archive index.
 
-### 📦 **ARCHIVED DOCUMENTATION** (Moved to docs-archive/)
+#### **Admin Development** (`docs-archive/admin/`)
+- Admin setup guides, verification, and integration test results
 
-#### **Backend Archived Files**
-- **docs-archive/backend/E2E_TEST_REPORT.md** - Test results and coverage
-- **docs-archive/backend/PHASE4_REQUIREMENTS.md** - Phase 4 specifications
-- **docs-archive/backend/LOCAL_SETUP_GUIDE.md** - Development environment setup
+#### **Backend Development** (`docs-archive/backend/`)
+- All PHASE3-PHASE8 summaries (authentication, labs, insights, etc.)
+- E2E test reports and phase requirements
+
+#### **Mobile Development** (`docs-archive/mobile/`)
+- Expo initialization and monorepo migration documentation
+- Architecture decisions and setup guides
+
+#### **Orange Health Integration** (`docs-archive/orange-health/`)
+- API assessment and integration architecture
+- PRD alignment and QA guides
+
+#### **Project Setup** (`docs-archive/setup/`)
+- Initial setup completion docs
+- Handoff and cleanup summaries
 
 ## 🚀 Quick Start Guide
 
 ### For New Developers
-1. Read **[HANDOFF_SUMMARY.md](./HANDOFF_SUMMARY.md)** for project context
-2. Review **[FINAL_SUMMARY.md](./FINAL_SUMMARY.md)** for complete overview
-3. Check **[NEXT_STEPS.md](./NEXT_STEPS.md)** for current priorities
-4. Follow **[backend/README.md](./backend/README.md)** for backend setup
-5. Follow **[frontend/README.md](./frontend/README.md)** for frontend setup
+1. Check **[PROJECT_STATUS.md](./PROJECT_STATUS.md)** for current state
+2. Review **[NEXT_STEPS.md](./NEXT_STEPS.md)** for current priorities
+3. Follow **[backend/README.md](./backend/README.md)** for backend setup
+4. Follow **[frontend/README.md](./frontend/README.md)** for frontend setup
+5. For mobile: **[frontend/apps/mobile/README.md](./frontend/apps/mobile/README.md)**
+
+### For Mobile Development
+1. Read **[frontend/apps/mobile/README.md](./frontend/apps/mobile/README.md)** for setup
+2. Check **[frontend/apps/mobile/MOBILE_TASKS.md](./frontend/apps/mobile/MOBILE_TASKS.md)** for tasks
+3. Review shared packages in `frontend/packages/`
 
 ### For Stakeholders
-1. Read **[PROJECT_PREVIEW.md](./PROJECT_PREVIEW.md)** for comprehensive overview
-2. Check **[backend/STATUS.md](./backend/STATUS.md)** for current status
-3. Review **[FINAL_SUMMARY.md](./FINAL_SUMMARY.md)** for achievements
+1. Read **[CLIENT_DOCUMENTATION.md](./CLIENT_DOCUMENTATION.md)** for comprehensive overview
+2. Check **[PROJECT_STATUS.md](./PROJECT_STATUS.md)** for current status
+3. Review **[backend/STATUS.md](./backend/STATUS.md)** for backend metrics
 
 ### For DevOps/Deployment
 1. Follow **[backend/DEPLOYMENT.md](./backend/DEPLOYMENT.md)** for production deployment
@@ -61,12 +76,12 @@ This is a comprehensive multi-tenant health platform with three applications (Do
 
 ## 📊 Documentation Statistics
 
-- **Total Documentation:** ~15,000 lines
-- **Critical Docs:** 12 files
-- **Reference Docs:** 6 files
-- **Archived Docs:** 3 files
+- **Active Docs:** 15+ key documentation files
+- **Archived Docs:** 30+ files organized in `docs-archive/`
 - **Backend APIs:** 26 endpoints documented
 - **Test Coverage:** 29 tests passing (100%)
+- **Frontend Apps:** 3 (web, admin, mobile)
+- **Shared Packages:** 5 (types, api-client, utils, config, ui)
 
 ## 🎯 Project Status
 
@@ -78,11 +93,17 @@ This is a comprehensive multi-tenant health platform with three applications (Do
 - Multi-tenant support
 - Production ready
 
-### 🔄 **Frontend In Progress**
-- Turborepo monorepo setup ✅
-- Shared packages implemented ✅
-- Web applications: Ready to start
-- Mobile application: Ready to start
+### ✅ **Frontend Monorepo Setup Complete**
+- Turborepo monorepo ✅
+- Shared packages ✅
+- Web app initialized ✅
+- Admin app initialized ✅
+- **Mobile app initialized ✅** (Expo + React Native)
+
+### 🚀 **Current Focus: Mobile App Development**
+- Metro bundler running ✅
+- Shared types working ✅
+- Ready for feature development
 
 ## 📞 Support
 
@@ -93,6 +114,7 @@ This is a comprehensive multi-tenant health platform with three applications (Do
 
 ---
 
-**Last Updated:** Documentation cleanup completed
-**Total Files:** 21 documentation files organized
-**Status:** ✅ Organized and optimized
+**Last Updated:** October 9, 2025 - Documentation consolidation complete
+**Active Documentation:** 20 files (5 root + 8 backend + 7 frontend)
+**Archived Documentation:** 36+ files in `docs-archive/`
+**Status:** ✅ Clean, organized, and ready for mobile development
