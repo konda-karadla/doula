@@ -1,15 +1,32 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { Link } from 'expo-router';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
 
 export default function Index() {
+  const router = useRouter();
+
+  // Auto-redirect to login for now
+  // Later: Check if user is logged in, then redirect accordingly
+  useEffect(() => {
+    // Small delay for better UX
+    const timer = setTimeout(() => {
+      router.replace('/(auth)/login');
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Health Platform Mobile 📱</Text>
       <Text style={styles.subtitle}>Welcome to your health journey</Text>
       
-      <Link href="/auth/login" style={styles.link}>
-        <Text style={styles.linkText}>Go to Login →</Text>
-      </Link>
+      <TouchableOpacity 
+        style={styles.button}
+        onPress={() => router.push('/(auth)/login')}
+      >
+        <Text style={styles.buttonText}>Get Started →</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -32,13 +49,14 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 40,
   },
-  link: {
+  button: {
     backgroundColor: '#667eea',
     paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 8,
+    marginTop: 20,
   },
-  linkText: {
+  buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',

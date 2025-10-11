@@ -1,14 +1,17 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 
 export default function LoginScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
     console.log('Login with:', email, password);
-    // TODO: Implement actual login logic with API
+    // TODO: Implement actual API login in Phase 2
+    // For now, just navigate to tabs to test UI
+    router.replace('/(tabs)/');
   };
 
   return (
@@ -42,7 +45,7 @@ export default function LoginScreen() {
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
 
-        <Link href="/auth/register" style={styles.linkContainer}>
+        <Link href="/(auth)/register" style={styles.linkContainer}>
           <Text style={styles.linkText}>
             Don't have an account? <Text style={styles.linkBold}>Sign Up</Text>
           </Text>

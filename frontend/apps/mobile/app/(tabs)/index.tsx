@@ -28,7 +28,7 @@ export default function DashboardScreen() {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <Link href="/labs" style={styles.actionButton}>
+        <Link href="/(tabs)/labs" style={styles.actionButton}>
           <Text style={styles.actionText}>Upload Lab Result →</Text>
         </Link>
       </View>

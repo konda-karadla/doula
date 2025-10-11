@@ -1,15 +1,18 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 
 export default function RegisterScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleRegister = () => {
     console.log('Register:', { email, username, password });
-    // TODO: Implement actual registration logic with API
+    // TODO: Implement actual API registration in Phase 2
+    // For now, just navigate to tabs to test UI
+    router.replace('/(tabs)/');
   };
 
   return (
@@ -52,7 +55,7 @@ export default function RegisterScreen() {
           <Text style={styles.buttonText}>Create Account</Text>
         </TouchableOpacity>
 
-        <Link href="/auth/login" style={styles.linkContainer}>
+        <Link href="/(auth)/login" style={styles.linkContainer}>
           <Text style={styles.linkText}>
             Already have an account? <Text style={styles.linkBold}>Sign In</Text>
           </Text>
