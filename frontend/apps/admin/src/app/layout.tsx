@@ -1,8 +1,11 @@
-'use client'
-
-import { QueryProvider } from "@/lib/providers/query-provider";
-import { ToastProvider } from "@/lib/providers/toast-provider";
+import type { Metadata } from "next";
+import { ClientProviders } from "@/lib/providers/client-providers";
 import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Admin Portal - Health Platform",
+  description: "Administrative dashboard for Health Platform",
+};
 
 export default function RootLayout({
   children,
@@ -12,11 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <QueryProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </QueryProvider>
+        <ClientProviders>
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );
