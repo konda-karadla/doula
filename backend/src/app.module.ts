@@ -11,6 +11,7 @@ import { InsightsModule } from './insights/insights.module';
 import { ProfileModule } from './profile/profile.module';
 import { AdminModule } from './admin/admin.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ConsultationsModule } from './consultations/consultations.module';
 import configuration from './config/configuration';
 import { validate } from './config/env.validation';
 
@@ -39,6 +40,7 @@ import { validate } from './config/env.validation';
     ProfileModule,
     AdminModule,
     NotificationsModule,
+    ConsultationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

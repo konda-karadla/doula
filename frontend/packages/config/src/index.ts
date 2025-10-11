@@ -63,6 +63,18 @@ export const apiEndpoints = {
     update: '/profile',
   },
   
+  // Consultations (User)
+  consultations: {
+    doctors: '/consultations/doctors',
+    doctor: (id: string) => `/consultations/doctors/${id}`,
+    availability: (id: string, date: string) => `/consultations/doctors/${id}/availability?date=${date}`,
+    book: '/consultations/book',
+    myBookings: '/consultations/my-bookings',
+    get: (id: string) => `/consultations/${id}`,
+    reschedule: (id: string) => `/consultations/${id}/reschedule`,
+    cancel: (id: string) => `/consultations/${id}/cancel`,
+  },
+  
   // Admin endpoints
   admin: {
     users: '/admin/users',
@@ -76,6 +88,18 @@ export const apiEndpoints = {
       users: '/admin/analytics/users',
       labs: '/admin/analytics/labs',
       actionPlans: '/admin/analytics/action-plans',
+    },
+    consultations: {
+      doctors: '/admin/consultations/doctors',
+      doctor: (id: string) => `/admin/consultations/doctors/${id}`,
+      createDoctor: '/admin/consultations/doctors',
+      updateDoctor: (id: string) => `/admin/consultations/doctors/${id}`,
+      deleteDoctor: (id: string) => `/admin/consultations/doctors/${id}`,
+      toggleDoctor: (id: string) => `/admin/consultations/doctors/${id}/toggle`,
+      availability: (id: string) => `/admin/consultations/doctors/${id}/availability`,
+      consultations: '/admin/consultations',
+      consultation: (id: string) => `/admin/consultations/${id}`,
+      updateConsultation: (id: string) => `/admin/consultations/${id}`,
     },
   },
 } as const;

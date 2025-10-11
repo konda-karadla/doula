@@ -13,12 +13,15 @@ import {
   Menu,
   X,
   LogOut,
-  Bell
+  Bell,
+  Calendar,
+  Stethoscope
 } from 'lucide-react'
 import { useAuthStore } from '@/lib/stores/auth'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Consultations', href: '/consultations', icon: Calendar },
   { name: 'Lab Results', href: '/lab-results', icon: FileText },
   { name: 'Action Plans', href: '/action-plans', icon: Target },
   { name: 'Profile', href: '/profile', icon: User },

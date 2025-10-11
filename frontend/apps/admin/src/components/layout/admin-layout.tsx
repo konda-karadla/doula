@@ -16,11 +16,15 @@ import {
   Menu,
   X,
   Shield,
+  Stethoscope,
+  Calendar,
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Users', href: '/users', icon: Users },
+  { name: 'Doctors', href: '/doctors', icon: Stethoscope },
+  { name: 'Consultations', href: '/consultations', icon: Calendar },
   { name: 'Lab Results', href: '/lab-results', icon: FileText },
   { name: 'Action Plans', href: '/action-plans', icon: Target },
   { name: 'Settings', href: '/settings', icon: Settings },

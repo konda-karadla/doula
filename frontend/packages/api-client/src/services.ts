@@ -19,6 +19,14 @@ import type {
   HealthScore,
   UserProfile,
   HealthStats,
+  Doctor,
+  Consultation,
+  CreateDoctorRequest,
+  UpdateDoctorRequest,
+  CreateAvailabilityRequest,
+  BookConsultationRequest,
+  UpdateConsultationRequest,
+  RescheduleConsultationRequest,
 } from '@health-platform/types';
 
 // Authentication Service
@@ -159,6 +167,71 @@ export const adminService = {
     api.get<any>(apiEndpoints.admin.analytics.actionPlans),
 };
 
+// Consultation Service (User)
+export const consultationService = {
+  // Browse doctors
+  getDoctors: (): Promise<Doctor[]> =>
+    api.get<Doctor[]>(apiEndpoints.consultations.doctors),
+  
+  getDoctor: (id: string): Promise<Doctor> =>
+    api.get<Doctor>(apiEndpoints.consultations.doctor(id)),
+  
+  getAvailability: (id: string, date: string): Promise<string[]> =>
+    api.get<string[]>(apiEndpoints.consultations.availability(id, date)),
+  
+  // Book consultations
+  book: (data: BookConsultationRequest): Promise<Consultation> =>
+    api.post<Consultation>(apiEndpoints.consultations.book, data),
+  
+  // Manage consultations
+  getMyBookings: (): Promise<Consultation[]> =>
+    api.get<Consultation[]>(apiEndpoints.consultations.myBookings),
+  
+  get: (id: string): Promise<Consultation> =>
+    api.get<Consultation>(apiEndpoints.consultations.get(id)),
+  
+  reschedule: (id: string, data: RescheduleConsultationRequest): Promise<Consultation> =>
+    api.put<Consultation>(apiEndpoints.consultations.reschedule(id), data),
+  
+  cancel: (id: string): Promise<Consultation> =>
+    api.delete<Consultation>(apiEndpoints.consultations.cancel(id)),
+};
+
+// Admin Consultation Service
+export const adminConsultationService = {
+  // Doctor management
+  getDoctors: (): Promise<Doctor[]> =>
+    api.get<Doctor[]>(apiEndpoints.admin.consultations.doctors),
+  
+  getDoctor: (id: string): Promise<Doctor> =>
+    api.get<Doctor>(apiEndpoints.admin.consultations.doctor(id)),
+  
+  createDoctor: (data: CreateDoctorRequest): Promise<Doctor> =>
+    api.post<Doctor>(apiEndpoints.admin.consultations.createDoctor, data),
+  
+  updateDoctor: (id: string, data: UpdateDoctorRequest): Promise<Doctor> =>
+    api.put<Doctor>(apiEndpoints.admin.consultations.updateDoctor(id), data),
+  
+  deleteDoctor: (id: string): Promise<{ message: string }> =>
+    api.delete<{ message: string }>(apiEndpoints.admin.consultations.deleteDoctor(id)),
+  
+  toggleDoctor: (id: string): Promise<Doctor> =>
+    api.put<Doctor>(apiEndpoints.admin.consultations.toggleDoctor(id)),
+  
+  setAvailability: (id: string, data: CreateAvailabilityRequest[]): Promise<Doctor> =>
+    api.post<Doctor>(apiEndpoints.admin.consultations.availability(id), data),
+  
+  // Consultation management
+  getConsultations: (): Promise<Consultation[]> =>
+    api.get<Consultation[]>(apiEndpoints.admin.consultations.consultations),
+  
+  getConsultation: (id: string): Promise<Consultation> =>
+    api.get<Consultation>(apiEndpoints.admin.consultations.consultation(id)),
+  
+  updateConsultation: (id: string, data: UpdateConsultationRequest): Promise<Consultation> =>
+    api.put<Consultation>(apiEndpoints.admin.consultations.updateConsultation(id), data),
+};
+
 // Export all services
 export const services = {
   auth: authService,
@@ -168,4 +241,6 @@ export const services = {
   insights: insightsService,
   profile: profileService,
   admin: adminService,
+  consultations: consultationService,
+  adminConsultations: adminConsultationService,
 };

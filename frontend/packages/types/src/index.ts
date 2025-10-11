@@ -254,3 +254,115 @@ export interface Theme {
     xl: string;
   };
 }
+
+// Consultation types
+export type ConsultationType = 'VIDEO' | 'PHONE' | 'IN_PERSON';
+export type ConsultationStatus = 'SCHEDULED' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+
+export interface Doctor {
+  id: string;
+  systemId: string;
+  name: string;
+  specialization: string;
+  bio?: string;
+  qualifications: string[];
+  experience: number;
+  consultationFee: string;
+  imageUrl?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  availabilitySlots?: AvailabilitySlot[];
+  _count?: {
+    consultations: number;
+  };
+}
+
+export interface AvailabilitySlot {
+  id: string;
+  doctorId: string;
+  dayOfWeek: number; // 0 = Sunday, 6 = Saturday
+  startTime: string; // "09:00"
+  endTime: string;   // "17:00"
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface Consultation {
+  id: string;
+  userId: string;
+  doctorId: string;
+  scheduledAt: string;
+  duration: number;
+  type: ConsultationType;
+  status: ConsultationStatus;
+  meetingLink?: string;
+  notes?: string;
+  prescription?: string;
+  fee: string;
+  isPaid: boolean;
+  createdAt: string;
+  updatedAt: string;
+  doctor?: {
+    id: string;
+    name: string;
+    specialization: string;
+    imageUrl?: string;
+    bio?: string;
+    qualifications?: string[];
+    experience?: number;
+  };
+  user?: {
+    id: string;
+    username: string;
+    email: string;
+    profileType?: string;
+    journeyType?: string;
+  };
+}
+
+// Consultation Request types
+export interface CreateDoctorRequest {
+  name: string;
+  specialization: string;
+  bio?: string;
+  qualifications: string[];
+  experience: number;
+  consultationFee: string;
+  imageUrl?: string;
+}
+
+export interface UpdateDoctorRequest {
+  name?: string;
+  specialization?: string;
+  bio?: string;
+  qualifications?: string[];
+  experience?: number;
+  consultationFee?: string;
+  imageUrl?: string;
+  isActive?: boolean;
+}
+
+export interface CreateAvailabilityRequest {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+}
+
+export interface BookConsultationRequest {
+  doctorId: string;
+  scheduledAt: string;
+  duration?: number;
+  type?: ConsultationType;
+}
+
+export interface UpdateConsultationRequest {
+  status?: ConsultationStatus;
+  notes?: string;
+  prescription?: string;
+  meetingLink?: string;
+}
+
+export interface RescheduleConsultationRequest {
+  scheduledAt: string;
+}

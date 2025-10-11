@@ -6,9 +6,10 @@ import { DashboardNav } from '@/components/layout/dashboard-nav'
 import { HealthMetricsCard } from '@/components/dashboard/health-metrics-card'
 import { RecentActivityCard } from '@/components/dashboard/recent-activity-card'
 import { HealthChart } from '@/components/dashboard/health-chart'
+import { UpcomingConsultationsCard } from '@/components/dashboard/upcoming-consultations-card'
 import { useHealthStats, useRecentLabResults, useRecentActionPlans, useHealthTrends, useBiomarkerData } from '@/hooks/use-health-data'
 import Link from 'next/link'
-import { Heart, FileText, Target, User, TrendingUp } from 'lucide-react'
+import { Heart, FileText, Target, User, TrendingUp, Calendar } from 'lucide-react'
 
 function DashboardContent() {
   const { user } = useAuthStore()
@@ -93,8 +94,10 @@ function DashboardContent() {
           />
         </div>
 
-        {/* Recent Activity */}
+        {/* Recent Activity & Consultations */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <UpcomingConsultationsCard />
+          
           <RecentActivityCard
             title="Recent Lab Results"
             description="Your latest health biomarkers and insights"
@@ -102,7 +105,10 @@ function DashboardContent() {
             loading={labsLoading}
             emptyMessage="No lab results yet. Upload your first lab result to get started!"
           />
-          
+        </div>
+
+        {/* Action Plans */}
+        <div className="mt-6">
           <RecentActivityCard
             title="Active Action Plans"
             description="Your current health improvement goals"
@@ -117,7 +123,17 @@ function DashboardContent() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Link href="/consultations" className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border transition hover:shadow-md cursor-pointer block no-underline text-gray-900 dark:text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-gray-900 dark:text-white">Consultations</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Book & manage appointments</p>
+                </div>
+                <Calendar className="w-8 h-8 text-teal-500" />
+              </div>
+            </Link>
+            
             <Link href="/lab-results?upload=1" className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border transition hover:shadow-md cursor-pointer block no-underline text-gray-900 dark:text-white">
               <div className="flex items-center justify-between">
                 <div>
