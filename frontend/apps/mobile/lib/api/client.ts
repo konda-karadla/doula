@@ -1,13 +1,12 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 import { tokenStorage } from '../storage/token-storage';
 import { useAuthStore } from '../../stores/auth';
+import { env } from '../../config/env';
 import type { ApiError } from '@health-platform/types';
 
-// Get API base URL from environment or use default
-// Note: For mobile development, use your computer's IP address, not localhost
-// TODO: Set up expo-constants for proper environment variable handling
-const API_BASE_URL = 'http://192.168.1.165:3002'; // Your computer's IP
-const API_TIMEOUT = 30000; // 30 seconds
+// Get API configuration from environment
+const API_BASE_URL = env.API_BASE_URL;
+const API_TIMEOUT = env.API_TIMEOUT;
 
 /**
  * Mobile API Client with automatic token management
