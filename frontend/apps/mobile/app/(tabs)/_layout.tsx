@@ -1,5 +1,5 @@
 import { Tabs, useRouter } from 'expo-router';
-import { Home, TestTube, ClipboardList, User } from 'lucide-react-native';
+import { Home, TestTube, ClipboardList, User, Lightbulb } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuthStore } from '../../stores/auth';
@@ -59,8 +59,15 @@ export default function TabLayout() {
       <Tabs.Screen
         name="plans"
         options={{
-          title: 'Action Plans',
+          title: 'Plans',
           tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="insights"
+        options={{
+          title: 'Insights',
+          tabBarIcon: ({ color, size }) => <Lightbulb color={color} size={size} />,
         }}
       />
       <Tabs.Screen
