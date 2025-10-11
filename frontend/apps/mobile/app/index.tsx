@@ -1,20 +1,28 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
+import { useAuthStore } from '../stores/auth';
 
 export default function Index() {
   const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuthStore();
 
-  // Auto-redirect to login for now
-  // Later: Check if user is logged in, then redirect accordingly
+  // Navigation guard: Check if user is logged in
   useEffect(() => {
-    // Small delay for better UX
+    if (isLoading) return; // Wait for auth to initialize
+
     const timer = setTimeout(() => {
-      router.replace('/(auth)/login');
+      if (isAuthenticated) {
+        // User is logged in, go to main app
+        router.replace('/(tabs)');
+      } else {
+        // User is not logged in, go to login
+        router.replace('/(auth)/login');
+      }
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isAuthenticated, isLoading]);
 
   return (
     <View style={styles.container}>

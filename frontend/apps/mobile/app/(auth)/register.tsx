@@ -1,18 +1,39 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { Link } from 'expo-router';
 import { useState } from 'react';
+import { useAuthActions } from '../../hooks/use-auth-actions';
+import { useAuthStore } from '../../stores/auth';
 
 export default function RegisterScreen() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  const { register, isLoading } = useAuthActions();
+  const { error, clearError } = useAuthStore();
+
   const handleRegister = () => {
-    console.log('Register:', { email, username, password });
-    // TODO: Implement actual API registration in Phase 2
-    // For now, just navigate to tabs to test UI
-    router.replace('/(tabs)/');
+    // Clear any previous errors
+    clearError();
+    
+    // Basic validation
+    if (!email || !username || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+
+    // Call real API register
+    register({
+      email,
+      username,
+      password,
+      systemSlug: 'doula', // Valid system slug from backend
+    });
   };
 
   return (
@@ -51,8 +72,22 @@ export default function RegisterScreen() {
           secureTextEntry
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Create Account</Text>
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+
+        <TouchableOpacity 
+          style={[styles.button, isLoading && styles.buttonDisabled]} 
+          onPress={handleRegister}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Create Account</Text>
+          )}
         </TouchableOpacity>
 
         <Link href="/(auth)/login" style={styles.linkContainer}>
@@ -125,6 +160,20 @@ const styles = StyleSheet.create({
   linkBold: {
     color: '#667eea',
     fontWeight: '600',
+  },
+  errorContainer: {
+    backgroundColor: '#fee2e2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
 });
 

@@ -1,17 +1,28 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { Link } from 'expo-router';
 import { useState } from 'react';
+import { useAuthActions } from '../../hooks/use-auth-actions';
+import { useAuthStore } from '../../stores/auth';
 
 export default function LoginScreen() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
+  const { login, isLoading } = useAuthActions();
+  const { error, clearError } = useAuthStore();
 
   const handleLogin = () => {
-    console.log('Login with:', email, password);
-    // TODO: Implement actual API login in Phase 2
-    // For now, just navigate to tabs to test UI
-    router.replace('/(tabs)/');
+    // Clear any previous errors
+    clearError();
+    
+    // Basic validation
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter both email and password');
+      return;
+    }
+
+    // Call real API login
+    login({ email, password });
   };
 
   return (
@@ -41,8 +52,22 @@ export default function LoginScreen() {
           secureTextEntry
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Sign In</Text>
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+
+        <TouchableOpacity 
+          style={[styles.button, isLoading && styles.buttonDisabled]} 
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Sign In</Text>
+          )}
         </TouchableOpacity>
 
         <Link href="/(auth)/register" style={styles.linkContainer}>
@@ -115,6 +140,20 @@ const styles = StyleSheet.create({
   linkBold: {
     color: '#667eea',
     fontWeight: '600',
+  },
+  errorContainer: {
+    backgroundColor: '#fee2e2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
 });
 
