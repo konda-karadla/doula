@@ -1,11 +1,13 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useState, useCallback, memo } from 'react';
+import { useRouter } from 'expo-router';
 import { useActionPlans } from '../../hooks/use-action-plans';
 
 // Memoized Action Plan Card Component for better performance
-const ActionPlanCard = memo(({ plan, getStatusColor, getStatusIcon }: any) => (
+const ActionPlanCard = memo(({ plan, getStatusColor, getStatusIcon, onPress }: any) => (
   <TouchableOpacity 
     style={styles.planCard}
+    onPress={onPress}
     accessible={true}
     accessibilityLabel={`Action plan ${plan.title}, status ${plan.status}, ${plan.actionItems?.length || 0} items, updated ${formatDate(plan.updatedAt)}`}
     accessibilityRole="button"
@@ -40,6 +42,7 @@ const ActionPlanCard = memo(({ plan, getStatusColor, getStatusIcon }: any) => (
 ));
 
 export default function ActionPlansScreen() {
+  const router = useRouter();
   const { data: actionPlans, isLoading, refetch } = useActionPlans();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -67,9 +70,18 @@ export default function ActionPlansScreen() {
     }
   }, []);
 
+  const handlePlanPress = useCallback((planId: string) => {
+    router.push(`/plan-detail/${planId}`);
+  }, [router]);
+
   const renderItem = useCallback(({ item }: any) => (
-    <ActionPlanCard plan={item} getStatusColor={getStatusColor} getStatusIcon={getStatusIcon} />
-  ), [getStatusColor, getStatusIcon]);
+    <ActionPlanCard 
+      plan={item} 
+      getStatusColor={getStatusColor} 
+      getStatusIcon={getStatusIcon}
+      onPress={() => handlePlanPress(item.id)}
+    />
+  ), [getStatusColor, getStatusIcon, handlePlanPress]);
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 

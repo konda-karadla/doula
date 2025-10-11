@@ -1,11 +1,13 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useState, useCallback, memo } from 'react';
+import { useRouter } from 'expo-router';
 import { useLabResults } from '../../hooks/use-lab-results';
 
 // Memoized Lab Card Component for better performance
-const LabCard = memo(({ lab, getStatusColor, getStatusIcon }: any) => (
+const LabCard = memo(({ lab, getStatusColor, getStatusIcon, onPress }: any) => (
   <TouchableOpacity 
     style={styles.labCard}
+    onPress={onPress}
     accessible={true}
     accessibilityLabel={`Lab result ${lab.fileName}, status ${lab.processingStatus}, uploaded ${formatDate(lab.uploadedAt)}`}
     accessibilityRole="button"
@@ -32,6 +34,7 @@ const LabCard = memo(({ lab, getStatusColor, getStatusIcon }: any) => (
 ));
 
 export default function LabResultsScreen() {
+  const router = useRouter();
   const { data: labResults, isLoading, refetch } = useLabResults();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -59,9 +62,18 @@ export default function LabResultsScreen() {
     }
   }, []);
 
+  const handleLabPress = useCallback((labId: string) => {
+    router.push(`/lab-detail/${labId}`);
+  }, [router]);
+
   const renderItem = useCallback(({ item }: any) => (
-    <LabCard lab={item} getStatusColor={getStatusColor} getStatusIcon={getStatusIcon} />
-  ), [getStatusColor, getStatusIcon]);
+    <LabCard 
+      lab={item} 
+      getStatusColor={getStatusColor} 
+      getStatusIcon={getStatusIcon}
+      onPress={() => handleLabPress(item.id)}
+    />
+  ), [getStatusColor, getStatusIcon, handleLabPress]);
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 
