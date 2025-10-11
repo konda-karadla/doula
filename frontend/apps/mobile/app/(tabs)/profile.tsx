@@ -4,6 +4,7 @@ import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
 import { useAuthActions } from '../../hooks/use-auth-actions';
 import { checkBiometricCapability, getBiometricTypeName } from '../../lib/biometric/biometric-auth';
+import { haptic } from '../../lib/haptics/haptic-feedback';
 
 export default function ProfileScreen() {
   const { user } = useAuthStore();
@@ -25,15 +26,23 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = () => {
+    haptic.medium();
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Cancel', 
+          style: 'cancel',
+          onPress: () => haptic.light(),
+        },
         { 
           text: 'Logout', 
           style: 'destructive',
-          onPress: () => logout(),
+          onPress: () => {
+            haptic.warning();
+            logout();
+          },
         },
       ]
     );

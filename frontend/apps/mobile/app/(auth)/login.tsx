@@ -6,6 +6,7 @@ import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
 import { checkBiometricCapability, authenticateWithBiometrics, getBiometricTypeName } from '../../lib/biometric/biometric-auth';
 import { tokenStorage } from '../../lib/storage/token-storage';
+import { haptic } from '../../lib/haptics/haptic-feedback';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function LoginScreen() {
   };
 
   const handleBiometricLogin = async () => {
+    haptic.light();
     clearError();
 
     // Authenticate with biometrics first
@@ -93,11 +95,15 @@ export default function LoginScreen() {
   };
 
   const handleLogin = () => {
+    // Haptic feedback
+    haptic.medium();
+    
     // Clear any previous errors
     clearError();
     
     // Basic validation
     if (!email || !password) {
+      haptic.error();
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { settingsStorage } from '../lib/storage/settings-storage';
 
 export type ThemeMode = 'light' | 'dark' | 'auto';
 export type Language = 'en' | 'es' | 'fr';
@@ -52,15 +53,15 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   offlineMode: true,
 
   // Actions
-  setTheme: (theme) =>
-    set({
-      theme,
-    }),
+  setTheme: (theme) => {
+    settingsStorage.setTheme(theme);
+    set({ theme });
+  },
 
-  setLanguage: (language) =>
-    set({
-      language,
-    }),
+  setLanguage: (language) => {
+    settingsStorage.setLanguage(language);
+    set({ language });
+  },
 
   setNotifications: (notifications) =>
     set((state) => ({
@@ -75,25 +76,25 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       },
     })),
 
-  setBiometric: (biometricEnabled) =>
-    set({
-      biometricEnabled,
-    }),
+  setBiometric: (biometricEnabled) => {
+    settingsStorage.setBiometricEnabled(biometricEnabled);
+    set({ biometricEnabled });
+  },
 
-  setOnboardingComplete: (hasCompletedOnboarding) =>
-    set({
-      hasCompletedOnboarding,
-    }),
+  setOnboardingComplete: (hasCompletedOnboarding) => {
+    settingsStorage.setOnboardingComplete(hasCompletedOnboarding);
+    set({ hasCompletedOnboarding });
+  },
 
   setCacheEnabled: (cacheEnabled) =>
     set({
       cacheEnabled,
     }),
 
-  setOfflineMode: (offlineMode) =>
-    set({
-      offlineMode,
-    }),
+  setOfflineMode: (offlineMode) => {
+    settingsStorage.setOfflineMode(offlineMode);
+    set({ offlineMode });
+  },
 
   reset: () =>
     set({
