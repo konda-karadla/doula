@@ -1,83 +1,119 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { useState, useCallback, memo } from 'react';
 import { useLabResults } from '../../hooks/use-lab-results';
+
+// Memoized Lab Card Component for better performance
+const LabCard = memo(({ lab, getStatusColor, getStatusIcon }: any) => (
+  <TouchableOpacity 
+    style={styles.labCard}
+    accessible={true}
+    accessibilityLabel={`Lab result ${lab.fileName}, status ${lab.processingStatus}, uploaded ${formatDate(lab.uploadedAt)}`}
+    accessibilityRole="button"
+    accessibilityHint="Double tap to view lab result details"
+  >
+    <View style={styles.labHeader}>
+      <Text style={styles.labFileName} accessibilityLabel={`File name: ${lab.fileName}`}>
+        {lab.fileName}
+      </Text>
+      <View 
+        style={[styles.statusBadge, { backgroundColor: getStatusColor(lab.processingStatus) }]}
+        accessible={true}
+        accessibilityLabel={`Status: ${lab.processingStatus}`}
+      >
+        <Text style={styles.statusText}>
+          {getStatusIcon(lab.processingStatus)} {lab.processingStatus}
+        </Text>
+      </View>
+    </View>
+    <Text style={styles.labDate} accessibilityLabel={`Uploaded ${formatDate(lab.uploadedAt)}`}>
+      Uploaded {formatDate(lab.uploadedAt)}
+    </Text>
+  </TouchableOpacity>
+));
 
 export default function LabResultsScreen() {
   const { data: labResults, isLoading, refetch } = useLabResults();
   const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
-  };
+  }, [refetch]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case 'completed': return '#10b981';
       case 'processing': return '#f59e0b';
       case 'failed': return '#ef4444';
       default: return '#6b7280';
     }
-  };
+  }, []);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = useCallback((status: string) => {
     switch (status) {
       case 'completed': return '✓';
       case 'processing': return '⟳';
       case 'failed': return '✗';
       default: return '○';
     }
-  };
+  }, []);
+
+  const renderItem = useCallback(({ item }: any) => (
+    <LabCard lab={item} getStatusColor={getStatusColor} getStatusIcon={getStatusIcon} />
+  ), [getStatusColor, getStatusIcon]);
+
+  const keyExtractor = useCallback((item: any) => item.id, []);
+
+  const ListHeaderComponent = useCallback(() => (
+    <View style={styles.header}>
+      <Text style={styles.title}>Lab Results 🔬</Text>
+      <Text style={styles.subtitle}>Your lab history</Text>
+    </View>
+  ), []);
+
+  const ListEmptyComponent = useCallback(() => (
+    isLoading ? (
+      <View style={styles.loadingContainer} accessible={true} accessibilityLabel="Loading lab results">
+        <ActivityIndicator size="large" color="#667eea" accessibilityLabel="Loading" />
+        <Text style={styles.loadingText}>Loading lab results...</Text>
+      </View>
+    ) : (
+      <View style={styles.emptyContainer} accessible={true} accessibilityLabel="No lab results yet">
+        <Text style={styles.emptyIcon} accessibilityLabel="Document icon">📄</Text>
+        <Text style={styles.emptyText}>No Lab Results Yet</Text>
+        <Text style={styles.emptySubtext}>
+          Upload your first lab result to start tracking your health
+        </Text>
+        <TouchableOpacity 
+          style={styles.uploadButton}
+          accessible={true}
+          accessibilityLabel="Upload lab result"
+          accessibilityRole="button"
+          accessibilityHint="Double tap to upload a new lab result"
+        >
+          <Text style={styles.uploadText}>Upload Lab Result</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  ), [isLoading]);
 
   return (
-    <ScrollView 
+    <FlatList
       style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#667eea']} />
-      }
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>Lab Results 🔬</Text>
-        <Text style={styles.subtitle}>Your lab history</Text>
-      </View>
-
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#667eea" />
-          <Text style={styles.loadingText}>Loading lab results...</Text>
-        </View>
-      ) : labResults && labResults.length > 0 ? (
-        <View style={styles.list}>
-          {labResults.map((lab) => (
-            <TouchableOpacity key={lab.id} style={styles.labCard}>
-              <View style={styles.labHeader}>
-                <Text style={styles.labFileName}>{lab.fileName}</Text>
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(lab.processingStatus) }]}>
-                  <Text style={styles.statusText}>
-                    {getStatusIcon(lab.processingStatus)} {lab.processingStatus}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.labDate}>
-                Uploaded {formatDate(lab.uploadedAt)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📄</Text>
-          <Text style={styles.emptyText}>No Lab Results Yet</Text>
-          <Text style={styles.emptySubtext}>
-            Upload your first lab result to start tracking your health
-          </Text>
-          <TouchableOpacity style={styles.uploadButton}>
-            <Text style={styles.uploadText}>Upload Lab Result</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </ScrollView>
+      data={labResults || []}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      ListHeaderComponent={ListHeaderComponent}
+      ListEmptyComponent={ListEmptyComponent}
+      contentContainerStyle={labResults && labResults.length > 0 ? styles.list : styles.emptyList}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={5}
+      removeClippedSubviews={true}
+    />
   );
 }
 
@@ -120,6 +156,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 40,
+    minHeight: 400,
   },
   loadingText: {
     marginTop: 12,
@@ -128,6 +165,9 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 20,
+  },
+  emptyList: {
+    flexGrow: 1,
   },
   labCard: {
     backgroundColor: '#fff',

@@ -1,89 +1,127 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { useState, useCallback, memo } from 'react';
 import { useActionPlans } from '../../hooks/use-action-plans';
+
+// Memoized Action Plan Card Component for better performance
+const ActionPlanCard = memo(({ plan, getStatusColor, getStatusIcon }: any) => (
+  <TouchableOpacity 
+    style={styles.planCard}
+    accessible={true}
+    accessibilityLabel={`Action plan ${plan.title}, status ${plan.status}, ${plan.actionItems?.length || 0} items, updated ${formatDate(plan.updatedAt)}`}
+    accessibilityRole="button"
+    accessibilityHint="Double tap to view action plan details"
+  >
+    <View style={styles.planHeader}>
+      <Text style={styles.planIcon} accessibilityLabel={`Status icon: ${plan.status}`}>
+        {getStatusIcon(plan.status)}
+      </Text>
+      <View style={styles.planInfo}>
+        <Text style={styles.planTitle} accessibilityLabel={`Title: ${plan.title}`}>
+          {plan.title}
+        </Text>
+        <Text style={styles.planDescription} numberOfLines={2} accessibilityLabel={`Description: ${plan.description}`}>
+          {plan.description}
+        </Text>
+      </View>
+    </View>
+    <View style={styles.planFooter}>
+      <View 
+        style={[styles.statusBadge, { backgroundColor: getStatusColor(plan.status) }]}
+        accessible={true}
+        accessibilityLabel={`Status: ${plan.status}`}
+      >
+        <Text style={styles.statusText}>{plan.status}</Text>
+      </View>
+      <Text style={styles.planDate} accessibilityLabel={`${plan.actionItems?.length || 0} items, updated ${formatDate(plan.updatedAt)}`}>
+        {plan.actionItems?.length || 0} items • Updated {formatDate(plan.updatedAt)}
+      </Text>
+    </View>
+  </TouchableOpacity>
+));
 
 export default function ActionPlansScreen() {
   const { data: actionPlans, isLoading, refetch } = useActionPlans();
   const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
-  };
+  }, [refetch]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case 'active': return '#667eea';
       case 'completed': return '#10b981';
       case 'paused': return '#f59e0b';
       default: return '#6b7280';
     }
-  };
+  }, []);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = useCallback((status: string) => {
     switch (status) {
       case 'active': return '🎯';
       case 'completed': return '✅';
       case 'paused': return '⏸️';
       default: return '📋';
     }
-  };
+  }, []);
+
+  const renderItem = useCallback(({ item }: any) => (
+    <ActionPlanCard plan={item} getStatusColor={getStatusColor} getStatusIcon={getStatusIcon} />
+  ), [getStatusColor, getStatusIcon]);
+
+  const keyExtractor = useCallback((item: any) => item.id, []);
+
+  const ListHeaderComponent = useCallback(() => (
+    <View style={styles.header}>
+      <Text style={styles.title}>Action Plans 📋</Text>
+      <Text style={styles.subtitle}>Track your health goals</Text>
+    </View>
+  ), []);
+
+  const ListEmptyComponent = useCallback(() => (
+    isLoading ? (
+      <View style={styles.loadingContainer} accessible={true} accessibilityLabel="Loading action plans">
+        <ActivityIndicator size="large" color="#667eea" accessibilityLabel="Loading" />
+        <Text style={styles.loadingText}>Loading action plans...</Text>
+      </View>
+    ) : (
+      <View style={styles.emptyContainer} accessible={true} accessibilityLabel="No action plans yet">
+        <Text style={styles.emptyIcon} accessibilityLabel="Clipboard icon">📋</Text>
+        <Text style={styles.emptyText}>No Action Plans Yet</Text>
+        <Text style={styles.emptySubtext}>
+          Create your first action plan to start achieving your health goals
+        </Text>
+        <TouchableOpacity 
+          style={styles.createButton}
+          accessible={true}
+          accessibilityLabel="Create action plan"
+          accessibilityRole="button"
+          accessibilityHint="Double tap to create a new action plan"
+        >
+          <Text style={styles.createText}>Create Action Plan</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  ), [isLoading]);
 
   return (
-    <ScrollView 
+    <FlatList
       style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#667eea']} />
-      }
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>Action Plans 📋</Text>
-        <Text style={styles.subtitle}>Track your health goals</Text>
-      </View>
-
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#667eea" />
-          <Text style={styles.loadingText}>Loading action plans...</Text>
-        </View>
-      ) : actionPlans && actionPlans.length > 0 ? (
-        <View style={styles.list}>
-          {actionPlans.map((plan) => (
-            <TouchableOpacity key={plan.id} style={styles.planCard}>
-              <View style={styles.planHeader}>
-                <Text style={styles.planIcon}>{getStatusIcon(plan.status)}</Text>
-                <View style={styles.planInfo}>
-                  <Text style={styles.planTitle}>{plan.title}</Text>
-                  <Text style={styles.planDescription} numberOfLines={2}>
-                    {plan.description}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.planFooter}>
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(plan.status) }]}>
-                  <Text style={styles.statusText}>{plan.status}</Text>
-                </View>
-                <Text style={styles.planDate}>
-                  {plan.actionItems?.length || 0} items • Updated {formatDate(plan.updatedAt)}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📋</Text>
-          <Text style={styles.emptyText}>No Action Plans Yet</Text>
-          <Text style={styles.emptySubtext}>
-            Create your first action plan to start achieving your health goals
-          </Text>
-          <TouchableOpacity style={styles.createButton}>
-            <Text style={styles.createText}>Create Action Plan</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </ScrollView>
+      data={actionPlans || []}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      ListHeaderComponent={ListHeaderComponent}
+      ListEmptyComponent={ListEmptyComponent}
+      contentContainerStyle={actionPlans && actionPlans.length > 0 ? styles.list : styles.emptyList}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={5}
+      removeClippedSubviews={true}
+    />
   );
 }
 
@@ -126,6 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 40,
+    minHeight: 400,
   },
   loadingText: {
     marginTop: 12,
@@ -134,6 +173,9 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 20,
+  },
+  emptyList: {
+    flexGrow: 1,
   },
   planCard: {
     backgroundColor: '#fff',
