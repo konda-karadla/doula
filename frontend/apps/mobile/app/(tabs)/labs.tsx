@@ -1,7 +1,65 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { useState, useCallback, memo } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { useState, useCallback, memo, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useLabResults } from '../../hooks/use-lab-results';
+import { AnimatedListItem } from '../../components/animated';
+import { SkeletonListItem } from '../../components/skeleton';
+import { EmptyState } from '../../components/error';
+
+// Separate memoized header component to prevent TextInput remounting
+const SearchHeader = memo(({ 
+  searchQuery, 
+  onSearchChange, 
+  onClearSearch, 
+  resultCount 
+}: { 
+  searchQuery: string; 
+  onSearchChange: (text: string) => void; 
+  onClearSearch: () => void;
+  resultCount: number;
+}) => (
+  <View style={styles.header}>
+    <Text style={styles.title}>Lab Results 🔬</Text>
+    <Text style={styles.subtitle}>Your lab history</Text>
+    
+    {/* Search Bar */}
+    <View style={styles.searchContainer}>
+      <Text style={styles.searchIcon}>🔍</Text>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search by file name or status..."
+        placeholderTextColor="#9ca3af"
+        value={searchQuery}
+        onChangeText={onSearchChange}
+        accessible={true}
+        accessibilityLabel="Search lab results"
+        accessibilityHint="Type to filter lab results by file name or status"
+        returnKeyType="search"
+        clearButtonMode="while-editing"
+        autoCorrect={false}
+        autoCapitalize="none"
+      />
+      {searchQuery.length > 0 && (
+        <TouchableOpacity 
+          onPress={onClearSearch}
+          style={styles.clearButton}
+          accessible={true}
+          accessibilityLabel="Clear search"
+          accessibilityRole="button"
+        >
+          <Text style={styles.clearIcon}>✕</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+    
+    {/* Results count */}
+    {searchQuery.trim().length > 0 && (
+      <Text style={styles.resultsCount}>
+        {resultCount} result{resultCount !== 1 ? 's' : ''} found
+      </Text>
+    )}
+  </View>
+));
 
 // Memoized Lab Card Component for better performance
 const LabCard = memo(({ lab, getStatusColor, getStatusIcon, onPress }: any) => (
@@ -37,12 +95,34 @@ export default function LabResultsScreen() {
   const router = useRouter();
   const { data: labResults, isLoading, refetch } = useLabResults();
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   }, [refetch]);
+
+  // Filter lab results based on search query
+  const filteredLabResults = useMemo(() => {
+    if (!labResults) return [];
+    if (!searchQuery.trim()) return labResults;
+    
+    const query = searchQuery.toLowerCase();
+    return labResults.filter(lab => 
+      lab.fileName.toLowerCase().includes(query) ||
+      lab.processingStatus.toLowerCase().includes(query)
+    );
+  }, [labResults, searchQuery]);
+
+  // Stable callbacks for search
+  const handleSearchChange = useCallback((text: string) => {
+    setSearchQuery(text);
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+  }, []);
 
   const getStatusColor = useCallback((status: string) => {
     switch (status) {
@@ -66,59 +146,64 @@ export default function LabResultsScreen() {
     router.push(`/lab-detail/${labId}`);
   }, [router]);
 
-  const renderItem = useCallback(({ item }: any) => (
-    <LabCard 
-      lab={item} 
-      getStatusColor={getStatusColor} 
-      getStatusIcon={getStatusIcon}
-      onPress={() => handleLabPress(item.id)}
-    />
+  const renderItem = useCallback(({ item, index }: any) => (
+    <AnimatedListItem index={index}>
+      <LabCard 
+        lab={item} 
+        getStatusColor={getStatusColor} 
+        getStatusIcon={getStatusIcon}
+        onPress={() => handleLabPress(item.id)}
+      />
+    </AnimatedListItem>
   ), [getStatusColor, getStatusIcon, handleLabPress]);
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 
-  const ListHeaderComponent = useCallback(() => (
-    <View style={styles.header}>
-      <Text style={styles.title}>Lab Results 🔬</Text>
-      <Text style={styles.subtitle}>Your lab history</Text>
-    </View>
-  ), []);
-
   const ListEmptyComponent = useCallback(() => (
     isLoading ? (
-      <View style={styles.loadingContainer} accessible={true} accessibilityLabel="Loading lab results">
-        <ActivityIndicator size="large" color="#667eea" accessibilityLabel="Loading" />
-        <Text style={styles.loadingText}>Loading lab results...</Text>
+      <View style={styles.list}>
+        <SkeletonListItem />
+        <SkeletonListItem />
+        <SkeletonListItem />
+        <SkeletonListItem />
+        <SkeletonListItem />
       </View>
+    ) : searchQuery.trim().length > 0 ? (
+      <EmptyState
+        title="No Results Found"
+        message={`No lab results match "${searchQuery}". Try adjusting your search.`}
+        icon="🔍"
+      />
     ) : (
-      <View style={styles.emptyContainer} accessible={true} accessibilityLabel="No lab results yet">
-        <Text style={styles.emptyIcon} accessibilityLabel="Document icon">📄</Text>
-        <Text style={styles.emptyText}>No Lab Results Yet</Text>
-        <Text style={styles.emptySubtext}>
-          Upload your first lab result to start tracking your health
-        </Text>
-        <TouchableOpacity 
-          style={styles.uploadButton}
-          accessible={true}
-          accessibilityLabel="Upload lab result"
-          accessibilityRole="button"
-          accessibilityHint="Double tap to upload a new lab result"
-        >
-          <Text style={styles.uploadText}>Upload Lab Result</Text>
-        </TouchableOpacity>
-      </View>
+      <EmptyState
+        title="No Lab Results Yet"
+        message="Upload your first lab result to start tracking your health"
+        icon="📄"
+        actionText="Upload Lab Result"
+        onAction={() => {
+          // TODO: Implement upload functionality
+          console.log('Upload lab result');
+        }}
+      />
     )
-  ), [isLoading]);
+  ), [isLoading, searchQuery]);
 
   return (
     <FlatList
       style={styles.container}
-      data={labResults || []}
+      data={filteredLabResults}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      ListHeaderComponent={ListHeaderComponent}
+      ListHeaderComponent={
+        <SearchHeader
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onClearSearch={handleClearSearch}
+          resultCount={filteredLabResults.length}
+        />
+      }
       ListEmptyComponent={ListEmptyComponent}
-      contentContainerStyle={labResults && labResults.length > 0 ? styles.list : styles.emptyList}
+      contentContainerStyle={filteredLabResults.length > 0 ? styles.list : styles.emptyList}
       refreshing={refreshing}
       onRefresh={onRefresh}
       initialNumToRender={10}
@@ -162,6 +247,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
     marginTop: 4,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 8,
+    marginTop: 16,
+    paddingHorizontal: 12,
+    height: 44,
+  },
+  searchIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#1f2937',
+    padding: 0,
+  },
+  clearButton: {
+    padding: 4,
+    marginLeft: 8,
+  },
+  clearIcon: {
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  resultsCount: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 8,
   },
   loadingContainer: {
     flex: 1,

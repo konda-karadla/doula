@@ -1,7 +1,65 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { useState, useCallback, memo } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { useState, useCallback, memo, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useActionPlans } from '../../hooks/use-action-plans';
+import { AnimatedListItem } from '../../components/animated';
+import { SkeletonListItem } from '../../components/skeleton';
+import { EmptyState } from '../../components/error';
+
+// Separate memoized header component to prevent TextInput remounting
+const SearchHeader = memo(({ 
+  searchQuery, 
+  onSearchChange, 
+  onClearSearch, 
+  resultCount 
+}: { 
+  searchQuery: string; 
+  onSearchChange: (text: string) => void; 
+  onClearSearch: () => void;
+  resultCount: number;
+}) => (
+  <View style={styles.header}>
+    <Text style={styles.title}>Action Plans 📋</Text>
+    <Text style={styles.subtitle}>Track your health goals</Text>
+    
+    {/* Search Bar */}
+    <View style={styles.searchContainer}>
+      <Text style={styles.searchIcon}>🔍</Text>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search by title, status, or description..."
+        placeholderTextColor="#9ca3af"
+        value={searchQuery}
+        onChangeText={onSearchChange}
+        accessible={true}
+        accessibilityLabel="Search action plans"
+        accessibilityHint="Type to filter action plans by title, status, or description"
+        returnKeyType="search"
+        clearButtonMode="while-editing"
+        autoCorrect={false}
+        autoCapitalize="none"
+      />
+      {searchQuery.length > 0 && (
+        <TouchableOpacity 
+          onPress={onClearSearch}
+          style={styles.clearButton}
+          accessible={true}
+          accessibilityLabel="Clear search"
+          accessibilityRole="button"
+        >
+          <Text style={styles.clearIcon}>✕</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+    
+    {/* Results count */}
+    {searchQuery.trim().length > 0 && (
+      <Text style={styles.resultsCount}>
+        {resultCount} result{resultCount !== 1 ? 's' : ''} found
+      </Text>
+    )}
+  </View>
+));
 
 // Memoized Action Plan Card Component for better performance
 const ActionPlanCard = memo(({ plan, getStatusColor, getStatusIcon, onPress }: any) => (
@@ -45,12 +103,35 @@ export default function ActionPlansScreen() {
   const router = useRouter();
   const { data: actionPlans, isLoading, refetch } = useActionPlans();
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   }, [refetch]);
+
+  // Filter action plans based on search query
+  const filteredActionPlans = useMemo(() => {
+    if (!actionPlans) return [];
+    if (!searchQuery.trim()) return actionPlans;
+    
+    const query = searchQuery.toLowerCase();
+    return actionPlans.filter(plan => 
+      plan.title.toLowerCase().includes(query) ||
+      plan.status.toLowerCase().includes(query) ||
+      plan.description?.toLowerCase().includes(query)
+    );
+  }, [actionPlans, searchQuery]);
+
+  // Stable callbacks for search
+  const handleSearchChange = useCallback((text: string) => {
+    setSearchQuery(text);
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+  }, []);
 
   const getStatusColor = useCallback((status: string) => {
     switch (status) {
@@ -74,59 +155,64 @@ export default function ActionPlansScreen() {
     router.push(`/plan-detail/${planId}`);
   }, [router]);
 
-  const renderItem = useCallback(({ item }: any) => (
-    <ActionPlanCard 
-      plan={item} 
-      getStatusColor={getStatusColor} 
-      getStatusIcon={getStatusIcon}
-      onPress={() => handlePlanPress(item.id)}
-    />
+  const renderItem = useCallback(({ item, index }: any) => (
+    <AnimatedListItem index={index}>
+      <ActionPlanCard 
+        plan={item} 
+        getStatusColor={getStatusColor} 
+        getStatusIcon={getStatusIcon}
+        onPress={() => handlePlanPress(item.id)}
+      />
+    </AnimatedListItem>
   ), [getStatusColor, getStatusIcon, handlePlanPress]);
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 
-  const ListHeaderComponent = useCallback(() => (
-    <View style={styles.header}>
-      <Text style={styles.title}>Action Plans 📋</Text>
-      <Text style={styles.subtitle}>Track your health goals</Text>
-    </View>
-  ), []);
-
   const ListEmptyComponent = useCallback(() => (
     isLoading ? (
-      <View style={styles.loadingContainer} accessible={true} accessibilityLabel="Loading action plans">
-        <ActivityIndicator size="large" color="#667eea" accessibilityLabel="Loading" />
-        <Text style={styles.loadingText}>Loading action plans...</Text>
+      <View style={styles.list}>
+        <SkeletonListItem />
+        <SkeletonListItem />
+        <SkeletonListItem />
+        <SkeletonListItem />
+        <SkeletonListItem />
       </View>
+    ) : searchQuery.trim().length > 0 ? (
+      <EmptyState
+        title="No Results Found"
+        message={`No action plans match "${searchQuery}". Try adjusting your search.`}
+        icon="🔍"
+      />
     ) : (
-      <View style={styles.emptyContainer} accessible={true} accessibilityLabel="No action plans yet">
-        <Text style={styles.emptyIcon} accessibilityLabel="Clipboard icon">📋</Text>
-        <Text style={styles.emptyText}>No Action Plans Yet</Text>
-        <Text style={styles.emptySubtext}>
-          Create your first action plan to start achieving your health goals
-        </Text>
-        <TouchableOpacity 
-          style={styles.createButton}
-          accessible={true}
-          accessibilityLabel="Create action plan"
-          accessibilityRole="button"
-          accessibilityHint="Double tap to create a new action plan"
-        >
-          <Text style={styles.createText}>Create Action Plan</Text>
-        </TouchableOpacity>
-      </View>
+      <EmptyState
+        title="No Action Plans Yet"
+        message="Create your first action plan to start achieving your health goals"
+        icon="📋"
+        actionText="Create Action Plan"
+        onAction={() => {
+          // TODO: Implement create functionality
+          console.log('Create action plan');
+        }}
+      />
     )
-  ), [isLoading]);
+  ), [isLoading, searchQuery]);
 
   return (
     <FlatList
       style={styles.container}
-      data={actionPlans || []}
+      data={filteredActionPlans}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      ListHeaderComponent={ListHeaderComponent}
+      ListHeaderComponent={
+        <SearchHeader
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onClearSearch={handleClearSearch}
+          resultCount={filteredActionPlans.length}
+        />
+      }
       ListEmptyComponent={ListEmptyComponent}
-      contentContainerStyle={actionPlans && actionPlans.length > 0 ? styles.list : styles.emptyList}
+      contentContainerStyle={filteredActionPlans.length > 0 ? styles.list : styles.emptyList}
       refreshing={refreshing}
       onRefresh={onRefresh}
       initialNumToRender={10}
@@ -170,6 +256,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
     marginTop: 4,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 8,
+    marginTop: 16,
+    paddingHorizontal: 12,
+    height: 44,
+  },
+  searchIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#1f2937',
+    padding: 0,
+  },
+  clearButton: {
+    padding: 4,
+    marginLeft: 8,
+  },
+  clearIcon: {
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  resultsCount: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 8,
   },
   loadingContainer: {
     flex: 1,

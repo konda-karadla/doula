@@ -8,7 +8,18 @@ import { haptic } from '../../lib/haptics/haptic-feedback';
 
 export default function ProfileScreen() {
   const { user } = useAuthStore();
-  const { biometricEnabled, setBiometric } = useSettingsStore();
+  const { 
+    biometricEnabled, 
+    setBiometric,
+    theme,
+    setTheme,
+    notifications,
+    toggleNotification,
+    cacheEnabled,
+    setCacheEnabled,
+    offlineMode,
+    setOfflineMode,
+  } = useSettingsStore();
   const { logout } = useAuthActions();
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricType, setBiometricType] = useState('');
@@ -104,23 +115,195 @@ export default function ProfileScreen() {
         </View>
       )}
 
+      {/* Notification Settings */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Notifications 🔔</Text>
+        
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>All Notifications</Text>
+            <Text style={styles.settingDescription}>
+              Enable or disable all push notifications
+            </Text>
+          </View>
+          <Switch
+            value={notifications.enabled}
+            onValueChange={() => {
+              haptic.light();
+              toggleNotification('enabled');
+            }}
+            trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
+            thumbColor={notifications.enabled ? '#667eea' : '#f4f3f4'}
+          />
+        </View>
+
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Lab Results</Text>
+            <Text style={styles.settingDescription}>
+              Get notified when lab results are ready
+            </Text>
+          </View>
+          <Switch
+            value={notifications.labResults}
+            onValueChange={() => {
+              haptic.light();
+              toggleNotification('labResults');
+            }}
+            disabled={!notifications.enabled}
+            trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
+            thumbColor={notifications.labResults ? '#667eea' : '#f4f3f4'}
+          />
+        </View>
+
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Action Plan Reminders</Text>
+            <Text style={styles.settingDescription}>
+              Reminders for your action plan tasks
+            </Text>
+          </View>
+          <Switch
+            value={notifications.actionPlanReminders}
+            onValueChange={() => {
+              haptic.light();
+              toggleNotification('actionPlanReminders');
+            }}
+            disabled={!notifications.enabled}
+            trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
+            thumbColor={notifications.actionPlanReminders ? '#667eea' : '#f4f3f4'}
+          />
+        </View>
+
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Health Insights</Text>
+            <Text style={styles.settingDescription}>
+              Get personalized health insights
+            </Text>
+          </View>
+          <Switch
+            value={notifications.healthInsights}
+            onValueChange={() => {
+              haptic.light();
+              toggleNotification('healthInsights');
+            }}
+            disabled={!notifications.enabled}
+            trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
+            thumbColor={notifications.healthInsights ? '#667eea' : '#f4f3f4'}
+          />
+        </View>
+
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Weekly Reports</Text>
+            <Text style={styles.settingDescription}>
+              Receive weekly health summary reports
+            </Text>
+          </View>
+          <Switch
+            value={notifications.weeklyReports}
+            onValueChange={() => {
+              haptic.light();
+              toggleNotification('weeklyReports');
+            }}
+            disabled={!notifications.enabled}
+            trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
+            thumbColor={notifications.weeklyReports ? '#667eea' : '#f4f3f4'}
+          />
+        </View>
+      </View>
+
+      {/* App Preferences */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>App Preferences ⚙️</Text>
+        
+        <View style={styles.preferenceSection}>
+          <Text style={styles.preferenceLabel}>Theme</Text>
+          <View style={styles.themeButtons}>
+            <TouchableOpacity
+              style={[styles.themeButton, theme === 'light' && styles.themeButtonActive]}
+              onPress={() => {
+                haptic.light();
+                setTheme('light');
+              }}
+            >
+              <Text style={[styles.themeButtonText, theme === 'light' && styles.themeButtonTextActive]}>
+                ☀️ Light
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.themeButton, theme === 'dark' && styles.themeButtonActive]}
+              onPress={() => {
+                haptic.light();
+                setTheme('dark');
+              }}
+            >
+              <Text style={[styles.themeButtonText, theme === 'dark' && styles.themeButtonTextActive]}>
+                🌙 Dark
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.themeButton, theme === 'auto' && styles.themeButtonActive]}
+              onPress={() => {
+                haptic.light();
+                setTheme('auto');
+              }}
+            >
+              <Text style={[styles.themeButtonText, theme === 'auto' && styles.themeButtonTextActive]}>
+                ✨ Auto
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+
+      {/* Data & Storage */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Data & Storage 💾</Text>
+        
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Offline Mode</Text>
+            <Text style={styles.settingDescription}>
+              Keep data synced for offline access
+            </Text>
+          </View>
+          <Switch
+            value={offlineMode}
+            onValueChange={(value) => {
+              haptic.light();
+              setOfflineMode(value);
+            }}
+            trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
+            thumbColor={offlineMode ? '#667eea' : '#f4f3f4'}
+          />
+        </View>
+
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Cache Data</Text>
+            <Text style={styles.settingDescription}>
+              Cache data for faster loading times
+            </Text>
+          </View>
+          <Switch
+            value={cacheEnabled}
+            onValueChange={(value) => {
+              haptic.light();
+              setCacheEnabled(value);
+            }}
+            trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
+            thumbColor={cacheEnabled ? '#667eea' : '#f4f3f4'}
+          />
+        </View>
+      </View>
+
       {/* Logout Button */}
       <View style={styles.section}>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-      </View>
-
-      {/* Coming Soon Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Coming Soon</Text>
-        <Text style={styles.description}>
-          • Edit profile information{'\n'}
-          • Manage notification settings{'\n'}
-          • Change password{'\n'}
-          • Biometric authentication{'\n'}
-          • App preferences
-        </Text>
       </View>
     </ScrollView>
   );
@@ -230,6 +413,40 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6b7280',
     lineHeight: 16,
+  },
+  preferenceSection: {
+    paddingVertical: 12,
+  },
+  preferenceLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 12,
+  },
+  themeButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  themeButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+  },
+  themeButtonActive: {
+    backgroundColor: '#667eea',
+    borderColor: '#667eea',
+  },
+  themeButtonText: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  themeButtonTextActive: {
+    color: '#fff',
   },
 });
 

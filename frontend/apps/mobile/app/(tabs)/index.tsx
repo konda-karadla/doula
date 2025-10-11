@@ -1,9 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Link } from 'expo-router';
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/auth';
 import { useHealthScore } from '../../hooks/use-health-score';
 import { useProfileStats } from '../../hooks/use-profile-stats';
+import { AnimatedCard } from '../../components/animated';
+import { SkeletonCard, SkeletonGridItem } from '../../components/skeleton';
 
 export default function DashboardScreen() {
   const { user } = useAuthStore();
@@ -33,11 +35,9 @@ export default function DashboardScreen() {
 
       {/* Health Score Card */}
       {isLoading ? (
-        <View style={styles.card}>
-          <ActivityIndicator size="large" color="#667eea" />
-        </View>
+        <SkeletonCard />
       ) : healthScore ? (
-        <View style={styles.card}>
+        <AnimatedCard delay={0} style={styles.card}>
           <Text style={styles.cardTitle}>Health Score</Text>
           <Text style={styles.cardValue}>{healthScore.overall}</Text>
           <Text style={[styles.cardStatus, getStatusColor(healthScore.overallStatus)]}>
@@ -46,36 +46,51 @@ export default function DashboardScreen() {
           <Text style={styles.cardMeta}>
             {healthScore.totalBiomarkers} biomarkers analyzed • Updated {formatDate(healthScore.lastUpdated)}
           </Text>
-        </View>
+        </AnimatedCard>
       ) : (
-        <View style={styles.card}>
+        <AnimatedCard delay={0} style={styles.card}>
           <Text style={styles.emptyText}>No health score data available</Text>
           <Text style={styles.emptySubtext}>Upload lab results to get your health score</Text>
-        </View>
+        </AnimatedCard>
       )}
 
       {/* Stats Grid */}
-      <View style={styles.grid}>
-        <View style={[styles.card, styles.gridItem]}>
-          <Text style={styles.cardLabel}>Lab Results</Text>
-          <Text style={styles.cardNumber}>{stats?.totalLabResults || 0}</Text>
-        </View>
-        <View style={[styles.card, styles.gridItem]}>
-          <Text style={styles.cardLabel}>Action Plans</Text>
-          <Text style={styles.cardNumber}>{stats?.totalActionPlans || 0}</Text>
-        </View>
-      </View>
+      {isLoading ? (
+        <>
+          <View style={styles.grid}>
+            <SkeletonGridItem />
+            <SkeletonGridItem />
+          </View>
+          <View style={styles.grid}>
+            <SkeletonGridItem />
+            <SkeletonGridItem />
+          </View>
+        </>
+      ) : (
+        <>
+          <View style={styles.grid}>
+            <AnimatedCard delay={100} style={styles.gridCard}>
+              <Text style={styles.cardLabel}>Lab Results</Text>
+              <Text style={styles.cardNumber}>{stats?.totalLabResults || 0}</Text>
+            </AnimatedCard>
+            <AnimatedCard delay={150} style={styles.gridCard}>
+              <Text style={styles.cardLabel}>Action Plans</Text>
+              <Text style={styles.cardNumber}>{stats?.totalActionPlans || 0}</Text>
+            </AnimatedCard>
+          </View>
 
-      <View style={styles.grid}>
-        <View style={[styles.card, styles.gridItem]}>
-          <Text style={styles.cardLabel}>Completed</Text>
-          <Text style={styles.cardNumber}>{stats?.completedActionItems || 0}</Text>
-        </View>
-        <View style={[styles.card, styles.gridItem]}>
-          <Text style={styles.cardLabel}>Pending</Text>
-          <Text style={styles.cardNumber}>{stats?.pendingActionItems || 0}</Text>
-        </View>
-      </View>
+          <View style={styles.grid}>
+            <AnimatedCard delay={200} style={styles.gridCard}>
+              <Text style={styles.cardLabel}>Completed</Text>
+              <Text style={styles.cardNumber}>{stats?.completedActionItems || 0}</Text>
+            </AnimatedCard>
+            <AnimatedCard delay={250} style={styles.gridCard}>
+              <Text style={styles.cardLabel}>Pending</Text>
+              <Text style={styles.cardNumber}>{stats?.pendingActionItems || 0}</Text>
+            </AnimatedCard>
+          </View>
+        </>
+      )}
 
       {/* Quick Actions */}
       <View style={styles.section}>
@@ -193,6 +208,17 @@ const styles = StyleSheet.create({
   gridItem: {
     flex: 1,
     margin: 0,
+  },
+  gridCard: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    flex: 1,
   },
   cardLabel: {
     fontSize: 12,
