@@ -17,15 +17,6 @@ import {
 } from 'lucide-react'
 import { format } from 'date-fns'
 
-interface ActionItem {
-  id: string
-  title: string
-  description: string
-  completed: boolean
-  dueDate?: Date
-  priority: 'low' | 'medium' | 'high'
-}
-
 interface ActionPlan {
   id: string
   title: string
@@ -419,7 +410,7 @@ export function ActionPlansList() {
                             await navigator.clipboard.writeText(link)
                             console.log('Copied link to clipboard:', link)
                           } catch (err) {
-                            console.warn('Clipboard not available')
+                            console.warn('Clipboard not available:', err)
                           }
                           setOpenMenuId(null)
                         }}

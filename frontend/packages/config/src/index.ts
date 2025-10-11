@@ -53,6 +53,7 @@ export const apiEndpoints = {
     summary: '/insights/summary',
     labResult: (id: string) => `/insights/lab-result/${id}`,
     trends: (testName: string) => `/insights/trends/${testName}`,
+    healthScore: '/insights/health-score',
   },
   
   // User Profile

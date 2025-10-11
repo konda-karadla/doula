@@ -12,11 +12,12 @@ import {
   Star,
   Brain,
   TrendingUp,
-  AlertCircle,
   Plus,
   Edit
 } from 'lucide-react'
 import { format } from 'date-fns'
+
+type Priority = 'low' | 'medium' | 'high'
 
 interface ActionItem {
   id: string
@@ -24,12 +25,12 @@ interface ActionItem {
   description: string
   completed: boolean
   dueDate?: Date
-  priority: 'low' | 'medium' | 'high'
+  priority: Priority
   completedDate?: Date
 }
 
 interface ActionPlanDetailProps {
-  actionPlanId: string
+  readonly actionPlanId: string
 }
 
 // Mock data
@@ -104,7 +105,7 @@ const mockActionPlan = {
 }
 
 export function ActionPlanDetail({ actionPlanId }: ActionPlanDetailProps) {
-  const [newItem, setNewItem] = useState({ title: '', description: '', priority: 'medium' as const })
+  const [newItem, setNewItem] = useState<{ title: string; description: string; priority: Priority }>({ title: '', description: '', priority: 'medium' })
   
   // Differentiate mock content per id so pages are visibly different
   const titleById: Record<string, string> = {
@@ -299,8 +300,8 @@ export function ActionPlanDetail({ actionPlanId }: ActionPlanDetailProps) {
           <div>
             <h4 className="font-medium mb-3">Expert Recommendations</h4>
             <div className="space-y-2">
-              {mockActionPlan.expertRecommendations.map((recommendation, index) => (
-                <div key={index} className="flex items-start space-x-2">
+              {mockActionPlan.expertRecommendations.map((recommendation) => (
+                <div key={recommendation} className="flex items-start space-x-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
                   <p className="text-sm text-muted-foreground">{recommendation}</p>
                 </div>
@@ -340,7 +341,7 @@ export function ActionPlanDetail({ actionPlanId }: ActionPlanDetailProps) {
               <select
                 className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm"
                 value={newItem.priority}
-                onChange={(e) => setNewItem(prev => ({ ...prev, priority: e.target.value as 'low' | 'medium' | 'high' }))}
+                onChange={(e) => setNewItem(prev => ({ ...prev, priority: e.target.value as Priority }))}
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>

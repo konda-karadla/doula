@@ -32,7 +32,7 @@ export default function LabResultsPage() {
     })
   }, [labResults, searchTerm, filterStatus, filterSystem])
 
-  const handleViewResult = (resultId: string) => {
+  const handleViewResult = () => {
     // TODO: Implement PDF viewer modal
     toast({
       title: 'View lab result',
@@ -57,6 +57,7 @@ export default function LabResultsPage() {
           description: `${fileName} has been deleted successfully`,
         })
       } catch (error) {
+        console.error('Failed to delete lab result:', error)
         toast({
           title: 'Delete failed',
           description: 'Failed to delete lab result',
@@ -102,20 +103,6 @@ export default function LabResultsPage() {
     }
   }
 
-  const getSystemBadge = (system: string) => {
-    const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
-    switch (system) {
-      case 'doula':
-        return `${baseClasses} bg-blue-100 text-blue-800`
-      case 'functional_health':
-        return `${baseClasses} bg-purple-100 text-purple-800`
-      case 'elderly_care':
-        return `${baseClasses} bg-orange-100 text-orange-800`
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`
-    }
-  }
-
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -141,12 +128,13 @@ export default function LabResultsPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
                   Search
                 </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
+                    id="search"
                     placeholder="Search results..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -156,10 +144,11 @@ export default function LabResultsPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
                   Status
                 </label>
                 <select
+                  id="status"
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -172,10 +161,11 @@ export default function LabResultsPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="system" className="block text-sm font-medium text-gray-700 mb-1">
                   System
                 </label>
                 <select
+                  id="system"
                   value={filterSystem}
                   onChange={(e) => setFilterSystem(e.target.value)}
                   className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -213,15 +203,17 @@ export default function LabResultsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {isLoading && (
               <div className="flex justify-center items-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
               </div>
-            ) : error ? (
+            )}
+            {error && !isLoading && (
               <div className="text-center py-8">
                 <p className="text-red-600">Failed to load lab results</p>
               </div>
-            ) : (
+            )}
+            {!isLoading && !error && (
               <>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -267,7 +259,7 @@ export default function LabResultsPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleViewResult(result.id)}
+                                onClick={() => handleViewResult()}
                                 title="View result"
                               >
                                 <Eye className="h-4 w-4" />

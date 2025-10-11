@@ -16,6 +16,7 @@ import type {
   HealthInsightsSummary,
   HealthInsight,
   BiomarkerTrend,
+  HealthScore,
   UserProfile,
   HealthStats,
 } from '@health-platform/types';
@@ -105,6 +106,9 @@ export const insightsService = {
   
   getTrends: (testName: string): Promise<BiomarkerTrend[]> =>
     api.get<BiomarkerTrend[]>(apiEndpoints.insights.trends(testName)),
+  
+  getHealthScore: (): Promise<HealthScore> =>
+    api.get<HealthScore>(apiEndpoints.insights.healthScore),
 };
 
 // User Profile Service

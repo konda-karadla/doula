@@ -130,7 +130,7 @@ export function LoginForm() {
         </form>
 
         <div className="mt-6 text-center text-sm">
-          <span className="text-muted-foreground">Don't have an account? </span>
+          <span className="text-muted-foreground">Don&apos;t have an account? </span>
           <button
             type="button"
             className="text-primary hover:underline font-medium"

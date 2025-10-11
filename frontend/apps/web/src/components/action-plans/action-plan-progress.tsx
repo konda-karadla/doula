@@ -10,7 +10,6 @@ import {
   Calendar, 
   Target,
   CheckCircle,
-  Clock,
   Award,
   BarChart3,
   Activity
@@ -18,7 +17,7 @@ import {
 import { format } from 'date-fns'
 
 interface ActionPlanProgressProps {
-  actionPlanId: string
+  readonly actionPlanId: string
 }
 
 // Mock progress data
@@ -76,7 +75,7 @@ const mockMilestones = [
   }
 ]
 
-export function ActionPlanProgress({ actionPlanId }: ActionPlanProgressProps) {
+export function ActionPlanProgress({ }: ActionPlanProgressProps) {
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'quarter'>('week')
 
   const currentStreak = 2
@@ -183,8 +182,8 @@ export function ActionPlanProgress({ actionPlanId }: ActionPlanProgressProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {mockDailyActivity.map((day, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            {mockDailyActivity.map((day) => (
+              <div key={day.date} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="flex items-center space-x-4">
                   <div className="text-sm font-medium">
                     {format(new Date(day.date), 'MMM dd')}
@@ -267,7 +266,7 @@ export function ActionPlanProgress({ actionPlanId }: ActionPlanProgressProps) {
                 🎯 Great Progress!
               </h4>
               <p className="text-sm text-blue-800 dark:text-blue-400">
-                You've maintained a consistent routine for the past week. Your current streak of {currentStreak} days shows strong commitment to your health goals.
+                You&apos;ve maintained a consistent routine for the past week. Your current streak of {currentStreak} days shows strong commitment to your health goals.
               </p>
             </div>
             

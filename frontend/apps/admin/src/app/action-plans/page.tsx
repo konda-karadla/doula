@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import { Search, Plus, Edit, Trash2, Eye, Filter, Target, Users, Calendar, Loader2 } from 'lucide-react'
-import { useActionPlans, useDeleteActionPlan, useActionItems } from '@/hooks/use-admin-api'
+import { Search, Plus, Edit, Trash2, Eye, Filter, Target, Calendar, Loader2 } from 'lucide-react'
+import { useActionPlans, useDeleteActionPlan } from '@/hooks/use-admin-api'
 import { format } from 'date-fns'
 import type { ActionPlan } from '@health-platform/types'
 
@@ -34,7 +34,7 @@ export default function ActionPlansPage() {
     })
   }, [actionPlans, searchTerm, filterStatus, filterSystem])
 
-  const handleViewPlan = (planId: string) => {
+  const handleViewPlan = () => {
     // TODO: Navigate to action plan detail page
     toast({
       title: 'View action plan',
@@ -42,7 +42,7 @@ export default function ActionPlansPage() {
     })
   }
 
-  const handleEditPlan = (planId: string) => {
+  const handleEditPlan = () => {
     // TODO: Navigate to action plan editor
     toast({
       title: 'Edit action plan',
@@ -59,6 +59,7 @@ export default function ActionPlansPage() {
           description: `${planTitle} has been deleted successfully`,
         })
       } catch (error) {
+        console.error('Failed to delete action plan:', error)
         toast({
           title: 'Delete failed',
           description: 'Failed to delete action plan',
@@ -81,34 +82,6 @@ export default function ActionPlansPage() {
     return Math.round((completedCount / totalCount) * 100)
   }
 
-  const getStatusBadge = (status: string) => {
-    const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
-    switch (status) {
-      case 'active':
-        return `${baseClasses} bg-green-100 text-green-800`
-      case 'completed':
-        return `${baseClasses} bg-blue-100 text-blue-800`
-      case 'draft':
-        return `${baseClasses} bg-gray-100 text-gray-800`
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`
-    }
-  }
-
-  const getSystemBadge = (system: string) => {
-    const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
-    switch (system) {
-      case 'doula':
-        return `${baseClasses} bg-blue-100 text-blue-800`
-      case 'functional_health':
-        return `${baseClasses} bg-purple-100 text-purple-800`
-      case 'elderly_care':
-        return `${baseClasses} bg-orange-100 text-orange-800`
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`
-    }
-  }
-
   // Action Plan Item component to encapsulate each card
   const ActionPlanCard = ({ plan }: { plan: ActionPlan }) => {
     // Count items for this plan (would need useActionItems hook)
@@ -129,7 +102,7 @@ export default function ActionPlansPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleViewPlan(plan.id)}
+                onClick={() => handleViewPlan()}
                 title="View plan"
               >
                 <Eye className="h-4 w-4" />
@@ -137,7 +110,7 @@ export default function ActionPlansPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleEditPlan(plan.id)}
+                onClick={() => handleEditPlan()}
                 title="Edit plan"
               >
                 <Edit className="h-4 w-4" />

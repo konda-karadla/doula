@@ -246,7 +246,7 @@ export function ActionPlanFilters({ onClose, onApplyFilters }: ActionPlanFilters
             <div className="flex flex-wrap gap-2">
               {filters.search && (
                 <Badge variant="secondary">
-                  Search: "{filters.search}"
+                  Search: &quot;{filters.search}&quot;
                 </Badge>
               )}
               {filters.status.map(status => (

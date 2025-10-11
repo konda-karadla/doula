@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { DashboardNav } from '@/components/layout/dashboard-nav'
 import { ActionPlansList } from '@/components/action-plans/action-plans-list'
@@ -9,7 +9,7 @@ import { ActionPlanFilters } from '@/components/action-plans/action-plan-filters
 import { Button } from '@/components/ui/button'
 import { Plus, Filter, Target } from 'lucide-react'
 
-export default function ActionPlansPage() {
+function ActionPlansContent() {
   const searchParams = useSearchParams()
   const [showCreateModal, setShowCreateModal] = useState(false)
   useEffect(() => {
@@ -71,5 +71,13 @@ export default function ActionPlansPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function ActionPlansPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ActionPlansContent />
+    </Suspense>
   )
 }

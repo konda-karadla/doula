@@ -41,6 +41,7 @@ export default function UsersPage() {
           description: `${userName} has been deleted successfully`,
         })
       } catch (error) {
+        console.error('Failed to delete user:', error)
         toast({
           title: 'Delete failed',
           description: 'Failed to delete user',
@@ -50,7 +51,7 @@ export default function UsersPage() {
     }
   }
 
-  const handleEditUser = (userId: string) => {
+  const handleEditUser = () => {
     // TODO: Navigate to edit user page or open modal
     toast({
       title: 'Edit user',
@@ -58,7 +59,7 @@ export default function UsersPage() {
     })
   }
 
-  const handleViewUser = (userId: string) => {
+  const handleViewUser = () => {
     // TODO: Navigate to user detail page or open modal
     toast({
       title: 'View user',
@@ -113,12 +114,13 @@ export default function UsersPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="user-search" className="block text-sm font-medium text-gray-700 mb-1">
                   Search
                 </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
+                    id="user-search"
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -128,10 +130,11 @@ export default function UsersPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="user-system" className="block text-sm font-medium text-gray-700 mb-1">
                   System
                 </label>
                 <select
+                  id="user-system"
                   value={filterSystem}
                   onChange={(e) => setFilterSystem(e.target.value)}
                   className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -144,10 +147,11 @@ export default function UsersPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="user-status" className="block text-sm font-medium text-gray-700 mb-1">
                   Status
                 </label>
                 <select
+                  id="user-status"
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -184,15 +188,17 @@ export default function UsersPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {isLoading && (
               <div className="flex justify-center items-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
               </div>
-            ) : error ? (
+            )}
+            {error && !isLoading && (
               <div className="text-center py-8">
                 <p className="text-red-600">Failed to load users</p>
               </div>
-            ) : (
+            )}
+            {!isLoading && !error && (
               <>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -252,7 +258,7 @@ export default function UsersPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleViewUser(user.id)}
+                                onClick={() => handleViewUser()}
                                 title="View user"
                               >
                                 <Eye className="h-4 w-4" />
@@ -260,7 +266,7 @@ export default function UsersPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleEditUser(user.id)}
+                                onClick={() => handleEditUser()}
                                 title="Edit user"
                               >
                                 <Edit className="h-4 w-4" />

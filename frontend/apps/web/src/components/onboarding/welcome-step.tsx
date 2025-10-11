@@ -18,13 +18,13 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
           </div>
           <CardTitle className="text-3xl font-bold">Welcome to Your Health Journey</CardTitle>
           <CardDescription className="text-lg">
-            Let's personalize your experience and set you up for success
+            Let&apos;s personalize your experience and set you up for success
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center space-y-4">
             <p className="text-muted-foreground">
-              We'll guide you through a few quick steps to create your personalized health profile.
+              We&apos;ll guide you through a few quick steps to create your personalized health profile.
               This will help us provide you with the most relevant insights and recommendations.
             </p>
           </div>

@@ -64,6 +64,25 @@ Building frontend applications for a multi-tenant health platform with three app
    - [x] Component utilities
    - [x] Design system foundation
 
+---
+
+## ⏭️ NEXT TASKS (Prioritized - Oct 10, 2025)
+
+### **Recommended Next: Email Notifications** ⭐
+**Time:** 4-6 hours | **Difficulty:** Easy | **Value:** High
+
+**Subtasks:**
+- [ ] Install Nodemailer
+- [ ] Create email.service.ts
+- [ ] Build 4 HTML templates (welcome, lab-ready, insight, reminder)
+- [ ] Integrate with registration/lab processing
+- [ ] Test email delivery
+- [ ] Document configuration
+
+**See:** [NEXT_TASK_RECOMMENDATIONS.md](../NEXT_TASK_RECOMMENDATIONS.md) for full details
+
+---
+
 ## 🔄 Phase 2: Web Applications Development
 
 ### Task 3: Patient Portal (Web App) ✅ COMPLETE
@@ -98,6 +117,12 @@ Building frontend applications for a multi-tenant health platform with three app
    - [x] Create home dashboard layout
    - [x] Build biomarker summary cards
    - [x] Add health score displays
+   - [x] **Health Scoring Feature** ✅ NEW (Oct 10, 2025)
+     - [x] Backend scoring algorithm (5 categories)
+     - [x] API endpoint: GET /insights/health-score
+     - [x] Dashboard metric card (clickable)
+     - [x] Detail page with full breakdown
+     - [x] Mock & real data versions
    - [x] Create quick action buttons
    - [x] Add notification center
    - [x] Implement responsive design

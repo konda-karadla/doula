@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { useToast } from '@/hooks/use-toast'
-import { Shield, Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -86,6 +86,7 @@ export default function AdminLoginPage() {
         })
       }
     } catch (error) {
+      console.error('Login error:', error)
       toast({
         title: 'Login failed',
         description: 'An error occurred during login',

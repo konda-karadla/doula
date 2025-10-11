@@ -44,19 +44,16 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 type DeleteAccountFormData = z.infer<typeof deleteAccountSchema>;
 
 interface AccountSettingsProps {
-  profile?: UserProfile | null;
+  readonly profile?: UserProfile | null;
 }
 
-export function AccountSettings({ profile }: AccountSettingsProps) {
+function PasswordChangeSection() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const {
     register: registerPassword,
@@ -67,16 +64,7 @@ export function AccountSettings({ profile }: AccountSettingsProps) {
     resolver: zodResolver(passwordSchema),
   });
 
-  const {
-    register: registerDelete,
-    handleSubmit: handleDeleteSubmit,
-    formState: { errors: deleteErrors },
-    reset: resetDelete,
-  } = useForm<DeleteAccountFormData>({
-    resolver: zodResolver(deleteAccountSchema),
-  });
-
-  const handlePasswordChange = async (data: PasswordFormData) => {
+  const handlePasswordChange = async () => {
     setIsChangingPassword(true);
     setPasswordError(null);
     setPasswordSuccess(false);
@@ -103,7 +91,154 @@ export function AccountSettings({ profile }: AccountSettingsProps) {
     }
   };
 
-  const handleAccountDeletion = async (data: DeleteAccountFormData) => {
+  return (
+    <Card className="p-6">
+      <div className="flex items-center mb-4">
+        <Key className="w-5 h-5 text-green-600 mr-2" />
+        <h3 className="text-lg font-medium text-gray-900">Change Password</h3>
+      </div>
+      
+      {passwordError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTriangle className="w-4 h-4" />
+          <p>{passwordError}</p>
+        </Alert>
+      )}
+
+      {passwordSuccess && (
+        <Alert className="mb-4">
+          <CheckCircle className="w-4 h-4" />
+          <p>Password changed successfully!</p>
+        </Alert>
+      )}
+
+      <form onSubmit={handlePasswordSubmit(handlePasswordChange)} className="space-y-4">
+        <div>
+          <Label htmlFor="currentPassword">Current Password</Label>
+          <div className="relative mt-1">
+            <Input
+              id="currentPassword"
+              type={showCurrentPassword ? 'text' : 'password'}
+              {...registerPassword('currentPassword')}
+              className={passwordErrors.currentPassword ? 'border-red-500' : ''}
+            />
+            <button
+              type="button"
+              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          {passwordErrors.currentPassword && (
+            <p className="text-sm text-red-600 mt-1">{passwordErrors.currentPassword.message}</p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor="newPassword">New Password</Label>
+          <div className="relative mt-1">
+            <Input
+              id="newPassword"
+              type={showNewPassword ? 'text' : 'password'}
+              {...registerPassword('newPassword')}
+              className={passwordErrors.newPassword ? 'border-red-500' : ''}
+            />
+            <button
+              type="button"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          {passwordErrors.newPassword && (
+            <p className="text-sm text-red-600 mt-1">{passwordErrors.newPassword.message}</p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor="confirmPassword">Confirm New Password</Label>
+          <div className="relative mt-1">
+            <Input
+              id="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              {...registerPassword('confirmPassword')}
+              className={passwordErrors.confirmPassword ? 'border-red-500' : ''}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          {passwordErrors.confirmPassword && (
+            <p className="text-sm text-red-600 mt-1">{passwordErrors.confirmPassword.message}</p>
+          )}
+        </div>
+
+        <div className="flex space-x-3">
+          <Button 
+            type="submit" 
+            disabled={!isPasswordDirty || isChangingPassword}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {isChangingPassword ? (
+              <>
+                <Lock className="w-4 h-4 mr-2 animate-spin" />
+                Changing...
+              </>
+            ) : (
+              <>
+                <Key className="w-4 h-4 mr-2" />
+                Change Password
+              </>
+            )}
+          </Button>
+          
+          {isPasswordDirty && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => resetPassword()}
+              disabled={isChangingPassword}
+            >
+              Cancel
+            </Button>
+          )}
+        </div>
+      </form>
+
+      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+        <h4 className="text-sm font-medium text-blue-900 mb-2">Password Requirements:</h4>
+        <ul className="text-xs text-blue-800 space-y-1">
+          <li>• At least 8 characters long</li>
+          <li>• Contains uppercase and lowercase letters</li>
+          <li>• Contains at least one number</li>
+          <li>• Different from your current password</li>
+        </ul>
+      </div>
+    </Card>
+  );
+}
+
+function AccountDeletionSection() {
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const {
+    register: registerDelete,
+    handleSubmit: handleDeleteSubmit,
+    formState: { errors: deleteErrors },
+    reset: resetDelete,
+  } = useForm<DeleteAccountFormData>({
+    resolver: zodResolver(deleteAccountSchema),
+  });
+
+  const handleAccountDeletion = async () => {
     setIsDeletingAccount(true);
     setDeleteError(null);
 
@@ -132,208 +267,7 @@ export function AccountSettings({ profile }: AccountSettingsProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Account Settings</h2>
-        <p className="text-sm text-gray-600">Manage your account security and preferences.</p>
-      </div>
-
-      {/* Account Information */}
-      <Card className="p-6">
-        <div className="flex items-center mb-4">
-          <Shield className="w-5 h-5 text-blue-600 mr-2" />
-          <h3 className="text-lg font-medium text-gray-900">Account Information</h3>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label>Email Address</Label>
-            <div className="mt-1 flex items-center">
-              <Mail className="w-4 h-4 text-gray-400 mr-2" />
-              <span className="text-sm text-gray-900">{profile?.email}</span>
-            </div>
-          </div>
-          
-          <div>
-            <Label>Account Status</Label>
-            <div className="mt-1">
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                Active
-              </Badge>
-            </div>
-          </div>
-          
-          <div>
-            <Label>Member Since</Label>
-            <div className="mt-1 text-sm text-gray-600">
-              {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'N/A'}
-            </div>
-          </div>
-          
-          <div>
-            <Label>Last Login</Label>
-            <div className="mt-1 text-sm text-gray-600">
-              {new Date().toLocaleDateString()}
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Change Password */}
-      <Card className="p-6">
-        <div className="flex items-center mb-4">
-          <Key className="w-5 h-5 text-green-600 mr-2" />
-          <h3 className="text-lg font-medium text-gray-900">Change Password</h3>
-        </div>
-        
-        {passwordError && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTriangle className="w-4 h-4" />
-            <p>{passwordError}</p>
-          </Alert>
-        )}
-
-        {passwordSuccess && (
-          <Alert className="mb-4">
-            <CheckCircle className="w-4 h-4" />
-            <p>Password changed successfully!</p>
-          </Alert>
-        )}
-
-        <form onSubmit={handlePasswordSubmit(handlePasswordChange)} className="space-y-4">
-          <div>
-            <Label htmlFor="currentPassword">Current Password</Label>
-            <div className="relative mt-1">
-              <Input
-                id="currentPassword"
-                type={showCurrentPassword ? 'text' : 'password'}
-                {...registerPassword('currentPassword')}
-                className={passwordErrors.currentPassword ? 'border-red-500' : ''}
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-            {passwordErrors.currentPassword && (
-              <p className="text-sm text-red-600 mt-1">{passwordErrors.currentPassword.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="newPassword">New Password</Label>
-            <div className="relative mt-1">
-              <Input
-                id="newPassword"
-                type={showNewPassword ? 'text' : 'password'}
-                {...registerPassword('newPassword')}
-                className={passwordErrors.newPassword ? 'border-red-500' : ''}
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-            {passwordErrors.newPassword && (
-              <p className="text-sm text-red-600 mt-1">{passwordErrors.newPassword.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="confirmPassword">Confirm New Password</Label>
-            <div className="relative mt-1">
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                {...registerPassword('confirmPassword')}
-                className={passwordErrors.confirmPassword ? 'border-red-500' : ''}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-            {passwordErrors.confirmPassword && (
-              <p className="text-sm text-red-600 mt-1">{passwordErrors.confirmPassword.message}</p>
-            )}
-          </div>
-
-          <div className="flex space-x-3">
-            <Button 
-              type="submit" 
-              disabled={!isPasswordDirty || isChangingPassword}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {isChangingPassword ? (
-                <>
-                  <Lock className="w-4 h-4 mr-2 animate-spin" />
-                  Changing...
-                </>
-              ) : (
-                <>
-                  <Key className="w-4 h-4 mr-2" />
-                  Change Password
-                </>
-              )}
-            </Button>
-            
-            {isPasswordDirty && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => resetPassword()}
-                disabled={isChangingPassword}
-              >
-                Cancel
-              </Button>
-            )}
-          </div>
-        </form>
-
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-          <h4 className="text-sm font-medium text-blue-900 mb-2">Password Requirements:</h4>
-          <ul className="text-xs text-blue-800 space-y-1">
-            <li>• At least 8 characters long</li>
-            <li>• Contains uppercase and lowercase letters</li>
-            <li>• Contains at least one number</li>
-            <li>• Different from your current password</li>
-          </ul>
-        </div>
-      </Card>
-
-      {/* Two-Factor Authentication */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <Shield className="w-5 h-5 text-purple-600 mr-2" />
-            <h3 className="text-lg font-medium text-gray-900">Two-Factor Authentication</h3>
-          </div>
-          <Badge variant="outline" className="bg-gray-100 text-gray-600">
-            Not Enabled
-          </Badge>
-        </div>
-        
-        <p className="text-sm text-gray-600 mb-4">
-          Add an extra layer of security to your account by enabling two-factor authentication.
-        </p>
-        
-        <Button variant="outline" disabled>
-          <Shield className="w-4 h-4 mr-2" />
-          Enable 2FA (Coming Soon)
-        </Button>
-      </Card>
-
-      {/* Account Deletion */}
-      <Card className="p-6 border-red-200 bg-red-50">
+    <Card className="p-6 border-red-200 bg-red-50">
         <div className="flex items-center mb-4">
           <Trash2 className="w-5 h-5 text-red-600 mr-2" />
           <h3 className="text-lg font-medium text-red-900">Delete Account</h3>
@@ -435,6 +369,83 @@ export function AccountSettings({ profile }: AccountSettingsProps) {
           </div>
         )}
       </Card>
+  );
+}
+
+export function AccountSettings({ profile }: AccountSettingsProps) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Account Settings</h2>
+        <p className="text-sm text-gray-600">Manage your account security and preferences.</p>
+      </div>
+
+      {/* Account Information */}
+      <Card className="p-6">
+        <div className="flex items-center mb-4">
+          <Shield className="w-5 h-5 text-blue-600 mr-2" />
+          <h3 className="text-lg font-medium text-gray-900">Account Information</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Email Address</Label>
+            <div className="mt-1 flex items-center">
+              <Mail className="w-4 h-4 text-gray-400 mr-2" />
+              <span className="text-sm text-gray-900">{profile?.email}</span>
+            </div>
+          </div>
+          
+          <div>
+            <Label>Account Status</Label>
+            <div className="mt-1">
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                Active
+              </Badge>
+            </div>
+          </div>
+          
+          <div>
+            <Label>Member Since</Label>
+            <div className="mt-1 text-sm text-gray-600">
+              {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'N/A'}
+            </div>
+          </div>
+          
+          <div>
+            <Label>Last Login</Label>
+            <div className="mt-1 text-sm text-gray-600">
+              {new Date().toLocaleDateString()}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <PasswordChangeSection />
+
+      {/* Two-Factor Authentication */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Shield className="w-5 h-5 text-purple-600 mr-2" />
+            <h3 className="text-lg font-medium text-gray-900">Two-Factor Authentication</h3>
+          </div>
+          <Badge variant="outline" className="bg-gray-100 text-gray-600">
+            Not Enabled
+          </Badge>
+        </div>
+        
+        <p className="text-sm text-gray-600 mb-4">
+          Add an extra layer of security to your account by enabling two-factor authentication.
+        </p>
+        
+        <Button variant="outline" disabled>
+          <Shield className="w-4 h-4 mr-2" />
+          Enable 2FA (Coming Soon)
+        </Button>
+      </Card>
+
+      <AccountDeletionSection />
     </div>
   );
 }

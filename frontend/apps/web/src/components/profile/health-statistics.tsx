@@ -6,7 +6,6 @@ import { Progress } from '@/components/ui/progress';
 import { 
   BarChart3, 
   TrendingUp, 
-  TrendingDown, 
   Activity, 
   Calendar,
   FileText,
@@ -20,7 +19,7 @@ import type { HealthStats } from '@health-platform/types';
 interface HealthStatisticsProps {
   stats?: HealthStats | null;
   isLoading: boolean;
-  error: any;
+  error: Error | null;
 }
 
 export function HealthStatistics({ stats, isLoading, error }: HealthStatisticsProps) {

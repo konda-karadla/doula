@@ -54,8 +54,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             localStorage.setItem('health_platform_refresh_token', response.refreshToken)
             localStorage.setItem('health_platform_user', JSON.stringify(response.user))
           }
-        } catch (err) {
-          const e = err as any
+        } catch (err: unknown) {
+          const e = err as { message?: string | string[] }
           let msg = 'Login failed'
           if (Array.isArray(e?.message)) {
             msg = e.message.join(', ')
@@ -86,8 +86,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             localStorage.setItem('health_platform_refresh_token', response.refreshToken)
             localStorage.setItem('health_platform_user', JSON.stringify(response.user))
           }
-        } catch (err) {
-          const e = err as any
+        } catch (err: unknown) {
+          const e = err as { message?: string | string[] }
           let msg = 'Registration failed'
           if (Array.isArray(e?.message)) {
             msg = e.message.join(', ')

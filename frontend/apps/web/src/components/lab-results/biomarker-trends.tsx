@@ -8,7 +8,7 @@ import { HealthChart } from '@/components/dashboard/health-chart'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 interface BiomarkerTrendsProps {
-  labResultId: string
+  readonly labResultId: string
 }
 
 // Mock trend data
@@ -69,7 +69,7 @@ const mockBiomarkerSummary = [
   }
 ]
 
-export function BiomarkerTrends({ labResultId }: BiomarkerTrendsProps) {
+export function BiomarkerTrends({ }: BiomarkerTrendsProps) {
   const [selectedBiomarker, setSelectedBiomarker] = useState('White Blood Cell Count')
 
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
@@ -100,6 +100,12 @@ export function BiomarkerTrends({ labResultId }: BiomarkerTrendsProps) {
     }
   }
 
+  const getTrendColor = (trend: 'up' | 'down' | 'stable') => {
+    if (trend === 'up') return 'text-green-600'
+    if (trend === 'down') return 'text-red-600'
+    return 'text-gray-600'
+  }
+
   return (
     <div className="space-y-6">
       {/* Biomarker Selector */}
@@ -109,9 +115,9 @@ export function BiomarkerTrends({ labResultId }: BiomarkerTrendsProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {mockBiomarkerSummary.map((biomarker, index) => (
+            {mockBiomarkerSummary.map((biomarker) => (
               <Card 
-                key={index}
+                key={biomarker.name}
                 className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
                   selectedBiomarker === biomarker.name 
                     ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950/20' 
@@ -129,11 +135,7 @@ export function BiomarkerTrends({ labResultId }: BiomarkerTrendsProps) {
                       {biomarker.currentValue} {biomarker.unit}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className={`text-sm ${
-                        biomarker.trend === 'up' ? 'text-green-600' : 
-                        biomarker.trend === 'down' ? 'text-red-600' : 
-                        'text-gray-600'
-                      }`}>
+                      <span className={`text-sm ${getTrendColor(biomarker.trend)}`}>
                         {biomarker.change}
                       </span>
                       {getStatusBadge(biomarker.status)}

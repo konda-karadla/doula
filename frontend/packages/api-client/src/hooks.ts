@@ -14,6 +14,7 @@ import type {
   HealthInsightsSummary,
   HealthInsight,
   BiomarkerTrend,
+  HealthScore,
   UserProfile,
   HealthStats,
 } from '@health-platform/types';
@@ -39,6 +40,7 @@ export const queryKeys = {
   insightsSummary: ['insights', 'summary'] as const,
   labInsights: (id: string) => ['insights', 'lab', id] as const,
   trends: (testName: string) => ['insights', 'trends', testName] as const,
+  healthScore: ['insights', 'health-score'] as const,
   
   // Profile
   profile: ['profile'] as const,
@@ -311,6 +313,14 @@ export const useBiomarkerTrends = (testName: string) => {
   });
 };
 
+export const useHealthScore = () => {
+  return useQuery({
+    queryKey: queryKeys.healthScore,
+    queryFn: services.insights.getHealthScore,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
 // User Profile Hooks
 export const useProfile = () => {
   return useQuery({
@@ -362,6 +372,7 @@ export const hooks = {
   useInsightsSummary,
   useLabInsights,
   useBiomarkerTrends,
+  useHealthScore,
   
   // Profile
   useProfile,

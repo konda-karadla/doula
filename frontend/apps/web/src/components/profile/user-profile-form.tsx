@@ -13,10 +13,7 @@ import { Alert } from '@/components/ui/alert';
 import { useProfile } from '@/hooks/use-profile';
 import { 
   User, 
-  Mail, 
-  Calendar, 
   MapPin, 
-  Phone, 
   Edit3, 
   Save, 
   X,
@@ -43,7 +40,7 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 interface UserProfileFormProps {
-  profile?: UserProfile | null;
+  readonly profile?: UserProfile | null;
 }
 
 export function UserProfileForm({ profile }: UserProfileFormProps) {
@@ -59,7 +56,6 @@ export function UserProfileForm({ profile }: UserProfileFormProps) {
     handleSubmit,
     formState: { errors, isDirty },
     reset,
-    watch,
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -78,7 +74,7 @@ export function UserProfileForm({ profile }: UserProfileFormProps) {
     },
   });
 
-  const onSubmit = async (data: ProfileFormData) => {
+  const onSubmit = async () => {
     setIsSaving(true);
     setSaveError(null);
     setSaveSuccess(false);

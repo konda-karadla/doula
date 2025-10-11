@@ -9,7 +9,6 @@ import {
   Download, 
   FileText, 
   Database, 
-  Calendar,
   CheckCircle,
   AlertCircle,
   Clock,
@@ -25,7 +24,7 @@ interface ExportOption {
   id: ExportType;
   label: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   estimatedSize: string;
   includes: string[];
 }

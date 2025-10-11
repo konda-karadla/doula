@@ -133,6 +133,30 @@ export interface BiomarkerTrend {
   testName: string;
 }
 
+// Health Score types
+export interface CategoryScore {
+  score: number;
+  status: 'excellent' | 'good' | 'fair' | 'poor';
+  message: string;
+}
+
+export interface HealthScore {
+  overall: number;
+  overallStatus: 'excellent' | 'good' | 'fair' | 'poor';
+  categories: {
+    metabolic?: CategoryScore;
+    cardiovascular?: CategoryScore;
+    reproductive?: CategoryScore;
+    nutritional?: CategoryScore;
+    hormonal?: CategoryScore;
+  };
+  totalBiomarkers: number;
+  criticalCount: number;
+  normalCount: number;
+  lastUpdated: string;
+  trend?: 'improving' | 'stable' | 'declining';
+}
+
 // User Profile types
 export interface UserProfile extends User {
   // Extended user profile information

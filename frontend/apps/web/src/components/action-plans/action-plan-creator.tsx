@@ -13,8 +13,6 @@ import {
   X, 
   Plus, 
   Target, 
-  Calendar,
-  Star,
   Sparkles,
   Brain
 } from 'lucide-react'
@@ -30,20 +28,22 @@ const actionPlanSchema = z.object({
 
 type ActionPlanFormData = z.infer<typeof actionPlanSchema>
 
+type Priority = 'low' | 'medium' | 'high'
+
 interface ActionItem {
   id: string
   title: string
   description: string
-  priority: 'low' | 'medium' | 'high'
+  priority: Priority
 }
 
 interface ActionPlanCreatorProps {
-  onClose: () => void
+  readonly onClose: () => void
 }
 
 export function ActionPlanCreator({ onClose }: ActionPlanCreatorProps) {
   const [actionItems, setActionItems] = useState<ActionItem[]>([])
-  const [currentItem, setCurrentItem] = useState({ title: '', description: '', priority: 'medium' as const })
+  const [currentItem, setCurrentItem] = useState<{ title: string; description: string; priority: Priority }>({ title: '', description: '', priority: 'medium' })
   const [showAIInsights, setShowAIInsights] = useState(false)
   const [aiRecommendations, setAiRecommendations] = useState<string[]>([])
 
@@ -61,7 +61,7 @@ export function ActionPlanCreator({ onClose }: ActionPlanCreatorProps) {
   const addActionItem = () => {
     if (currentItem.title.trim()) {
       const newItem: ActionItem = {
-        id: Math.random().toString(36).substr(2, 9),
+        id: Math.random().toString(36).substring(2, 11),
         ...currentItem,
       }
       setActionItems(prev => [...prev, newItem])
@@ -124,9 +124,10 @@ export function ActionPlanCreator({ onClose }: ActionPlanCreatorProps) {
         ]
       }
       
-      const categoryRecs = recommendations[watchedCategory as keyof typeof recommendations] || []
+      const categoryRecs = recommendations[watchedCategory] || []
       // Randomly select 4-6 recommendations for variety
-      const shuffled = categoryRecs.sort(() => 0.5 - Math.random())
+      const shuffled = [...categoryRecs]
+      shuffled.sort(() => 0.5 - Math.random())
       setAiRecommendations(shuffled.slice(0, Math.floor(Math.random() * 3) + 4))
     }, 1500) // Simulate AI processing time
   }
@@ -149,7 +150,7 @@ Click OK to create your action plan.`)
       actionItems,
       aiRecommendations,
       createdAt: new Date(),
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
     }
     
     console.log('Creating action plan:', actionPlan)
@@ -165,23 +166,6 @@ Click OK to create your action plan.`)
 Your action plan is now active and ready to track!`)
     
     onClose()
-  }
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'nutrition':
-        return '🥗'
-      case 'exercise':
-        return '🏃'
-      case 'lifestyle':
-        return '🏠'
-      case 'medical':
-        return '🏥'
-      case 'wellness':
-        return '🧘'
-      default:
-        return '📋'
-    }
   }
 
   const getPriorityColor = (priority: string) => {
@@ -327,9 +311,9 @@ Your action plan is now active and ready to track!`)
                     )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {aiRecommendations.map((recommendation, index) => (
+                    {aiRecommendations.map((recommendation) => (
                       <button
-                        key={index}
+                        key={recommendation}
                         type="button"
                         className={`text-left p-2 rounded border transition-colors ${
                           recommendation === 'Loading AI recommendations...'
@@ -386,7 +370,7 @@ Your action plan is now active and ready to track!`)
                       id="itemPriority"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                       value={currentItem.priority}
-                      onChange={(e) => setCurrentItem(prev => ({ ...prev, priority: e.target.value as 'low' | 'medium' | 'high' }))}
+                      onChange={(e) => setCurrentItem(prev => ({ ...prev, priority: e.target.value as Priority }))}
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>

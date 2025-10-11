@@ -49,7 +49,7 @@ const initialData: OnboardingData = {
   baselineData: {}
 }
 
-export const useOnboardingStore = create<OnboardingState & OnboardingActions>((set, get) => ({
+export const useOnboardingStore = create<OnboardingState & OnboardingActions>((set) => ({
   // Initial state
   currentStep: 0,
   isCompleted: false,

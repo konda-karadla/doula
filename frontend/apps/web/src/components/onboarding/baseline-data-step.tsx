@@ -37,7 +37,6 @@ export function BaselineDataStep({ onNext, onPrevious }: BaselineDataStepProps) 
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<BaselineFormData>({
     resolver: zodResolver(baselineSchema),
     defaultValues: {

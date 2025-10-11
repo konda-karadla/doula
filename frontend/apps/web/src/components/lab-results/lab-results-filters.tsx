@@ -9,8 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { X, Search, Filter, Calendar } from 'lucide-react'
 
 interface LabResultsFiltersProps {
-  onClose: () => void
-  onApplyFilters?: (filters: {
+  readonly onClose: () => void
+  readonly onApplyFilters?: (filters: {
     search?: string
     status?: string[]
     dateRange?: { from: string; to: string }
@@ -180,7 +180,7 @@ export function LabResultsFilters({ onClose, onApplyFilters }: LabResultsFilters
             <div className="flex flex-wrap gap-2">
               {filters.search && (
                 <Badge variant="secondary">
-                  Search: "{filters.search}"
+                  Search: &quot;{filters.search}&quot;
                 </Badge>
               )}
               {filters.status.map(status => (

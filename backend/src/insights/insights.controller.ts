@@ -7,6 +7,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { InsightsService } from './insights.service';
+import { HealthScoreService } from './services/health-score.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TenantIsolationGuard } from '../common/guards/tenant-isolation.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -18,7 +19,10 @@ import { InsightsSummaryDto } from './dto/insights-summary.dto';
 @Controller('insights')
 @UseGuards(JwtAuthGuard, TenantIsolationGuard)
 export class InsightsController {
-  constructor(private readonly insightsService: InsightsService) {}
+  constructor(
+    private readonly insightsService: InsightsService,
+    private readonly healthScoreService: HealthScoreService,
+  ) {}
 
   @Get('summary')
   @ApiOperation({
@@ -77,6 +81,22 @@ export class InsightsController {
   ) {
     return this.insightsService.getBiomarkerTrends(
       testName,
+      user.userId,
+      user.systemId,
+    );
+  }
+
+  @Get('health-score')
+  @ApiOperation({
+    summary: 'Get comprehensive health score based on all biomarkers',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Health score with category breakdowns and trends',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getHealthScore(@CurrentUser() user: any) {
+    return this.healthScoreService.calculateHealthScore(
       user.userId,
       user.systemId,
     );

@@ -34,7 +34,7 @@ export function CompletionStep({ onComplete }: CompletionStepProps) {
         <CardContent className="space-y-6">
           <div className="text-center space-y-4">
             <p className="text-muted-foreground">
-              Congratulations! We've successfully set up your health profile with your preferences and goals.
+              Congratulations! We&apos;ve successfully set up your health profile with your preferences and goals.
             </p>
           </div>
 
@@ -75,7 +75,7 @@ export function CompletionStep({ onComplete }: CompletionStepProps) {
 
           {/* Next Steps */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-center">What's Next?</h3>
+            <h3 className="text-lg font-semibold text-center">What&apos;s Next?</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20">
                 <Heart className="w-6 h-6 text-blue-600 dark:text-blue-400 mx-auto mb-2" />

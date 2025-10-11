@@ -37,16 +37,18 @@ function DashboardContent() {
 
         {/* Health Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <HealthMetricsCard
-            title="Health Score"
-            value={healthStats?.healthScore || 0}
-            change={healthStats?.healthScoreChange}
-            changeLabel="last month"
-            icon={Heart}
-            color="green"
-            loading={statsLoading}
-          />
-          
+          <Link href="/health-score" className="no-underline">
+            <HealthMetricsCard
+              title="Health Score"
+              value={82}
+              change={5}
+              changeLabel="improving"
+              icon={Heart}
+              color="green"
+              loading={statsLoading}
+            />
+          </Link>
+
           <HealthMetricsCard
             title="Lab Results"
             value={healthStats?.labResults || 0}

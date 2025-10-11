@@ -6,8 +6,8 @@ import { ArrowLeft, ArrowRight, Zap, Heart, Baby } from 'lucide-react'
 import { useOnboardingStore, type JourneyType } from '@/lib/stores/onboarding'
 
 interface JourneyStepProps {
-  onNext: () => void
-  onPrevious: () => void
+  readonly onNext: () => void
+  readonly onPrevious: () => void
 }
 
 const journeyOptions = [
@@ -62,7 +62,7 @@ export function JourneyStep({ onNext, onPrevious }: JourneyStepProps) {
 
   const isNextDisabled = !journeyType
 
-  const getColorClasses = (color: string, isSelected: boolean) => {
+  const getColorClasses = (color: string) => {
     const colorMap = {
       blue: {
         selected: 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950/20',
@@ -81,7 +81,7 @@ export function JourneyStep({ onNext, onPrevious }: JourneyStepProps) {
       }
     }
     
-    return isSelected ? colorMap[color as keyof typeof colorMap] : {}
+    return colorMap[color as keyof typeof colorMap]
   }
 
   return (
@@ -97,7 +97,7 @@ export function JourneyStep({ onNext, onPrevious }: JourneyStepProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {journeyOptions.map((journey) => {
               const isSelected = journeyType === journey.id
-              const colorClasses = getColorClasses(journey.color, isSelected)
+              const colorClasses = getColorClasses(journey.color)
               const IconComponent = journey.icon
 
               return (
@@ -124,8 +124,8 @@ export function JourneyStep({ onNext, onPrevious }: JourneyStepProps) {
                       </div>
 
                       <ul className="text-xs text-muted-foreground space-y-1">
-                        {journey.features.map((feature, index) => (
-                          <li key={index}>• {feature}</li>
+                        {journey.features.map((feature) => (
+                          <li key={feature}>• {feature}</li>
                         ))}
                       </ul>
                     </div>

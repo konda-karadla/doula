@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { DashboardNav } from '@/components/layout/dashboard-nav'
 import { LabResultsList } from '@/components/lab-results/lab-results-list'
@@ -9,7 +9,7 @@ import { LabResultsFilters } from '@/components/lab-results/lab-results-filters'
 import { Button } from '@/components/ui/button'
 import { Plus, Upload, Filter } from 'lucide-react'
 
-export default function LabResultsPage() {
+function LabResultsContent() {
   const searchParams = useSearchParams()
   const [showUploadModal, setShowUploadModal] = useState(false)
   useEffect(() => {
@@ -80,5 +80,13 @@ export default function LabResultsPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function LabResultsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LabResultsContent />
+    </Suspense>
   )
 }

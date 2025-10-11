@@ -16,12 +16,18 @@ import {
   Cell
 } from 'recharts'
 
+interface ChartDataPoint {
+  name: string;
+  value: number;
+  [key: string]: string | number;
+}
+
 interface HealthChartProps {
-  title: string
-  data: any[]
-  type: 'line' | 'bar' | 'pie'
-  loading?: boolean
-  height?: number
+  readonly title: string
+  readonly data: ChartDataPoint[]
+  readonly type: 'line' | 'bar' | 'pie'
+  readonly loading?: boolean
+  readonly height?: number
 }
 
 export function HealthChart({
@@ -92,7 +98,7 @@ export function HealthChart({
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={(props: { name?: string; percent?: number }) => `${props.name || ''} ${((props.percent || 0) * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"

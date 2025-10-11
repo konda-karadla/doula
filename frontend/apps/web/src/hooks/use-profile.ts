@@ -6,6 +6,7 @@ const mockProfile = {
   id: '1',
   email: 'test@example.com',
   username: 'testuser',
+  systemId: 'SYS001',
   profileType: 'patient' as const,
   journeyType: 'general' as const,
   createdAt: new Date().toISOString(),

@@ -1,7 +1,7 @@
 {
   "name": "@health-platform/api-client",
   "version": "1.0.0",
-  "description": "API client for Health Platform",
+  "description": "API client for Health Platform - Services only, no hooks",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

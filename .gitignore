@@ -156,3 +156,12 @@ web-build/
 **/ios/
 *.orig.*
 .kotlin/
+
+# Temporary files and session notes
+SESSION_SUMMARY*.md
+NEXT_TASK*.md
+TODAYS_PROGRESS*.md
+**/create-test-*.ts
+**/create-test-*.js
+**/*-mock.tsx
+**/*-mock.ts
