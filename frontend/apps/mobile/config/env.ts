@@ -1,9 +1,19 @@
-import Constants from 'expo-constants';
+import {
+  API_BASE_URL,
+  API_TIMEOUT,
+  NODE_ENV,
+  ENABLE_OFFLINE_MODE,
+  ENABLE_DEBUG_MODE,
+} from '@env';
 
 /**
  * Environment Configuration
- * Uses expo-constants to read from app.json extra field
- * Supports different environments (development, staging, production)
+ * Uses react-native-dotenv to read from .env.local
+ * Values are injected at build time via Babel
+ * 
+ * To change values:
+ * 1. Update .env.local
+ * 2. Restart Metro bundler (npm run start:clean)
  */
 
 type Environment = 'development' | 'staging' | 'production';
@@ -17,25 +27,22 @@ interface EnvConfig {
 }
 
 /**
- * Get environment configuration from expo-constants
- * Falls back to defaults if not configured
+ * Get environment configuration from .env.local
+ * Falls back to safe defaults if not configured
  */
 function getEnvConfig(): EnvConfig {
-  const extra = Constants.expoConfig?.extra || {};
-  
-  // Determine environment
-  const environment: Environment = extra.environment || 'development';
-  
-  // Get your computer's IP for development
-  // In production, this would be your actual API domain
-  const defaultApiUrl = 'http://192.168.1.165:3002';
-  
+  const apiUrl = API_BASE_URL || 'http://localhost:3002';
+  const apiTimeout = parseInt(API_TIMEOUT || '30000', 10);
+  const environment = (NODE_ENV || 'development') as Environment;
+  const enableDebug = ENABLE_DEBUG_MODE === 'true' || environment === 'development';
+  const enableOfflineMode = ENABLE_OFFLINE_MODE === 'true' || true;
+
   return {
-    API_BASE_URL: extra.apiUrl || defaultApiUrl,
-    API_TIMEOUT: extra.apiTimeout || 30000,
+    API_BASE_URL: apiUrl,
+    API_TIMEOUT: apiTimeout,
     ENVIRONMENT: environment,
-    ENABLE_DEBUG: extra.enableDebug ?? (environment === 'development'),
-    ENABLE_OFFLINE_MODE: extra.enableOfflineMode ?? true,
+    ENABLE_DEBUG: enableDebug,
+    ENABLE_OFFLINE_MODE: enableOfflineMode,
   };
 }
 
@@ -56,4 +63,3 @@ if (isDevelopment && env.ENABLE_DEBUG) {
   console.log('  Debug Mode:', env.ENABLE_DEBUG);
   console.log('  Offline Mode:', env.ENABLE_OFFLINE_MODE);
 }
-
