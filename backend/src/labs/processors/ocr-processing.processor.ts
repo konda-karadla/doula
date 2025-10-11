@@ -2,6 +2,7 @@ import { Processor, Process } from '@nestjs/bull';
 import type { Job } from 'bull';
 import { Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { EmailService } from '../../notifications/email.service';
 import { OcrService } from '../services/ocr.service';
 import { BiomarkerParserService } from '../services/biomarker-parser.service';
 import { S3Service } from '../services/s3.service';
@@ -20,6 +21,7 @@ export class OcrProcessingProcessor {
     private readonly ocrService: OcrService,
     private readonly biomarkerParser: BiomarkerParserService,
     private readonly s3Service: S3Service,
+    private readonly emailService: EmailService,
   ) {}
 
   @Process('extract-text')
@@ -63,10 +65,24 @@ export class OcrProcessingProcessor {
         });
       }
 
-      await this.prisma.labResult.update({
+      const updatedLabResult = await this.prisma.labResult.update({
         where: { id: labResultId },
         data: { processingStatus: 'completed' },
+        include: {
+          user: true,
+        },
       });
+
+      // Send email notification (async, don't wait)
+      this.emailService
+        .sendLabResultReadyEmail(
+          updatedLabResult.user.email,
+          updatedLabResult.user.username,
+          labResultId,
+        )
+        .catch((err) =>
+          this.logger.error('Failed to send lab-ready email:', err),
+        );
 
       this.logger.log(
         `OCR processing completed for lab result: ${labResultId}`,

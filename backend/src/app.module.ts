@@ -10,6 +10,7 @@ import { ActionPlansModule } from './action-plans/action-plans.module';
 import { InsightsModule } from './insights/insights.module';
 import { ProfileModule } from './profile/profile.module';
 import { AdminModule } from './admin/admin.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import configuration from './config/configuration';
 import { validate } from './config/env.validation';
 
@@ -37,6 +38,7 @@ import { validate } from './config/env.validation';
     InsightsModule,
     ProfileModule,
     AdminModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

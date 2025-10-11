@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Health Insights</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 10px;
+            padding: 40px;
+            color: white;
+            text-align: center;
+        }
+        .content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 20px;
+            color: #333;
+        }
+        h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #10b981;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .insight-count {
+            font-size: 48px;
+            font-weight: bold;
+            color: #10b981;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💡 New Insights Available!</h1>
+        <p style="font-size: 18px; margin-top: 10px;">AI has analyzed your health data</p>
+    </div>
+    
+    <div class="content">
+        <h2 style="color: #10b981;">Hi {{username}}!</h2>
+        
+        <p>We've generated new personalized health insights based on your latest data.</p>
+        
+        <div class="insight-count">
+            {{insightCount}}
+        </div>
+        <p style="font-size: 18px; color: #666; margin-top: 0;">New Insights Ready</p>
+        
+        <p><strong>Your insights include:</strong></p>
+        <ul style="text-align: left;">
+            <li>🎯 Priority health recommendations</li>
+            <li>📊 Biomarker trend analysis</li>
+            <li>⚠️ Areas needing attention</li>
+            <li>✅ Positive health indicators</li>
+            <li>💪 Actionable next steps</li>
+        </ul>
+        
+        <a href="{{dashboardUrl}}/dashboard" class="button">View Insights</a>
+        
+        <p style="margin-top: 30px; font-size: 14px; color: #666;">
+            Insights are personalized based on your biomarker data and health goals.
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p>Health Platform - AI-Powered Health Insights</p>
+        <p>You're receiving this because new insights are available</p>
+    </div>
+</body>
+</html>
+

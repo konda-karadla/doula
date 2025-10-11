@@ -8,11 +8,13 @@ import { OcrService } from './services/ocr.service';
 import { BiomarkerParserService } from './services/biomarker-parser.service';
 import { OcrProcessingProcessor } from './processors/ocr-processing.processor';
 import { PrismaModule } from '../prisma/prisma.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     PrismaModule,
     ConfigModule,
+    NotificationsModule,
     BullModule.registerQueue({
       name: 'ocr-processing',
     }),
