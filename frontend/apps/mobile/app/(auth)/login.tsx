@@ -1,15 +1,96 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import { Link } from 'expo-router';
-import { useState } from 'react';
+import { Link, useRouter } from 'expo-router';
+import { useState, useEffect } from 'react';
 import { useAuthActions } from '../../hooks/use-auth-actions';
 import { useAuthStore } from '../../stores/auth';
+import { useSettingsStore } from '../../stores/settings';
+import { checkBiometricCapability, authenticateWithBiometrics, getBiometricTypeName } from '../../lib/biometric/biometric-auth';
+import { tokenStorage } from '../../lib/storage/token-storage';
 
 export default function LoginScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricType, setBiometricType] = useState('');
   
   const { login, isLoading } = useAuthActions();
   const { error, clearError } = useAuthStore();
+  const { biometricEnabled } = useSettingsStore();
+
+  // Check biometric capability and saved credentials on mount
+  useEffect(() => {
+    checkBiometricSupport();
+  }, []);
+
+  const checkBiometricSupport = async () => {
+    const capability = await checkBiometricCapability();
+    
+    // Check for refresh token (persists after logout) instead of access token
+    const savedRefreshToken = await tokenStorage.getRefreshToken();
+    const savedUser = await tokenStorage.getUser();
+    const hasSavedCredentials = !!(savedRefreshToken && savedUser);
+    
+    console.log('🔐 Login Screen - Biometric Check:');
+    console.log('  Device capability:', capability.isAvailable);
+    console.log('  Has saved credentials:', hasSavedCredentials);
+    console.log('  Biometric enabled in settings:', biometricEnabled);
+    console.log('  Refresh token found:', savedRefreshToken ? 'YES' : 'NO');
+    console.log('  User data found:', savedUser ? 'YES' : 'NO');
+    
+    const showBiometric = capability.isAvailable && hasSavedCredentials && biometricEnabled;
+    console.log('  Will show biometric button:', showBiometric);
+    
+    setBiometricAvailable(showBiometric);
+    if (capability.isAvailable) {
+      setBiometricType(getBiometricTypeName(capability.supportedTypes));
+      console.log('  Biometric type:', getBiometricTypeName(capability.supportedTypes));
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    clearError();
+
+    // Authenticate with biometrics first
+    const result = await authenticateWithBiometrics('Login to Health Platform');
+    
+    if (result.success) {
+      try {
+        // Get saved credentials
+        const savedUser = await tokenStorage.getUser();
+        const savedRefreshToken = await tokenStorage.getRefreshToken();
+
+        if (savedUser && savedRefreshToken) {
+          console.log('✅ Biometric authenticated, refreshing access token...');
+          
+          // Use refresh token to get new access token
+          const { authService } = await import('../../lib/api/services');
+          const authData = await authService.refresh({ refreshToken: savedRefreshToken });
+          
+          // Save new tokens
+          await tokenStorage.setAccessToken(authData.accessToken);
+          await tokenStorage.setRefreshToken(authData.refreshToken);
+          
+          console.log('✅ New access token obtained');
+          
+          // Restore authentication
+          useAuthStore.getState().setAuth(savedUser, authData.accessToken, authData.refreshToken);
+          
+          console.log('✅ Navigating to dashboard...');
+          
+          // Navigate to main app
+          router.replace('/(tabs)');
+        } else {
+          Alert.alert('Error', 'No saved credentials found. Please login with password.');
+        }
+      } catch (error: any) {
+        console.error('Biometric login error:', error);
+        Alert.alert('Error', error.message || 'Failed to login with biometrics. Please use password.');
+      }
+    } else if (result.error) {
+      Alert.alert('Authentication Failed', result.error);
+    }
+  };
 
   const handleLogin = () => {
     // Clear any previous errors
@@ -69,6 +150,17 @@ export default function LoginScreen() {
             <Text style={styles.buttonText}>Sign In</Text>
           )}
         </TouchableOpacity>
+
+        {/* Biometric Login Option */}
+        {biometricAvailable && (
+          <TouchableOpacity 
+            style={styles.biometricButton} 
+            onPress={handleBiometricLogin}
+            disabled={isLoading}
+          >
+            <Text style={styles.biometricText}>Or use {biometricType}</Text>
+          </TouchableOpacity>
+        )}
 
         <Link href="/(auth)/register" style={styles.linkContainer}>
           <Text style={styles.linkText}>
@@ -154,6 +246,16 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.6,
+  },
+  biometricButton: {
+    marginTop: 16,
+    padding: 12,
+    alignItems: 'center',
+  },
+  biometricText: {
+    color: '#667eea',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

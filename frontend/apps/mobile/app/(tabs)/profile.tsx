@@ -1,10 +1,28 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch } from 'react-native';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/auth';
+import { useSettingsStore } from '../../stores/settings';
 import { useAuthActions } from '../../hooks/use-auth-actions';
+import { checkBiometricCapability, getBiometricTypeName } from '../../lib/biometric/biometric-auth';
 
 export default function ProfileScreen() {
   const { user } = useAuthStore();
+  const { biometricEnabled, setBiometric } = useSettingsStore();
   const { logout } = useAuthActions();
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricType, setBiometricType] = useState('');
+
+  useEffect(() => {
+    void checkBiometricSupport();
+  }, []);
+
+  const checkBiometricSupport = async () => {
+    const capability = await checkBiometricCapability();
+    setBiometricAvailable(capability.isAvailable);
+    if (capability.isAvailable) {
+      setBiometricType(getBiometricTypeName(capability.supportedTypes));
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -54,6 +72,28 @@ export default function ProfileScreen() {
           </View>
         )}
       </View>
+
+      {/* Settings Card */}
+      {biometricAvailable && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Security Settings</Text>
+          
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>{biometricType}</Text>
+              <Text style={styles.settingDescription}>
+                Use {biometricType.toLowerCase()} to login quickly and securely
+              </Text>
+            </View>
+            <Switch
+              value={biometricEnabled}
+              onValueChange={setBiometric}
+              trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
+              thumbColor={biometricEnabled ? '#667eea' : '#f4f3f4'}
+            />
+          </View>
+        </View>
+      )}
 
       {/* Logout Button */}
       <View style={styles.section}>
@@ -160,6 +200,27 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+  },
+  settingInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  settingLabel: {
+    fontSize: 16,
+    color: '#1f2937',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  settingDescription: {
+    fontSize: 12,
+    color: '#6b7280',
+    lineHeight: 16,
   },
 });
 
