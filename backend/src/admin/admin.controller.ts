@@ -86,16 +86,43 @@ export class AdminController {
     return this.adminService.getActionPlanAnalytics();
   }
 
+  // ==================== LAB RESULTS MANAGEMENT ====================
+  
+  @Get('lab-results')
+  async getAllLabResults() {
+    return this.adminService.getAllLabResults();
+  }
+
   // ==================== ACTION PLAN MANAGEMENT ====================
   
+  @Get('action-plans')
+  async getAllActionPlans() {
+    return this.adminService.getAllActionPlans();
+  }
+
+  @Get('action-plans/:id')
+  async getActionPlanById(@Param('id') id: string) {
+    return this.adminService.getActionPlanById(id);
+  }
+
+  @Get('action-plans/:id/items')
+  async getActionPlanItems(@Param('id') id: string) {
+    return this.adminService.getActionPlanItems(id);
+  }
+
   @Post('action-plans')
   async createActionPlanForUser(@Body() data: any) {
     return this.adminService.createActionPlanForUser(data);
   }
 
-  @Get('action-plans')
-  async getAllActionPlans() {
-    return this.adminService.getAllActionPlans();
+  @Put('action-plans/:id')
+  async updateActionPlan(@Param('id') id: string, @Body() data: any) {
+    return this.adminService.updateActionPlan(id, data);
+  }
+
+  @Delete('action-plans/:id')
+  async deleteActionPlan(@Param('id') id: string) {
+    return this.adminService.deleteActionPlan(id);
   }
 }
 

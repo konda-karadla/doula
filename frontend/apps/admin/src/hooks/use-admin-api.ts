@@ -72,7 +72,7 @@ export const useAdminActionPlans = () => {
 export const useActionPlan = (id: string) => {
   return useQuery({
     queryKey: queryKeys.actionPlan(id),
-    queryFn: () => services.actionPlans.get(id),
+    queryFn: () => services.admin.getActionPlanById(id),
     enabled: !!id,
   })
 }
@@ -93,8 +93,9 @@ export const useUpdateActionPlan = () => {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
-      services.actionPlans.update(id, data),
+      services.admin.updateActionPlan(id, data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.allActionPlans })
       queryClient.invalidateQueries({ queryKey: queryKeys.actionPlans })
     },
   })
@@ -104,8 +105,9 @@ export const useDeleteActionPlan = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: services.actionPlans.delete,
+    mutationFn: (id: string) => services.admin.deleteActionPlan(id),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.allActionPlans })
       queryClient.invalidateQueries({ queryKey: queryKeys.actionPlans })
     },
   })
@@ -114,7 +116,7 @@ export const useDeleteActionPlan = () => {
 export const useActionItems = (planId: string) => {
   return useQuery({
     queryKey: queryKeys.actionItems(planId),
-    queryFn: () => services.actionItems.list(planId),
+    queryFn: () => services.admin.getActionPlanItems(planId),
     enabled: !!planId,
   })
 }

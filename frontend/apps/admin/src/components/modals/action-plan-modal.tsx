@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -71,6 +71,27 @@ export function ActionPlanModal({
       status: 'active',
     },
   })
+
+  // Reset form when actionPlan changes (for edit mode)
+  useEffect(() => {
+    if (open) {
+      if (actionPlan && mode === 'edit') {
+        reset({
+          userId: actionPlan.userId || '',
+          title: actionPlan.title,
+          description: actionPlan.description || '',
+          status: actionPlan.status as 'active' | 'completed' | 'archived',
+        })
+      } else if (mode === 'create') {
+        reset({
+          userId: users[0]?.id || '',
+          title: '',
+          description: '',
+          status: 'active',
+        })
+      }
+    }
+  }, [open, actionPlan, mode, users, reset])
 
   const onSubmit = async (data: ActionPlanFormData) => {
     setIsSubmitting(true)

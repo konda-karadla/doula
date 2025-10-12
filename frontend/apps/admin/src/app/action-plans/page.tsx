@@ -116,7 +116,7 @@ export default function ActionPlansPage() {
                 variant="ghost"
                 size="icon"
                 onClick={() => handleViewPlan(plan.id)}
-                title="View plan"
+                title="View details"
               >
                 <Eye className="h-4 w-4" />
               </Button>

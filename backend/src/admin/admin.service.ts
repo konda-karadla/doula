@@ -378,6 +378,26 @@ export class AdminService {
     };
   }
 
+  // ==================== LAB RESULTS MANAGEMENT ====================
+
+  async getAllLabResults() {
+    return this.prisma.labResult.findMany({
+      include: {
+        biomarkers: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            username: true,
+          },
+        },
+      },
+      orderBy: {
+        uploadedAt: 'desc',
+      },
+    });
+  }
+
   // ==================== ACTION PLAN MANAGEMENT ====================
 
   async createActionPlanForUser(data: {
@@ -425,6 +445,90 @@ export class AdminService {
         createdAt: 'desc',
       },
     });
+  }
+
+  async getActionPlanById(id: string) {
+    const actionPlan = await this.prisma.actionPlan.findUnique({
+      where: { id },
+      include: {
+        actionItems: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            username: true,
+          },
+        },
+      },
+    });
+
+    if (!actionPlan) {
+      throw new NotFoundException(`Action plan with ID ${id} not found`);
+    }
+
+    return actionPlan;
+  }
+
+  async getActionPlanItems(planId: string) {
+    // First verify the action plan exists
+    const actionPlan = await this.prisma.actionPlan.findUnique({
+      where: { id: planId },
+    });
+
+    if (!actionPlan) {
+      throw new NotFoundException(`Action plan with ID ${planId} not found`);
+    }
+
+    return this.prisma.actionItem.findMany({
+      where: { actionPlanId: planId },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async updateActionPlan(id: string, data: { title?: string; description?: string; status?: string; priority?: string; targetDate?: string }) {
+    const actionPlan = await this.prisma.actionPlan.findUnique({
+      where: { id },
+    });
+
+    if (!actionPlan) {
+      throw new NotFoundException(`Action plan with ID ${id} not found`);
+    }
+
+    return this.prisma.actionPlan.update({
+      where: { id },
+      data: {
+        title: data.title,
+        description: data.description,
+        status: data.status,
+        priority: data.priority,
+        targetDate: data.targetDate ? new Date(data.targetDate) : undefined,
+      },
+      include: {
+        actionItems: true,
+      },
+    });
+  }
+
+  async deleteActionPlan(id: string) {
+    const actionPlan = await this.prisma.actionPlan.findUnique({
+      where: { id },
+    });
+
+    if (!actionPlan) {
+      throw new NotFoundException(`Action plan with ID ${id} not found`);
+    }
+
+    await this.prisma.actionPlan.delete({
+      where: { id },
+    });
+
+    return { message: 'Action plan deleted successfully' };
   }
 }
 

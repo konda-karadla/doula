@@ -198,8 +198,20 @@ export const adminService = {
   getAllActionPlans: (): Promise<any[]> =>
     api.get<any[]>(apiEndpoints.admin.actionPlans.list),
   
+  getActionPlanById: (id: string): Promise<any> =>
+    api.get<any>(apiEndpoints.admin.actionPlans.get(id)),
+
+  getActionPlanItems: (id: string): Promise<any[]> =>
+    api.get<any[]>(apiEndpoints.admin.actionPlans.items(id)),
+  
   createActionPlanForUser: (data: any): Promise<any> =>
     api.post<any>(apiEndpoints.admin.actionPlans.create, data),
+
+  updateActionPlan: (id: string, data: any): Promise<any> =>
+    api.put<any>(apiEndpoints.admin.actionPlans.update(id), data),
+
+  deleteActionPlan: (id: string): Promise<void> =>
+    api.delete(apiEndpoints.admin.actionPlans.delete(id)),
 };
 
 // Consultation Service (User)

@@ -4,8 +4,6 @@ import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import { 
@@ -20,9 +18,10 @@ import {
   User,
   Loader2
 } from 'lucide-react'
-import { useActionPlan, useActionItems } from '@/hooks/use-admin-api'
+import { useActionPlan, useActionItems, useUpdateActionPlan, useUsers } from '@/hooks/use-admin-api'
 import { format } from 'date-fns'
 import type { ActionItem } from '@health-platform/types'
+import { ActionPlanModal } from '@/components/modals/action-plan-modal'
 
 export default function ActionPlanDetailPage() {
   const params = useParams()
@@ -32,6 +31,8 @@ export default function ActionPlanDetailPage() {
 
   const { data: actionPlan, isLoading: planLoading } = useActionPlan(planId)
   const { data: actionItems, isLoading: itemsLoading } = useActionItems(planId)
+  const { data: users } = useUsers()
+  const updateActionPlanMutation = useUpdateActionPlan()
 
   const [isEditingPlan, setIsEditingPlan] = useState(false)
 
@@ -47,6 +48,27 @@ export default function ActionPlanDetailPage() {
 
   const handleEditPlan = () => {
     setIsEditingPlan(true)
+  }
+
+  const handleActionPlanSubmit = async (data: any) => {
+    try {
+      await updateActionPlanMutation.mutateAsync({
+        id: planId,
+        data,
+      })
+      setIsEditingPlan(false)
+      toast({
+        title: 'Action plan updated',
+        description: 'Your changes have been saved',
+      })
+    } catch (error) {
+      console.error('Failed to update action plan:', error)
+      toast({
+        title: 'Update failed',
+        description: 'Failed to update action plan',
+        variant: 'destructive',
+      })
+    }
   }
 
   const handleAddItem = () => {
@@ -363,6 +385,16 @@ export default function ActionPlanDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Action Plan Edit Modal */}
+      <ActionPlanModal
+        open={isEditingPlan}
+        onOpenChange={setIsEditingPlan}
+        actionPlan={actionPlan}
+        mode="edit"
+        onSubmit={handleActionPlanSubmit}
+        users={users || []}
+      />
     </AdminLayout>
   )
 }

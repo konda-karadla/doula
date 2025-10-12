@@ -93,6 +93,10 @@ export const apiEndpoints = {
     actionPlans: {
       list: '/admin/action-plans',
       create: '/admin/action-plans',
+      get: (id: string) => `/admin/action-plans/${id}`,
+      update: (id: string) => `/admin/action-plans/${id}`,
+      delete: (id: string) => `/admin/action-plans/${id}`,
+      items: (id: string) => `/admin/action-plans/${id}/items`,
     },
     consultations: {
       doctors: '/admin/consultations/doctors',
