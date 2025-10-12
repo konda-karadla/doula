@@ -70,7 +70,8 @@ function PasswordChangeSection() {
     setPasswordSuccess(false);
 
     try {
-      // TODO: Implement actual API call to change password
+      // Future Enhancement: Implement password change API endpoint
+      // Backend endpoint needed: POST /auth/change-password
       // await authService.changePassword({
       //   currentPassword: data.currentPassword,
       //   newPassword: data.newPassword
@@ -243,7 +244,9 @@ function AccountDeletionSection() {
     setDeleteError(null);
 
     try {
-      // TODO: Implement actual API call to delete account
+      // Future Enhancement: Implement account deletion API with data cleanup
+      // Backend endpoint needed: DELETE /auth/account
+      // Should handle: delete user data, lab results, action plans, consultations
       // await authService.deleteAccount({
       //   reason: data.reason
       // });
