@@ -42,9 +42,16 @@ export default function BrowseDoctorsScreen() {
   }
 
   if (error) {
+    console.log('[BrowseDoctors] Error state:', error);
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Failed to load doctors</Text>
+        <Text style={styles.errorDetails}>
+          {error instanceof Error ? error.message : 'Unknown error occurred'}
+        </Text>
+        <Text style={styles.errorHint}>
+          Check the console logs for more details
+        </Text>
         <TouchableOpacity
           style={styles.retryButton}
           onPress={() => router.back()}
@@ -189,6 +196,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#ef4444',
+    marginBottom: 8,
+  },
+  errorDetails: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginBottom: 8,
+    paddingHorizontal: 16,
+  },
+  errorHint: {
+    fontSize: 12,
+    color: '#9ca3af',
+    fontStyle: 'italic',
     marginBottom: 16,
   },
   retryButton: {

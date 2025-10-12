@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { services } from '@health-platform/api-client';
+import { services } from '../lib/api/services';
 import type {
   BookConsultationRequest,
   RescheduleConsultationRequest,
@@ -19,7 +19,22 @@ export const consultationKeys = {
 export function useDoctors() {
   return useQuery({
     queryKey: consultationKeys.doctors(),
-    queryFn: () => services.consultations.getDoctors(),
+    queryFn: async () => {
+      console.log('[useDoctors] Fetching doctors...');
+      try {
+        const result = await services.consultations.getDoctors();
+        console.log('[useDoctors] Success:', result?.length || 0, 'doctors');
+        return result;
+      } catch (error: any) {
+        console.error('[useDoctors] Error:', {
+          message: error.message,
+          status: error.response?.status,
+          data: error.response?.data,
+          url: error.config?.url,
+        });
+        throw error;
+      }
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
@@ -62,7 +77,22 @@ export function useBookConsultation() {
 export function useMyConsultations() {
   return useQuery({
     queryKey: consultationKeys.myBookings(),
-    queryFn: () => services.consultations.getMyBookings(),
+    queryFn: async () => {
+      console.log('[useMyConsultations] Fetching my consultations...');
+      try {
+        const result = await services.consultations.getMyBookings();
+        console.log('[useMyConsultations] Success:', result?.length || 0, 'consultations');
+        return result;
+      } catch (error: any) {
+        console.error('[useMyConsultations] Error:', {
+          message: error.message,
+          status: error.response?.status,
+          data: error.response?.data,
+          url: error.config?.url,
+        });
+        throw error;
+      }
+    },
     staleTime: 1 * 60 * 1000, // 1 minute
   });
 }

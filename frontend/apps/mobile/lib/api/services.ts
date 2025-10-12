@@ -19,6 +19,10 @@ import type {
   HealthScore,
   UserProfile,
   HealthStats,
+  Doctor,
+  Consultation,
+  BookConsultationRequest,
+  RescheduleConsultationRequest,
 } from '@health-platform/types';
 
 /**
@@ -129,6 +133,36 @@ export const profileService = {
     api.patch<UserProfile>(apiEndpoints.profile.update, data),
 };
 
+// Consultation Service (User)
+export const consultationService = {
+  // Browse doctors
+  getDoctors: (): Promise<Doctor[]> =>
+    api.get<Doctor[]>(apiEndpoints.consultations.doctors),
+  
+  getDoctor: (id: string): Promise<Doctor> =>
+    api.get<Doctor>(apiEndpoints.consultations.doctor(id)),
+  
+  getAvailability: (id: string, date: string): Promise<string[]> =>
+    api.get<string[]>(apiEndpoints.consultations.availability(id, date)),
+  
+  // Book consultations
+  book: (data: BookConsultationRequest): Promise<Consultation> =>
+    api.post<Consultation>(apiEndpoints.consultations.book, data),
+  
+  // Manage consultations
+  getMyBookings: (): Promise<Consultation[]> =>
+    api.get<Consultation[]>(apiEndpoints.consultations.myBookings),
+  
+  get: (id: string): Promise<Consultation> =>
+    api.get<Consultation>(apiEndpoints.consultations.get(id)),
+  
+  reschedule: (id: string, data: RescheduleConsultationRequest): Promise<Consultation> =>
+    api.put<Consultation>(apiEndpoints.consultations.reschedule(id), data),
+  
+  cancel: (id: string): Promise<Consultation> =>
+    api.delete<Consultation>(apiEndpoints.consultations.cancel(id)),
+};
+
 // Export all services
 export const services = {
   auth: authService,
@@ -137,5 +171,6 @@ export const services = {
   actionItems: actionItemService,
   insights: insightsService,
   profile: profileService,
+  consultations: consultationService,
 };
 

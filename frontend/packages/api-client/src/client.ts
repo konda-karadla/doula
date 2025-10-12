@@ -47,17 +47,40 @@ const createApiClient = (): AxiosInstance => {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      console.log('[API Request]', {
+        method: config.method?.toUpperCase(),
+        url: config.url,
+        baseURL: config.baseURL,
+        fullUrl: `${config.baseURL}${config.url}`,
+        hasToken: !!token,
+        headers: config.headers,
+      });
       return config;
     },
     (error) => {
+      console.error('[API Request Error]', error);
       return Promise.reject(error);
     }
   );
 
   // Response interceptor to handle token refresh
   client.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      console.log('[API Response]', {
+        status: response.status,
+        url: response.config.url,
+        dataLength: JSON.stringify(response.data).length,
+      });
+      return response;
+    },
     async (error) => {
+      console.error('[API Response Error]', {
+        url: error.config?.url,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        message: error.message,
+        data: error.response?.data,
+      });
       const originalRequest = error.config;
 
       if (error.response?.status === 401 && !originalRequest._retry) {
@@ -112,8 +135,10 @@ export const apiRequest = async <T>(
         message: error.response?.data?.message || error.message || 'An error occurred',
         error: error.response?.data?.error || 'Internal Server Error',
       };
+      console.error('[apiRequest] Error converted to ApiError:', apiError);
       throw apiError;
     }
+    console.error('[apiRequest] Non-Axios error:', error);
     throw error;
   }
 };
