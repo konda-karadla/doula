@@ -13,7 +13,7 @@ const API_TIMEOUT = env.API_TIMEOUT;
  * Handles authentication, token refresh, and request/response interceptors
  */
 class MobileApiClient {
-  private client: AxiosInstance;
+  private readonly client: AxiosInstance;
   private isRefreshing = false;
   private failedQueue: Array<{
     resolve: (value?: any) => void;
@@ -52,7 +52,7 @@ class MobileApiClient {
       },
       (error) => {
         console.error('[Mobile API Request Error]', error);
-        return Promise.reject(error);
+        return Promise.reject(error instanceof Error ? error : new Error(String(error)));
       }
     );
 
@@ -95,7 +95,7 @@ class MobileApiClient {
                 return this.client(originalRequest);
               })
               .catch((err) => {
-                return Promise.reject(err);
+                return Promise.reject(err instanceof Error ? err : new Error(String(err)));
               });
           }
 
@@ -135,13 +135,18 @@ class MobileApiClient {
             // Refresh failed - logout user
             this.processQueue(refreshError, null);
             await this.handleAuthFailure();
-            return Promise.reject(refreshError);
+            const err = refreshError instanceof Error ? refreshError : new Error(String(refreshError));
+            return Promise.reject(err);
           } finally {
             this.isRefreshing = false;
           }
         }
 
-        return Promise.reject(this.normalizeError(error));
+        const normalizedError = this.normalizeError(error);
+        const errorMessage = Array.isArray(normalizedError.message) 
+          ? normalizedError.message.join(', ') 
+          : normalizedError.message;
+        return Promise.reject(new Error(errorMessage));
       }
     );
   }

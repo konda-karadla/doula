@@ -171,8 +171,8 @@ export class AuthService {
       systemId: storedToken.user.systemId,
     });
 
-    // Delete the old refresh token before saving the new one
-    await this.prisma.refreshToken.delete({
+    // Delete the old refresh token before saving the new one (if it exists)
+    await this.prisma.refreshToken.deleteMany({
       where: { id: storedToken.id },
     });
 

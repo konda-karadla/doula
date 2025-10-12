@@ -76,19 +76,9 @@ class Analytics {
   trackEvent(eventName: string, properties?: Record<string, any>) {
     if (!this.isEnabled) return;
 
-    const event: AnalyticsEvent = {
-      name: eventName,
-      properties: {
-        ...properties,
-        userId: this.userId,
-        timestamp: new Date().toISOString(),
-      },
-      timestamp: new Date(),
-    };
-
     console.log('[Analytics] Event:', eventName, properties);
     // TODO: Send to analytics service
-    // Example: analytics.logEvent(eventName, properties);
+    // Example: analytics.logEvent(eventName, { ...properties, userId: this.userId });
   }
 
   /**

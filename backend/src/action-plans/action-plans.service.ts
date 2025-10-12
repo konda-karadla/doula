@@ -190,6 +190,7 @@ export class ActionPlansService {
     return this.prisma.actionItem.update({
       where: { id: itemId },
       data: {
+        status: 'completed',
         completedAt: new Date(),
       },
     });
@@ -206,6 +207,7 @@ export class ActionPlansService {
     return this.prisma.actionItem.update({
       where: { id: itemId },
       data: {
+        status: 'pending',
         completedAt: null,
       },
     });

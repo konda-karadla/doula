@@ -62,7 +62,9 @@ export interface ActionPlan {
   id: string;
   title: string;
   description: string;
-  status: 'active' | 'completed' | 'paused';
+  status: ActionPlanStatus;
+  priority?: Priority;
+  targetDate?: string;
   createdAt: string;
   updatedAt: string;
   actionItems?: ActionItem[];
@@ -72,7 +74,8 @@ export interface ActionItem {
   id: string;
   title: string;
   description?: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: ActionItemStatus;
+  priority: Priority;
   dueDate?: string;
   completedAt?: string;
   createdAt: string;
@@ -87,20 +90,20 @@ export interface CreateActionPlanRequest {
 export interface UpdateActionPlanRequest {
   title?: string;
   description?: string;
-  status?: 'active' | 'completed' | 'paused';
+  status?: ActionPlanStatus;
 }
 
 export interface CreateActionItemRequest {
   title: string;
   description?: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: Priority;
   dueDate?: string;
 }
 
 export interface UpdateActionItemRequest {
   title?: string;
   description?: string;
-  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  priority?: Priority;
   dueDate?: string;
 }
 
@@ -110,8 +113,8 @@ export interface HealthInsight {
   biomarkerId: string;
   testName: string;
   currentValue: string;
-  type: 'low' | 'normal' | 'high' | 'critical';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  type: InsightType;
+  priority: Priority;
   message: string;
   recommendation: string;
   createdAt: string;
@@ -159,7 +162,14 @@ export interface HealthScore {
 
 // User Profile types
 export interface UserProfile extends User {
-  // Extended user profile information
+  preferences?: Record<string, any>;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  dateOfBirth?: string;
+  healthGoals?: string[];
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
 }
 
 export interface HealthStats {
@@ -199,6 +209,8 @@ export interface System {
 // Common types
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type Status = 'active' | 'completed' | 'paused' | 'pending' | 'processing' | 'failed';
+export type ActionPlanStatus = 'active' | 'completed' | 'paused';
+export type ActionItemStatus = 'pending' | 'in_progress' | 'completed';
 export type ProfileType = 'patient' | 'provider' | 'admin';
 export type JourneyType = 'prenatal' | 'postnatal' | 'general';
 export type SystemType = 'doula' | 'functional_health' | 'elderly_care';

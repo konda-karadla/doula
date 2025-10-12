@@ -27,6 +27,14 @@ export class ProfileService {
       profileType: user.profileType,
       journeyType: user.journeyType,
       systemId: user.systemId,
+      preferences: user.preferences as Record<string, any>,
+      firstName: user.firstName ?? undefined,
+      lastName: user.lastName ?? undefined,
+      phoneNumber: user.phoneNumber ?? undefined,
+      dateOfBirth: user.dateOfBirth?.toISOString(),
+      healthGoals: user.healthGoals,
+      emergencyContactName: user.emergencyContactName ?? undefined,
+      emergencyContactPhone: user.emergencyContactPhone ?? undefined,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
@@ -107,6 +115,8 @@ export class ProfileService {
     systemId: string,
     update: UpdateProfileDto,
   ): Promise<UserProfileDto> {
+    console.log('[ProfileService.updateProfile] Update request:', { userId, systemId, update });
+    
     const existing = await this.prisma.user.findFirst({
       where: { id: userId, systemId },
     });
@@ -115,26 +125,56 @@ export class ProfileService {
       throw new NotFoundException('User profile not found');
     }
 
+    // Only update fields that exist in User table
     const updateData: any = {};
+    
     if (typeof update.email === 'string' && update.email.trim() !== '') {
       updateData.email = update.email.trim();
     }
-    const sanitizedProfileType =
-      typeof update.profileType === 'string' ? update.profileType.trim() : '';
-    const sanitizedJourneyType =
-      typeof update.journeyType === 'string' ? update.journeyType.trim() : '';
+    
+    if (typeof update.profileType === 'string' && update.profileType.trim() !== '') {
+      updateData.profileType = update.profileType.trim();
+    }
+    
+    if (typeof update.journeyType === 'string' && update.journeyType.trim() !== '') {
+      updateData.journeyType = update.journeyType.trim();
+    }
+    
+    if (update.preferences) {
+      updateData.preferences = update.preferences;
+    }
 
-    if (sanitizedProfileType !== '') {
-      updateData.profileType = sanitizedProfileType;
+    // Additional profile fields
+    if (update.firstName !== undefined) {
+      updateData.firstName = update.firstName;
     }
-    if (sanitizedJourneyType !== '') {
-      updateData.journeyType = sanitizedJourneyType;
+    if (update.lastName !== undefined) {
+      updateData.lastName = update.lastName;
     }
+    if (update.phoneNumber !== undefined) {
+      updateData.phoneNumber = update.phoneNumber;
+    }
+    if (update.dateOfBirth !== undefined) {
+      updateData.dateOfBirth = update.dateOfBirth ? new Date(update.dateOfBirth) : null;
+    }
+    if (update.healthGoals !== undefined) {
+      updateData.healthGoals = update.healthGoals;
+    }
+    if (update.emergencyContactName !== undefined) {
+      updateData.emergencyContactName = update.emergencyContactName;
+    }
+    if (update.emergencyContactPhone !== undefined) {
+      updateData.emergencyContactPhone = update.emergencyContactPhone;
+    }
+
+    console.log('[ProfileService.updateProfile] Updating with data:', updateData);
 
     const user = await this.prisma.user.update({
       where: { id: userId },
       data: updateData,
     });
+
+    console.log('[ProfileService.updateProfile] Update successful:', { id: user.id, email: user.email });
 
     return {
       id: user.id,
@@ -143,6 +183,14 @@ export class ProfileService {
       profileType: user.profileType,
       journeyType: user.journeyType,
       systemId: user.systemId,
+      preferences: user.preferences as Record<string, any>,
+      firstName: user.firstName ?? undefined,
+      lastName: user.lastName ?? undefined,
+      phoneNumber: user.phoneNumber ?? undefined,
+      dateOfBirth: user.dateOfBirth?.toISOString(),
+      healthGoals: user.healthGoals,
+      emergencyContactName: user.emergencyContactName ?? undefined,
+      emergencyContactPhone: user.emergencyContactPhone ?? undefined,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

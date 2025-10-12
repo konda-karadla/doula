@@ -25,17 +25,25 @@ model System {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  username     String   @unique
-  password     String
-  role         String   @default("user")
-  language     String   @default("en")
-  profileType  String   @map("profile_type")
-  journeyType  String   @map("journey_type")
-  systemId     String   @map("system_id")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                    String    @id @default(uuid())
+  email                 String    @unique
+  username              String    @unique
+  password              String
+  role                  String    @default("user")
+  language              String    @default("en")
+  profileType           String    @map("profile_type")
+  journeyType           String    @map("journey_type")
+  systemId              String    @map("system_id")
+  preferences           Json?
+  firstName             String?   @map("first_name")
+  lastName              String?   @map("last_name")
+  phoneNumber           String?   @map("phone_number")
+  dateOfBirth           DateTime? @map("date_of_birth")
+  healthGoals           String[]  @default([]) @map("health_goals")
+  emergencyContactName  String?   @map("emergency_contact_name")
+  emergencyContactPhone String?   @map("emergency_contact_phone")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
 
   system        System         @relation(fields: [systemId], references: [id], onDelete: Cascade)
   refreshTokens RefreshToken[]
@@ -136,14 +144,16 @@ model Biomarker {
 }
 
 model ActionPlan {
-  id          String   @id @default(uuid())
-  userId      String   @map("user_id")
-  systemId    String   @map("system_id")
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  systemId    String    @map("system_id")
   title       String
   description String?
-  status      String   @default("active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  status      String    @default("active")
+  priority    String?
+  targetDate  DateTime? @map("target_date")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   system      System       @relation(fields: [systemId], references: [id], onDelete: Cascade)
@@ -159,6 +169,7 @@ model ActionItem {
   actionPlanId String    @map("action_plan_id")
   title        String
   description  String?
+  status       String    @default("pending")
   dueDate      DateTime? @map("due_date")
   completedAt  DateTime? @map("completed_at")
   priority     String    @default("medium")

@@ -6,7 +6,7 @@ import { join } from 'path';
 
 @Injectable()
 export class EmailService {
-  private transporter: nodemailer.Transporter;
+  private readonly transporter: nodemailer.Transporter;
 
   constructor(private readonly configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
@@ -141,7 +141,7 @@ export class EmailService {
     } catch (error) {
       console.error(`❌ Failed to send email to ${options.to}:`, error);
       // Don't throw error - email failure shouldn't break app
-      // TODO: Add to retry queue in production
+      // Future Enhancement: Implement email retry queue with Bull/Redis in production
     }
   }
 

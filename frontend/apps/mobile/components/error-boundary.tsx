@@ -37,8 +37,8 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // TODO: Log to error tracking service (Sentry, etc.)
-    // logErrorToService(error, errorInfo);
+    // Future Enhancement: Integrate error tracking service (Sentry/Bugsnag)
+    // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
   }
 
   handleReset = () => {
@@ -79,8 +79,8 @@ export class ErrorBoundary extends Component<Props, State> {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.secondaryButton} onPress={() => {
-              // TODO: Navigate to home or contact support
-              console.log('Contact support');
+              // Future Enhancement: Open support email or navigate to help screen
+              console.log('Contact support - Future: Open mailto: or help screen');
             }}>
               <Text style={styles.secondaryButtonText}>Contact Support</Text>
             </TouchableOpacity>
@@ -97,10 +97,10 @@ export class ErrorBoundary extends Component<Props, State> {
 export function ErrorFallback({ 
   error, 
   resetError 
-}: { 
+}: Readonly<{ 
   error: Error; 
   resetError: () => void;
-}) {
+}>) {
   return (
     <View style={styles.container}>
       <View style={styles.content}>

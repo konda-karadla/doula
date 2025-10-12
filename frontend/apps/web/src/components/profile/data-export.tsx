@@ -149,10 +149,11 @@ export function DataExport() {
             const isSelected = selectedType === option.id;
             
             return (
-              <div
+              <button
                 key={option.id}
+                type="button"
                 onClick={() => setSelectedType(option.id)}
-                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all text-left w-full ${
                   isSelected
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
@@ -175,8 +176,8 @@ export function DataExport() {
                     <div className="mt-2">
                       <p className="text-xs text-gray-500">Includes:</p>
                       <ul className="text-xs text-gray-600 mt-1">
-                        {option.includes.map((item, index) => (
-                          <li key={index} className="flex items-center">
+                        {option.includes.map((item) => (
+                          <li key={item} className="flex items-center">
                             <span className="w-1 h-1 bg-gray-400 rounded-full mr-2"></span>
                             {item}
                           </li>
@@ -185,7 +186,7 @@ export function DataExport() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -200,10 +201,11 @@ export function DataExport() {
             const isSelected = selectedFormat === format.id;
             
             return (
-              <div
+              <button
                 key={format.id}
+                type="button"
                 onClick={() => setSelectedFormat(format.id)}
-                className={`p-4 border-2 rounded-lg cursor-pointer text-center transition-all ${
+                className={`p-4 border-2 rounded-lg cursor-pointer text-center transition-all w-full ${
                   isSelected
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
@@ -214,7 +216,7 @@ export function DataExport() {
                 }`} />
                 <h4 className="font-medium text-gray-900 text-sm">{format.label}</h4>
                 <p className="text-xs text-gray-600 mt-1">{format.description}</p>
-              </div>
+              </button>
             );
           })}
         </div>

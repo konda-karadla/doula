@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { actionPlanService } from '../lib/api/services';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { actionPlanService, actionItemService } from '../lib/api/services';
 import { USE_MOCK_DATA, mockActionPlans, generateMockActionPlans } from '../__mocks__/mock-data';
 
 /**
@@ -38,6 +38,120 @@ export function useActionPlan(id: string) {
     },
     enabled: !!id,
     staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * Hook to complete an action item
+ */
+export function useCompleteActionItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ planId, itemId }: { planId: string; itemId: string }) => {
+      console.log('[useCompleteActionItem] Starting mutation:', { planId, itemId, mockMode: USE_MOCK_DATA });
+      if (USE_MOCK_DATA) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        console.log('[useCompleteActionItem] Mock: Completed');
+        return { id: itemId, status: 'completed', completedAt: new Date().toISOString() };
+      }
+      const result = await actionItemService.complete(planId, itemId);
+      console.log('[useCompleteActionItem] API success');
+      return result;
+    },
+    onMutate: async (variables) => {
+      // Optimistic update for immediate UI feedback
+      await queryClient.cancelQueries({ queryKey: ['action-plans', variables.planId] });
+      
+      const previousPlan = queryClient.getQueryData(['action-plans', variables.planId]);
+      
+      // Update the cache optimistically
+      queryClient.setQueryData(['action-plans', variables.planId], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          actionItems: old.actionItems?.map((item: any) =>
+            item.id === variables.itemId
+              ? { ...item, status: 'completed', completedAt: new Date().toISOString() }
+              : item
+          ),
+        };
+      });
+      
+      console.log('[useCompleteActionItem] Optimistic update applied');
+      return { previousPlan };
+    },
+    onError: (err, variables, context: any) => {
+      // Rollback on error
+      if (context?.previousPlan) {
+        queryClient.setQueryData(['action-plans', variables.planId], context.previousPlan);
+      }
+    },
+    onSuccess: (data, variables) => {
+      console.log('[useCompleteActionItem] onSuccess, invalidating cache for planId:', variables.planId);
+      // In real API mode, refetch to get latest from server
+      if (!USE_MOCK_DATA) {
+        queryClient.invalidateQueries({ queryKey: ['action-plans', variables.planId] });
+        queryClient.invalidateQueries({ queryKey: ['action-plans', 'list'] });
+      }
+    },
+  });
+}
+
+/**
+ * Hook to uncomplete an action item
+ */
+export function useUncompleteActionItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ planId, itemId }: { planId: string; itemId: string }) => {
+      console.log('[useUncompleteActionItem] Starting mutation:', { planId, itemId, mockMode: USE_MOCK_DATA });
+      if (USE_MOCK_DATA) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        console.log('[useUncompleteActionItem] Mock: Uncompleted');
+        return { id: itemId, status: 'pending', completedAt: null };
+      }
+      const result = await actionItemService.uncomplete(planId, itemId);
+      console.log('[useUncompleteActionItem] API success');
+      return result;
+    },
+    onMutate: async (variables) => {
+      // Optimistic update for immediate UI feedback
+      await queryClient.cancelQueries({ queryKey: ['action-plans', variables.planId] });
+      
+      const previousPlan = queryClient.getQueryData(['action-plans', variables.planId]);
+      
+      // Update the cache optimistically
+      queryClient.setQueryData(['action-plans', variables.planId], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          actionItems: old.actionItems?.map((item: any) =>
+            item.id === variables.itemId
+              ? { ...item, status: 'pending', completedAt: null }
+              : item
+          ),
+        };
+      });
+      
+      console.log('[useUncompleteActionItem] Optimistic update applied');
+      return { previousPlan };
+    },
+    onError: (err, variables, context: any) => {
+      // Rollback on error
+      if (context?.previousPlan) {
+        queryClient.setQueryData(['action-plans', variables.planId], context.previousPlan);
+      }
+    },
+    onSuccess: (data, variables) => {
+      console.log('[useUncompleteActionItem] onSuccess, invalidating cache for planId:', variables.planId);
+      // In real API mode, refetch to get latest from server
+      if (!USE_MOCK_DATA) {
+        queryClient.invalidateQueries({ queryKey: ['action-plans', variables.planId] });
+        queryClient.invalidateQueries({ queryKey: ['action-plans', 'list'] });
+      }
+    },
   });
 }
 

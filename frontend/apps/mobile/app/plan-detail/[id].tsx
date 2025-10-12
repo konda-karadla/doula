@@ -1,12 +1,14 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useActionPlan } from '../../hooks/use-action-plans';
+import { useActionPlan, useCompleteActionItem, useUncompleteActionItem } from '../../hooks/use-action-plans';
 import { haptic } from '../../lib/haptics/haptic-feedback';
 
 export default function PlanDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data: plan, isLoading } = useActionPlan(id);
+  const completeItem = useCompleteActionItem();
+  const uncompleteItem = useUncompleteActionItem();
 
   if (isLoading) {
     return (
@@ -72,10 +74,27 @@ export default function PlanDetailScreen() {
   const totalItems = plan.actionItems?.length || 0;
   const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
-  const handleToggleItem = (itemId: string, currentStatus: string) => {
+  const handleToggleItem = async (itemId: string, currentStatus: string) => {
+    console.log('[handleToggleItem] Called:', { itemId, currentStatus, planId: id });
     haptic.light();
-    // TODO: Implement toggle item completion
-    console.log('Toggle item:', itemId, currentStatus);
+    
+    try {
+      if (currentStatus === 'completed') {
+        console.log('[handleToggleItem] Uncompleting item...');
+        await uncompleteItem.mutateAsync({ planId: id, itemId });
+        console.log('[handleToggleItem] Uncomplete success!');
+      } else {
+        console.log('[handleToggleItem] Completing item...');
+        await completeItem.mutateAsync({ planId: id, itemId });
+        console.log('[handleToggleItem] Complete success!');
+      }
+    } catch (error: any) {
+      console.error('[handleToggleItem] Error:', error);
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || error.message || 'Failed to update action item'
+      );
+    }
   };
 
   return (

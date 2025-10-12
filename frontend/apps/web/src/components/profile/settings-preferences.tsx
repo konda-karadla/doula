@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/alert';
+import { useProfile, useUpdateProfile } from '@/hooks/use-profile';
 import { 
   Settings, 
   Bell, 
@@ -23,6 +24,36 @@ type Theme = 'light' | 'dark' | 'system';
 type Language = 'en' | 'es' | 'fr';
 type TimeFormat = '12h' | '24h';
 type DateFormat = 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
+
+interface ToggleSwitchProps {
+  label: string;
+  description: string;
+  enabled: boolean;
+  onChange: (value: boolean) => void;
+}
+
+function ToggleSwitch({ label, description, enabled, onChange }: Readonly<ToggleSwitchProps>) {
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <h4 className="text-sm font-medium text-gray-900">{label}</h4>
+        <p className="text-xs text-gray-600">{description}</p>
+      </div>
+      <button
+        onClick={() => onChange(!enabled)}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+          enabled ? 'bg-blue-600' : 'bg-gray-200'
+        }`}
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+            enabled ? 'translate-x-6' : 'translate-x-1'
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
 
 interface NotificationSettings {
   emailNotifications: boolean;
@@ -65,37 +96,53 @@ export function SettingsPreferences() {
   const [dateFormat, setDateFormat] = useState<DateFormat>('MM/DD/YYYY');
   const [notifications, setNotifications] = useState<NotificationSettings>(defaultNotificationSettings);
   const [privacy, setPrivacy] = useState<PrivacySettings>(defaultPrivacySettings);
-  const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  
+  const { data: profile } = useProfile();
+  const updateProfile = useUpdateProfile();
+
+  // Load saved preferences from profile
+  useEffect(() => {
+    if (profile?.preferences) {
+      console.log('[SettingsPreferences] Loading saved preferences:', profile.preferences);
+      const prefs = profile.preferences as any;
+      if (prefs.theme) setTheme(prefs.theme);
+      if (prefs.language) setLanguage(prefs.language);
+      if (prefs.timeFormat) setTimeFormat(prefs.timeFormat);
+      if (prefs.dateFormat) setDateFormat(prefs.dateFormat);
+      if (prefs.notifications) setNotifications(prefs.notifications);
+      if (prefs.privacy) setPrivacy(prefs.privacy);
+    }
+  }, [profile]);
 
   const handleSaveSettings = async () => {
-    setIsSaving(true);
+    console.log('[handleSaveSettings] Saving settings...', {
+      theme, language, timeFormat, dateFormat, notifications, privacy
+    });
     setSaveError(null);
     setSaveSuccess(false);
 
     try {
-      // TODO: Implement actual API call to save settings
-      // await settingsService.updateSettings({
-      //   theme,
-      //   language,
-      //   timeFormat,
-      //   dateFormat,
-      //   notifications,
-      //   privacy
-      // });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await updateProfile.mutateAsync({
+        preferences: {
+          theme,
+          language,
+          timeFormat,
+          dateFormat,
+          notifications,
+          privacy,
+        },
+      });
+      console.log('[handleSaveSettings] Save success:', result);
       
       setSaveSuccess(true);
       
       // Clear success message after 3 seconds
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : 'Failed to save settings');
-    } finally {
-      setIsSaving(false);
+    } catch (error: any) {
+      console.error('[handleSaveSettings] Error:', error);
+      setSaveError(error.message || 'Failed to save settings');
     }
   };
 
@@ -131,9 +178,9 @@ export function SettingsPreferences() {
             <RotateCcw className="w-4 h-4 mr-2" />
             Reset
           </Button>
-          <Button onClick={handleSaveSettings} size="sm" disabled={isSaving}>
+          <Button onClick={handleSaveSettings} size="sm" disabled={updateProfile.isPending}>
             <Save className="w-4 h-4 mr-2" />
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
       </div>
@@ -252,138 +299,48 @@ export function SettingsPreferences() {
         </div>
         
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Email Notifications</h4>
-              <p className="text-xs text-gray-600">Receive notifications via email</p>
-            </div>
-            <button
-              onClick={() => updateNotification('emailNotifications', !notifications.emailNotifications)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.emailNotifications ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.emailNotifications ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Push Notifications</h4>
-              <p className="text-xs text-gray-600">Receive push notifications on your device</p>
-            </div>
-            <button
-              onClick={() => updateNotification('pushNotifications', !notifications.pushNotifications)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.pushNotifications ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.pushNotifications ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Lab Result Updates</h4>
-              <p className="text-xs text-gray-600">Get notified when lab results are processed</p>
-            </div>
-            <button
-              onClick={() => updateNotification('labResultUpdates', !notifications.labResultUpdates)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.labResultUpdates ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.labResultUpdates ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Action Plan Reminders</h4>
-              <p className="text-xs text-gray-600">Reminders for action plan items</p>
-            </div>
-            <button
-              onClick={() => updateNotification('actionPlanReminders', !notifications.actionPlanReminders)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.actionPlanReminders ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.actionPlanReminders ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Health Insights</h4>
-              <p className="text-xs text-gray-600">Notifications about new health insights</p>
-            </div>
-            <button
-              onClick={() => updateNotification('healthInsights', !notifications.healthInsights)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.healthInsights ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.healthInsights ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Weekly Reports</h4>
-              <p className="text-xs text-gray-600">Weekly summary of your health progress</p>
-            </div>
-            <button
-              onClick={() => updateNotification('weeklyReports', !notifications.weeklyReports)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.weeklyReports ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.weeklyReports ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Marketing Emails</h4>
-              <p className="text-xs text-gray-600">Product updates and promotional content</p>
-            </div>
-            <button
-              onClick={() => updateNotification('marketingEmails', !notifications.marketingEmails)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                notifications.marketingEmails ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  notifications.marketingEmails ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
+          <ToggleSwitch
+            label="Email Notifications"
+            description="Receive notifications via email"
+            enabled={notifications.emailNotifications}
+            onChange={(value) => updateNotification('emailNotifications', value)}
+          />
+          <ToggleSwitch
+            label="Push Notifications"
+            description="Receive push notifications on your device"
+            enabled={notifications.pushNotifications}
+            onChange={(value) => updateNotification('pushNotifications', value)}
+          />
+          <ToggleSwitch
+            label="Lab Result Updates"
+            description="Get notified when lab results are processed"
+            enabled={notifications.labResultUpdates}
+            onChange={(value) => updateNotification('labResultUpdates', value)}
+          />
+          <ToggleSwitch
+            label="Action Plan Reminders"
+            description="Reminders for action plan items"
+            enabled={notifications.actionPlanReminders}
+            onChange={(value) => updateNotification('actionPlanReminders', value)}
+          />
+          <ToggleSwitch
+            label="Health Insights"
+            description="Notifications about new health insights"
+            enabled={notifications.healthInsights}
+            onChange={(value) => updateNotification('healthInsights', value)}
+          />
+          <ToggleSwitch
+            label="Weekly Reports"
+            description="Weekly summary of your health progress"
+            enabled={notifications.weeklyReports}
+            onChange={(value) => updateNotification('weeklyReports', value)}
+          />
+          <ToggleSwitch
+            label="Marketing Emails"
+            description="Product updates and promotional content"
+            enabled={notifications.marketingEmails}
+            onChange={(value) => updateNotification('marketingEmails', value)}
+          />
         </div>
       </Card>
 
@@ -395,81 +352,30 @@ export function SettingsPreferences() {
         </div>
         
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Data Sharing</h4>
-              <p className="text-xs text-gray-600">Allow sharing of anonymized data for research</p>
-            </div>
-            <button
-              onClick={() => updatePrivacy('dataSharing', !privacy.dataSharing)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                privacy.dataSharing ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  privacy.dataSharing ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Analytics Tracking</h4>
-              <p className="text-xs text-gray-600">Help improve the app with usage analytics</p>
-            </div>
-            <button
-              onClick={() => updatePrivacy('analyticsTracking', !privacy.analyticsTracking)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                privacy.analyticsTracking ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  privacy.analyticsTracking ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Personalized Recommendations</h4>
-              <p className="text-xs text-gray-600">AI-powered health recommendations</p>
-            </div>
-            <button
-              onClick={() => updatePrivacy('personalizedRecommendations', !privacy.personalizedRecommendations)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                privacy.personalizedRecommendations ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  privacy.personalizedRecommendations ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Research Participation</h4>
-              <p className="text-xs text-gray-600">Participate in health research studies</p>
-            </div>
-            <button
-              onClick={() => updatePrivacy('researchParticipation', !privacy.researchParticipation)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                privacy.researchParticipation ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  privacy.researchParticipation ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
+          <ToggleSwitch
+            label="Data Sharing"
+            description="Allow sharing of anonymized data for research"
+            enabled={privacy.dataSharing}
+            onChange={(value) => updatePrivacy('dataSharing', value)}
+          />
+          <ToggleSwitch
+            label="Analytics Tracking"
+            description="Help improve the app with usage analytics"
+            enabled={privacy.analyticsTracking}
+            onChange={(value) => updatePrivacy('analyticsTracking', value)}
+          />
+          <ToggleSwitch
+            label="Personalized Recommendations"
+            description="AI-powered health recommendations"
+            enabled={privacy.personalizedRecommendations}
+            onChange={(value) => updatePrivacy('personalizedRecommendations', value)}
+          />
+          <ToggleSwitch
+            label="Research Participation"
+            description="Participate in health research studies"
+            enabled={privacy.researchParticipation}
+            onChange={(value) => updatePrivacy('researchParticipation', value)}
+          />
         </div>
       </Card>
 

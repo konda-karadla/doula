@@ -159,34 +159,42 @@ export default function LabResultsScreen() {
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 
-  const ListEmptyComponent = useCallback(() => (
-    isLoading ? (
-      <View style={styles.list}>
-        <SkeletonListItem />
-        <SkeletonListItem />
-        <SkeletonListItem />
-        <SkeletonListItem />
-        <SkeletonListItem />
-      </View>
-    ) : searchQuery.trim().length > 0 ? (
-      <EmptyState
-        title="No Results Found"
-        message={`No lab results match "${searchQuery}". Try adjusting your search.`}
-        icon="🔍"
-      />
-    ) : (
+  const ListEmptyComponent = useCallback(() => {
+    if (isLoading) {
+      return (
+        <View style={styles.list}>
+          <SkeletonListItem />
+          <SkeletonListItem />
+          <SkeletonListItem />
+          <SkeletonListItem />
+          <SkeletonListItem />
+        </View>
+      );
+    }
+    
+    if (searchQuery.trim().length > 0) {
+      return (
+        <EmptyState
+          title="No Results Found"
+          message={`No lab results match "${searchQuery}". Try adjusting your search.`}
+          icon="🔍"
+        />
+      );
+    }
+    
+    return (
       <EmptyState
         title="No Lab Results Yet"
         message="Upload your first lab result to start tracking your health"
         icon="📄"
         actionText="Upload Lab Result"
         onAction={() => {
-          // TODO: Implement upload functionality
-          console.log('Upload lab result');
+          // Future Enhancement: Open file picker and upload to S3
+          console.log('Upload lab result - Future: Open file picker');
         }}
       />
-    )
-  ), [isLoading, searchQuery]);
+    );
+  }, [isLoading, searchQuery]);
 
   return (
     <FlatList

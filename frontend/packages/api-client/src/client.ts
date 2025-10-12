@@ -59,7 +59,7 @@ const createApiClient = (): AxiosInstance => {
     },
     (error) => {
       console.error('[API Request Error]', error);
-      return Promise.reject(error);
+      return Promise.reject(error instanceof Error ? error : new Error(String(error)));
     }
   );
 
@@ -104,14 +104,16 @@ const createApiClient = (): AxiosInstance => {
           }
         } catch (refreshError) {
           // Refresh failed, redirect to login
+          console.error('[Token Refresh Failed]', refreshError);
           removeTokens();
           if (typeof window !== 'undefined') {
             window.location.href = '/login';
           }
+          return Promise.reject(refreshError instanceof Error ? refreshError : new Error('Token refresh failed'));
         }
       }
 
-      return Promise.reject(error);
+      return Promise.reject(error instanceof Error ? error : new Error(String(error)));
     }
   );
 

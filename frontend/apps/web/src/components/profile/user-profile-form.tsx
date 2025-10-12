@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/alert';
-import { useProfile } from '@/hooks/use-profile';
+import { useUpdateProfile } from '@/hooks/use-profile';
 import { 
   User, 
   MapPin, 
@@ -24,7 +24,9 @@ import type { UserProfile } from '@health-platform/types';
 
 const profileSchema = z.object({
   username: z.string().min(2, 'Username must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
+  email: z.string().min(1, 'Email is required').refine((val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val), {
+    message: 'Invalid email address',
+  }),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   phone: z.string().optional(),
@@ -45,11 +47,10 @@ interface UserProfileFormProps {
 
 export function UserProfileForm({ profile }: UserProfileFormProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const { refetch } = useProfile();
+  const updateProfile = useUpdateProfile();
 
   const {
     register,
@@ -61,41 +62,82 @@ export function UserProfileForm({ profile }: UserProfileFormProps) {
     defaultValues: {
       username: profile?.username || '',
       email: profile?.email || '',
-      firstName: '',
-      lastName: '',
-      phone: '',
+      firstName: (profile as any)?.firstName || '',
+      lastName: (profile as any)?.lastName || '',
+      phone: (profile as any)?.phoneNumber || '',
       address: '',
-      dateOfBirth: '',
-      emergencyContact: '',
-      emergencyPhone: '',
+      dateOfBirth: (profile as any)?.dateOfBirth ? new Date((profile as any).dateOfBirth).toISOString().split('T')[0] : '',
+      emergencyContact: (profile as any)?.emergencyContactName || '',
+      emergencyPhone: (profile as any)?.emergencyContactPhone || '',
       medicalConditions: '',
       medications: '',
       allergies: '',
     },
   });
 
-  const onSubmit = async () => {
-    setIsSaving(true);
+  const onSubmit = async (data: ProfileFormData) => {
+    console.log('[UserProfileForm] Submitting form data:', data);
     setSaveError(null);
     setSaveSuccess(false);
 
     try {
-      // TODO: Implement actual API call to update profile
-      // await profileService.update(data);
+      // Update profile with all form fields
+      const updatePayload: any = {
+        email: data.email,
+        profileType: profile?.profileType,
+        journeyType: profile?.journeyType,
+      };
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Only include optional fields if they have values
+      if (data.firstName) updatePayload.firstName = data.firstName;
+      if (data.lastName) updatePayload.lastName = data.lastName;
+      if (data.phone) updatePayload.phoneNumber = data.phone;
+      if (data.emergencyContact) updatePayload.emergencyContactName = data.emergencyContact;
+      if (data.emergencyPhone) updatePayload.emergencyContactPhone = data.emergencyPhone;
+      
+      // Convert date to ISO 8601 if provided
+      if (data.dateOfBirth) {
+        try {
+          const date = new Date(data.dateOfBirth);
+          if (!isNaN(date.getTime())) {
+            updatePayload.dateOfBirth = date.toISOString();
+          }
+        } catch (e) {
+          console.warn('[UserProfileForm] Invalid date format, skipping dateOfBirth');
+        }
+      }
+      
+      console.log('[UserProfileForm] Sending update:', updatePayload);
+      
+      const result = await updateProfile.mutateAsync(updatePayload);
+      console.log('[UserProfileForm] Update success:', result);
       
       setSaveSuccess(true);
       setIsEditing(false);
-      await refetch();
       
       // Clear success message after 3 seconds
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : 'Failed to update profile');
-    } finally {
-      setIsSaving(false);
+    } catch (error: any) {
+      console.error('[UserProfileForm] Update error:', error);
+      console.error('[UserProfileForm] Error details:', {
+        statusCode: error.statusCode,
+        message: error.message,
+        error: error.error,
+        validation: error.message, // This is the validation errors array
+      });
+      
+      // Log each validation error individually
+      if (Array.isArray(error.message)) {
+        console.error('[UserProfileForm] Validation errors:');
+        error.message.forEach((msg: string, idx: number) => {
+          console.error(`  ${idx + 1}. ${msg}`);
+        });
+      }
+      
+      const errorMsg = Array.isArray(error.message) 
+        ? error.message.join(', ') 
+        : error.message || 'Failed to update profile';
+      setSaveError(errorMsg);
     }
   };
 
@@ -128,10 +170,10 @@ export function UserProfileForm({ profile }: UserProfileFormProps) {
         ) : (
           <div className="flex space-x-2">
             <Button 
-              onClick={handleCancel} 
-              variant="outline" 
+              onClick={handleCancel}
+              variant="outline"
               size="sm"
-              disabled={isSaving}
+              disabled={updateProfile.isPending}
             >
               <X className="w-4 h-4 mr-2" />
               Cancel
@@ -139,10 +181,10 @@ export function UserProfileForm({ profile }: UserProfileFormProps) {
             <Button 
               onClick={handleSubmit(onSubmit)} 
               size="sm"
-              disabled={!isDirty || isSaving}
+              disabled={!isDirty || updateProfile.isPending}
             >
               <Save className="w-4 h-4 mr-2" />
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>
         )}

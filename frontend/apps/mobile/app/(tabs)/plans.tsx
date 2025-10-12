@@ -168,34 +168,42 @@ export default function ActionPlansScreen() {
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 
-  const ListEmptyComponent = useCallback(() => (
-    isLoading ? (
-      <View style={styles.list}>
-        <SkeletonListItem />
-        <SkeletonListItem />
-        <SkeletonListItem />
-        <SkeletonListItem />
-        <SkeletonListItem />
-      </View>
-    ) : searchQuery.trim().length > 0 ? (
-      <EmptyState
-        title="No Results Found"
-        message={`No action plans match "${searchQuery}". Try adjusting your search.`}
-        icon="🔍"
-      />
-    ) : (
+  const ListEmptyComponent = useCallback(() => {
+    if (isLoading) {
+      return (
+        <View style={styles.list}>
+          <SkeletonListItem />
+          <SkeletonListItem />
+          <SkeletonListItem />
+          <SkeletonListItem />
+          <SkeletonListItem />
+        </View>
+      );
+    }
+    
+    if (searchQuery.trim().length > 0) {
+      return (
+        <EmptyState
+          title="No Results Found"
+          message={`No action plans match "${searchQuery}". Try adjusting your search.`}
+          icon="🔍"
+        />
+      );
+    }
+    
+    return (
       <EmptyState
         title="No Action Plans Yet"
         message="Create your first action plan to start achieving your health goals"
         icon="📋"
         actionText="Create Action Plan"
         onAction={() => {
-          // TODO: Implement create functionality
-          console.log('Create action plan');
+          // Future Enhancement: Navigate to action plan creation screen
+          console.log('Create action plan - Future: router.push("/action-plans/create")');
         }}
       />
-    )
-  ), [isLoading, searchQuery]);
+    );
+  }, [isLoading, searchQuery]);
 
   return (
     <FlatList

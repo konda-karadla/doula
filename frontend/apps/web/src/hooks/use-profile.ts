@@ -1,28 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { services } from '@health-platform/api-client';
 import { useAuthStore } from '@/lib/stores/auth';
-
-// Mock profile data - in real implementation, this would come from API
-const mockProfile = {
-  id: '1',
-  email: 'test@example.com',
-  username: 'testuser',
-  systemId: 'SYS001',
-  profileType: 'patient' as const,
-  journeyType: 'general' as const,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
-
-const mockStats = {
-  totalLabResults: 5,
-  totalActionPlans: 3,
-  completedActionItems: 8,
-  pendingActionItems: 4,
-  criticalInsights: 2,
-  lastLabUpload: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
-  lastActionPlanUpdate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-  memberSince: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), // 3 months ago
-};
 
 export function useProfile() {
   const { token } = useAuthStore();
@@ -30,17 +8,23 @@ export function useProfile() {
   return useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // In real implementation:
-      // const response = await apiClient.profile.get()
-      // return response.data
-      
-      return mockProfile;
+      console.log('[useProfile] Fetching profile...', { hasToken: !!token });
+      try {
+        const result = await services.profile.get();
+        console.log('[useProfile] Success:', result);
+        return result;
+      } catch (error: any) {
+        console.error('[useProfile] Error:', {
+          message: error.message,
+          status: error.statusCode,
+          error: error.error,
+        });
+        throw error;
+      }
     },
     enabled: !!token,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry if not authenticated
   });
 }
 
@@ -50,16 +34,52 @@ export function useProfileStats() {
   return useQuery({
     queryKey: ['profile-stats'],
     queryFn: async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // In real implementation:
-      // const response = await apiClient.profile.getStats()
-      // return response.data
-      
-      return mockStats;
+      console.log('[useProfileStats] Fetching stats...', { hasToken: !!token });
+      try {
+        const result = await services.profile.getStats();
+        console.log('[useProfileStats] Success');
+        return result;
+      } catch (error: any) {
+        console.error('[useProfileStats] Error:', {
+          message: error.message,
+          status: error.statusCode,
+        });
+        throw error;
+      }
     },
     enabled: !!token,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry if not authenticated
+  });
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: Partial<{
+      email: string;
+      profileType: string;
+      journeyType: string;
+      preferences: Record<string, any>;
+      firstName: string;
+      lastName: string;
+      phoneNumber: string;
+      dateOfBirth: string;
+      healthGoals: string[];
+      emergencyContactName: string;
+      emergencyContactPhone: string;
+    }>) => {
+      console.log('[useUpdateProfile] Mutation called with:', data);
+      const result = await services.profile.update(data);
+      console.log('[useUpdateProfile] Mutation result:', result);
+      return result;
+    },
+    onSuccess: (data) => {
+      console.log('[useUpdateProfile] onSuccess, invalidating cache. New data:', data);
+      // Invalidate profile queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
+    },
   });
 }
