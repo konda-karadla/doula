@@ -95,6 +95,9 @@ export default function DashboardScreen() {
       {/* Quick Actions */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <Link href="/consultations" style={styles.actionButton}>
+          <Text style={styles.actionText}>📅 Book Consultation →</Text>
+        </Link>
         <Link href="/(tabs)/labs" style={styles.actionButton}>
           <Text style={styles.actionText}>View Lab Results →</Text>
         </Link>

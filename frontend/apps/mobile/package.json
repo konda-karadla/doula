@@ -21,6 +21,7 @@
     "@health-platform/types": "*",
     "@health-platform/utils": "*",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-community/datetimepicker": "^8.4.5",
     "@react-native-community/netinfo": "^11.4.1",
     "@tanstack/react-query": "^5.0.0",
     "axios": "^1.6.0",
