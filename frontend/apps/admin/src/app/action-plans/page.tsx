@@ -10,8 +10,106 @@ import { useToast } from '@/hooks/use-toast'
 import { Search, Plus, Edit, Trash2, Eye, Filter, Target, Calendar, Loader2 } from 'lucide-react'
 import { useAdminActionPlans, useDeleteActionPlan, useCreateActionPlan, useUpdateActionPlan, useUsers } from '@/hooks/use-admin-api'
 import { format } from 'date-fns'
-import type { ActionPlan } from '@health-platform/types'
+import type { ActionPlan, ActionItem } from '@health-platform/types'
 import { ActionPlanModal } from '@/components/modals/action-plan-modal'
+
+// Action Plan Card Component
+interface ActionPlanCardProps {
+  readonly plan: ActionPlan
+  readonly onView: (planId: string) => void
+  readonly onEdit: (plan: ActionPlan) => void
+  readonly onDelete: (planId: string, planTitle: string) => void
+  readonly isDeleting: boolean
+}
+
+function ActionPlanCard({ plan, onView, onEdit, onDelete, isDeleting }: ActionPlanCardProps) {
+  const totalItems = plan.actionItems?.length || 0
+  const completedItems = plan.actionItems?.filter((item: ActionItem) => item.completedAt !== null && item.completedAt !== undefined).length || 0
+  
+  const getProgressPercentage = (completed: number, total: number) => {
+    if (total === 0) return 0
+    return Math.round((completed / total) * 100)
+  }
+
+  return (
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <CardTitle className="text-lg">{plan.title}</CardTitle>
+            <CardDescription className="mt-1">
+              {plan.description || 'No description'}
+            </CardDescription>
+          </div>
+          <div className="flex space-x-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onView(plan.id)}
+              title="View details"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onEdit(plan)}
+              title="Edit plan"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onDelete(plan.id, plan.title)}
+              title="Delete plan"
+              className="text-red-600 hover:text-red-700"
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-center justify-between text-sm mb-1">
+              <span className="text-gray-600">Progress</span>
+              <span className="text-gray-900">
+                {completedItems}/{totalItems} items
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{
+                  width: `${getProgressPercentage(completedItems, totalItems)}%`,
+                }}
+              />
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              {getProgressPercentage(completedItems, totalItems)}% complete
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center">
+              <Calendar className="h-3 w-3 mr-1" />
+              Created: {format(new Date(plan.createdAt), 'MMM d, yyyy')}
+            </div>
+            <div>
+              Updated: {format(new Date(plan.updatedAt), 'MMM d, yyyy')}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function ActionPlansPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -38,7 +136,7 @@ export default function ActionPlansPage() {
         plan.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         plan.description?.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesStatus = filterStatus === 'all' || plan.status === filterStatus
-      const matchesSystem = filterSystem === 'all' // TODO: Add system filtering when needed
+      const matchesSystem = filterSystem === 'all' // System filtering available but not used in admin view
       
       return matchesSearch && matchesStatus && matchesSystem
     })
@@ -90,99 +188,6 @@ export default function ActionPlansPage() {
     }
   }
 
-  const getProgressPercentage = (completedCount: number, totalCount: number) => {
-    if (totalCount === 0) return 0
-    return Math.round((completedCount / totalCount) * 100)
-  }
-
-  // Action Plan Item component to encapsulate each card
-  const ActionPlanCard = ({ plan }: { plan: ActionPlan }) => {
-    // Count items for this plan (would need useActionItems hook)
-    const totalItems = plan.actionItems?.length || 0
-    const completedItems = plan.actionItems?.filter((item) => item.completedAt !== null && item.completedAt !== undefined).length || 0
-
-    return (
-      <Card className="hover:shadow-lg transition-shadow">
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <CardTitle className="text-lg">{plan.title}</CardTitle>
-              <CardDescription className="mt-1">
-                {plan.description || 'No description'}
-              </CardDescription>
-            </div>
-            <div className="flex space-x-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleViewPlan(plan.id)}
-                title="View details"
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleEditPlan(plan)}
-                title="Edit plan"
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleDeletePlan(plan.id, plan.title)}
-                title="Delete plan"
-                className="text-red-600 hover:text-red-700"
-                disabled={deleteActionPlanMutation.isPending}
-              >
-                {deleteActionPlanMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Progress */}
-            <div>
-              <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-gray-600">Progress</span>
-                <span className="text-gray-900">
-                  {completedItems}/{totalItems} items
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{
-                    width: `${getProgressPercentage(completedItems, totalItems)}%`,
-                  }}
-                />
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {getProgressPercentage(completedItems, totalItems)}% complete
-              </div>
-            </div>
-
-            {/* Dates */}
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center">
-                <Calendar className="h-3 w-3 mr-1" />
-                Created: {format(new Date(plan.createdAt), 'MMM d, yyyy')}
-              </div>
-              <div>
-                Updated: {format(new Date(plan.updatedAt), 'MMM d, yyyy')}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
 
   return (
     <AdminLayout>
@@ -209,12 +214,13 @@ export default function ActionPlansPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
                   Search
                 </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
+                    id="search"
                     placeholder="Search plans..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -224,10 +230,11 @@ export default function ActionPlansPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
                   Status
                 </label>
                 <select
+                  id="status"
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -240,10 +247,11 @@ export default function ActionPlansPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="system" className="block text-sm font-medium text-gray-700 mb-1">
                   System
                 </label>
                 <select
+                  id="system"
                   value={filterSystem}
                   onChange={(e) => setFilterSystem(e.target.value)}
                   className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -273,27 +281,40 @@ export default function ActionPlansPage() {
         </Card>
 
         {/* Action Plans Grid */}
-        {isLoading ? (
+        {isLoading && (
           <div className="flex justify-center items-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
           </div>
-        ) : error ? (
+        )}
+        
+        {!isLoading && error && (
           <Card>
             <CardContent className="text-center py-8">
               <p className="text-red-600">Failed to load action plans</p>
             </CardContent>
           </Card>
-        ) : filteredPlans.length === 0 ? (
+        )}
+        
+        {!isLoading && !error && filteredPlans.length === 0 && (
           <Card>
             <CardContent className="text-center py-8">
               <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No action plans found matching your criteria</p>
             </CardContent>
           </Card>
-        ) : (
+        )}
+        
+        {!isLoading && !error && filteredPlans.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPlans.map((plan) => (
-              <ActionPlanCard key={plan.id} plan={plan} />
+              <ActionPlanCard 
+                key={plan.id} 
+                plan={plan}
+                onView={handleViewPlan}
+                onEdit={handleEditPlan}
+                onDelete={handleDeletePlan}
+                isDeleting={deleteActionPlanMutation.isPending}
+              />
             ))}
           </div>
         )}
@@ -356,7 +377,7 @@ export default function ActionPlansPage() {
                   <p className="text-sm font-medium text-gray-600">Completed Items</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {actionPlans?.reduce((sum, p) => 
-                      sum + (p.actionItems?.filter((item) => item.completedAt !== null && item.completedAt !== undefined).length || 0), 0
+                      sum + (p.actionItems?.filter((item: ActionItem) => item.completedAt !== null && item.completedAt !== undefined).length || 0), 0
                     ) || 0}
                   </p>
                 </div>

@@ -15,11 +15,20 @@ const queryKeys = {
   profileStats: ['profile', 'stats'] as const,
 }
 
-// Lab Results Hooks
+// Lab Results Hooks (for regular users)
 export const useLabResults = (filters?: { search?: string; status?: string }) => {
   return useQuery({
     queryKey: [...queryKeys.labs, filters],
     queryFn: () => services.labs.list(filters),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+// Admin Lab Results (all users)
+export const useAdminLabResults = () => {
+  return useQuery({
+    queryKey: adminQueryKeys.allLabResults,
+    queryFn: services.admin.getAllLabResults,
     staleTime: 5 * 60 * 1000,
   })
 }

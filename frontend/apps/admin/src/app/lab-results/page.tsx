@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import { Search, Upload, Eye, Download, Trash2, Filter, FileText, Loader2 } from 'lucide-react'
-import { useLabResults, useDeleteLabResult } from '@/hooks/use-admin-api'
+import { useAdminLabResults, useDeleteLabResult } from '@/hooks/use-admin-api'
 import { format } from 'date-fns'
 
 export default function LabResultsPage() {
@@ -16,42 +16,43 @@ export default function LabResultsPage() {
   const [filterSystem, setFilterSystem] = useState('all')
   const { toast } = useToast()
 
-  const { data: labResults, isLoading, error } = useLabResults({
-    search: searchTerm,
-    status: filterStatus !== 'all' ? filterStatus : undefined,
-  })
+  const { data: labResults, isLoading, error } = useAdminLabResults()
   const deleteLabMutation = useDeleteLabResult()
 
-  // System filtering is client-side only (would need system field in user data)
+  // Client-side filtering (since admin endpoint returns all results)
   const filteredResults = useMemo(() => {
     if (!labResults) return []
-    if (filterSystem === 'all') return labResults
     
-    // TODO: Add system filtering when systemId is included in response
-    return labResults
-  }, [labResults, filterSystem])
+    return labResults.filter(result => {
+      const matchesSearch = !searchTerm || result.fileName?.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesStatus = filterStatus === 'all' || result.processingStatus === filterStatus
+      const matchesSystem = filterSystem === 'all' // Future: filter by user's system
+      
+      return matchesSearch && matchesStatus && matchesSystem
+    })
+  }, [labResults, searchTerm, filterStatus, filterSystem])
 
   const handleViewResult = (fileUrl: string, fileName: string) => {
-    // Open PDF in new tab
-    window.open(fileUrl, '_blank')
+    // Open PDF in new tab for viewing
+    window.open(fileUrl, '_blank', 'noopener,noreferrer')
     toast({
       title: 'Opening lab result',
-      description: `Opening ${fileName} in new tab`,
+      description: `Viewing ${fileName} in browser`,
     })
   }
 
   const handleDownloadResult = (fileUrl: string, fileName: string) => {
-    // Download file from S3
+    // Create temporary link for download
     const link = document.createElement('a')
     link.href = fileUrl
     link.download = fileName
-    link.target = '_blank'
+    link.setAttribute('download', fileName)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     
     toast({
-      title: 'Download started',
+      title: 'Download initiated',
       description: `Downloading ${fileName}`,
     })
   }

@@ -212,6 +212,10 @@ export const adminService = {
 
   deleteActionPlan: (id: string): Promise<void> =>
     api.delete(apiEndpoints.admin.actionPlans.delete(id)),
+  
+  // Lab Results (Admin)
+  getAllLabResults: (): Promise<any[]> =>
+    api.get<any[]>(apiEndpoints.admin.labResults.list),
 };
 
 // Consultation Service (User)

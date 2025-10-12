@@ -98,6 +98,9 @@ export const apiEndpoints = {
       delete: (id: string) => `/admin/action-plans/${id}`,
       items: (id: string) => `/admin/action-plans/${id}/items`,
     },
+    labResults: {
+      list: '/admin/lab-results',
+    },
     consultations: {
       doctors: '/admin/consultations/doctors',
       doctor: (id: string) => `/admin/consultations/doctors/${id}`,
