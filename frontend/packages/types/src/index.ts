@@ -60,6 +60,7 @@ export interface Biomarker {
 // Action Plans types
 export interface ActionPlan {
   id: string;
+  userId?: string;
   title: string;
   description: string;
   status: ActionPlanStatus;
@@ -68,6 +69,11 @@ export interface ActionPlan {
   createdAt: string;
   updatedAt: string;
   actionItems?: ActionItem[];
+  user?: {
+    id: string;
+    email: string;
+    username: string;
+  };
 }
 
 export interface ActionItem {

@@ -7,6 +7,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -61,10 +62,15 @@ export class ActionPlansController {
     type: [ActionPlanDto],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getAllActionPlans(@CurrentUser() user: any) {
+  async getAllActionPlans(
+    @CurrentUser() user: any,
+    @Query('search') search?: string,
+    @Query('status') status?: string,
+  ) {
     return this.actionPlansService.findAllActionPlans(
       user.userId,
       user.systemId,
+      { search, status },
     );
   }
 

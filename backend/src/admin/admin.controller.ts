@@ -54,6 +54,11 @@ export class AdminController {
 
   // ==================== SYSTEM CONFIGURATION ====================
   
+  @Get('systems')
+  async getSystems() {
+    return this.adminService.getSystems();
+  }
+
   @Get('system-config')
   async getSystemConfig() {
     return this.adminService.getSystemConfig();
@@ -79,6 +84,18 @@ export class AdminController {
   @Get('analytics/action-plans')
   async getActionPlanAnalytics() {
     return this.adminService.getActionPlanAnalytics();
+  }
+
+  // ==================== ACTION PLAN MANAGEMENT ====================
+  
+  @Post('action-plans')
+  async createActionPlanForUser(@Body() data: any) {
+    return this.adminService.createActionPlanForUser(data);
+  }
+
+  @Get('action-plans')
+  async getAllActionPlans() {
+    return this.adminService.getAllActionPlans();
   }
 }
 

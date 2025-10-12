@@ -48,12 +48,31 @@ export class LabsService {
     return this.mapToDto(labResult);
   }
 
-  async getLabResults(userId: string, systemId: string): Promise<LabResultDto[]> {
+  async getLabResults(
+    userId: string,
+    systemId: string,
+    filters?: { search?: string; status?: string },
+  ): Promise<LabResultDto[]> {
+    const where: any = {
+      userId,
+      systemId,
+    };
+
+    // Add search filter (search in fileName)
+    if (filters?.search) {
+      where.fileName = {
+        contains: filters.search,
+        mode: 'insensitive',
+      };
+    }
+
+    // Add status filter
+    if (filters?.status && filters.status !== 'all') {
+      where.processingStatus = filters.status;
+    }
+
     const labResults = await this.prisma.labResult.findMany({
-      where: {
-        userId,
-        systemId,
-      },
+      where,
       orderBy: {
         uploadedAt: 'desc',
       },

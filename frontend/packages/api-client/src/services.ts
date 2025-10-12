@@ -1,5 +1,5 @@
-import { api, uploadFile } from './client';
-import { apiEndpoints } from '@health-platform/config';
+import { api, uploadFile, tokenManager } from './client';
+import { apiEndpoints, config } from '@health-platform/config';
 import type {
   AuthResponse,
   LoginRequest,
@@ -49,8 +49,14 @@ export const labService = {
   upload: (file: File, onProgress?: (progress: number) => void): Promise<LabResult> =>
     uploadFile(apiEndpoints.labs.upload, file, onProgress),
   
-  list: (): Promise<LabResult[]> =>
-    api.get<LabResult[]>(apiEndpoints.labs.list),
+  list: (filters?: { search?: string; status?: string }): Promise<LabResult[]> => {
+    const params = new URLSearchParams();
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.status) params.append('status', filters.status);
+    const queryString = params.toString();
+    const url = queryString ? `${apiEndpoints.labs.list}?${queryString}` : apiEndpoints.labs.list;
+    return api.get<LabResult[]>(url);
+  },
   
   get: (id: string): Promise<LabResult> =>
     api.get<LabResult>(apiEndpoints.labs.get(id)),
@@ -64,8 +70,14 @@ export const labService = {
 
 // Action Plans Service
 export const actionPlanService = {
-  list: (): Promise<ActionPlan[]> =>
-    api.get<ActionPlan[]>(apiEndpoints.actionPlans.list),
+  list: (filters?: { search?: string; status?: string }): Promise<ActionPlan[]> => {
+    const params = new URLSearchParams();
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.status) params.append('status', filters.status);
+    const queryString = params.toString();
+    const url = queryString ? `${apiEndpoints.actionPlans.list}?${queryString}` : apiEndpoints.actionPlans.list;
+    return api.get<ActionPlan[]>(url);
+  },
   
   create: (data: CreateActionPlanRequest): Promise<ActionPlan> =>
     api.post<ActionPlan>(apiEndpoints.actionPlans.create, data),
@@ -129,6 +141,22 @@ export const profileService = {
 
   update: (data: Partial<{ email: string; profileType: string; journeyType: string }>): Promise<UserProfile> =>
     api.patch<UserProfile>(apiEndpoints.profile.update, data),
+  
+  export: async (type: string, format: string): Promise<Blob> => {
+    const token = tokenManager.getToken();
+    const response = await fetch(`${config.appConfig.api.baseUrl}${apiEndpoints.profile.export(type, format)}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Export failed');
+    }
+    
+    return response.blob();
+  },
 };
 
 // Admin Service
@@ -165,6 +193,13 @@ export const adminService = {
   
   getActionPlanAnalytics: (): Promise<any> =>
     api.get<any>(apiEndpoints.admin.analytics.actionPlans),
+  
+  // Action Plans (Admin)
+  getAllActionPlans: (): Promise<any[]> =>
+    api.get<any[]>(apiEndpoints.admin.actionPlans.list),
+  
+  createActionPlanForUser: (data: any): Promise<any> =>
+    api.post<any>(apiEndpoints.admin.actionPlans.create, data),
 };
 
 // Consultation Service (User)

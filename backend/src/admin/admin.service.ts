@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // ==================== USER MANAGEMENT ====================
   
@@ -87,13 +87,45 @@ export class AdminService {
       throw new ConflictException('User with this email or username already exists');
     }
 
+    // Resolve system slug to ID if needed
+    let systemId = createUserDto.systemId;
+    
+    // Check if systemId looks like a slug (not a UUID)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(systemId);
+    
+    if (!isUuid) {
+      // Try to find system by slug or by a known mapping
+      const slugMapping: Record<string, string> = {
+        'doula-system-id': 'doula',
+        'functional-health-system-id': 'functional_health',
+        'elderly-care-system-id': 'elderly_care',
+      };
+      
+      const slug = slugMapping[systemId] || systemId;
+      const system = await this.prisma.system.findUnique({
+        where: { slug },
+      });
+      
+      if (!system) {
+        throw new NotFoundException(`System with slug '${slug}' not found`);
+      }
+      
+      systemId = system.id;
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = await this.prisma.user.create({
       data: {
-        ...createUserDto,
+        email: createUserDto.email,
+        username: createUserDto.username,
         password: hashedPassword,
+        role: createUserDto.role || 'user',
+        language: createUserDto.language || 'en',
+        profileType: createUserDto.profileType,
+        journeyType: createUserDto.journeyType,
+        systemId,
       },
       select: {
         id: true,
@@ -123,6 +155,36 @@ export class AdminService {
     const updateData: any = { ...updateUserDto };
     if (updateUserDto.password) {
       updateData.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    // Resolve system slug to ID if systemId is being updated
+    if (updateUserDto.systemId) {
+      let systemId = updateUserDto.systemId;
+      
+      // Check if systemId looks like a slug (not a UUID)
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(systemId);
+      
+      if (!isUuid) {
+        // Try to find system by slug or by a known mapping
+        const slugMapping: Record<string, string> = {
+          'doula-system-id': 'doula',
+          'functional-health-system-id': 'functional_health',
+          'elderly-care-system-id': 'elderly_care',
+        };
+        
+        const slug = slugMapping[systemId] || systemId;
+        const system = await this.prisma.system.findUnique({
+          where: { slug },
+        });
+        
+        if (!system) {
+          throw new NotFoundException(`System with slug '${slug}' not found`);
+        }
+        
+        systemId = system.id;
+      }
+      
+      updateData.systemId = systemId;
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -159,6 +221,20 @@ export class AdminService {
 
   // ==================== SYSTEM CONFIGURATION ====================
   
+  async getSystems() {
+    const systems = await this.prisma.system.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+    return systems;
+  }
+
   async getSystemConfig(): Promise<SystemConfigDto> {
     // This is a mock implementation. You can store these in SystemConfig table
     const config: SystemConfigDto = {
@@ -300,6 +376,55 @@ export class AdminService {
       completedItems,
       completionRate: totalItems > 0 ? (completedItems / totalItems) * 100 : 0,
     };
+  }
+
+  // ==================== ACTION PLAN MANAGEMENT ====================
+
+  async createActionPlanForUser(data: {
+    userId: string;
+    title: string;
+    description?: string;
+    status?: string;
+  }) {
+    // Verify user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: data.userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.prisma.actionPlan.create({
+      data: {
+        userId: data.userId,
+        systemId: user.systemId,
+        title: data.title,
+        description: data.description,
+        status: data.status || 'active',
+      },
+      include: {
+        actionItems: true,
+      },
+    });
+  }
+
+  async getAllActionPlans() {
+    return this.prisma.actionPlan.findMany({
+      include: {
+        actionItems: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            username: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 }
 

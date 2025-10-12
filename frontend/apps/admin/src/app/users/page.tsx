@@ -9,11 +9,15 @@ import { useToast } from '@/hooks/use-toast'
 import { Search, Plus, Edit, Trash2, Eye, Filter, Loader2 } from 'lucide-react'
 import { useUsers, useDeleteUser } from '@/hooks/use-admin-api'
 import { format } from 'date-fns'
+import { UserModal } from '@/components/modals/user-modal'
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterSystem, setFilterSystem] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const { toast } = useToast()
 
   const { data: users, isLoading, error } = useUsers()
@@ -51,20 +55,25 @@ export default function UsersPage() {
     }
   }
 
-  const handleEditUser = () => {
-    // TODO: Navigate to edit user page or open modal
-    toast({
-      title: 'Edit user',
-      description: 'Edit user functionality will be implemented',
-    })
+  const handleCreateUser = () => {
+    setSelectedUser(null)
+    setModalMode('create')
+    setIsUserModalOpen(true)
   }
 
-  const handleViewUser = () => {
-    // TODO: Navigate to user detail page or open modal
+  const handleEditUser = (user: any) => {
+    setSelectedUser(user)
+    setModalMode('edit')
+    setIsUserModalOpen(true)
+  }
+
+  const handleViewUser = (user: any) => {
+    // View user details in a modal (using edit mode for now)
     toast({
-      title: 'View user',
-      description: 'View user details functionality will be implemented',
+      title: 'View User',
+      description: `Viewing details for ${user.name || user.username}`,
     })
+    handleEditUser(user)
   }
 
   const getStatusBadge = (status: string) => {
@@ -97,7 +106,7 @@ export default function UsersPage() {
             <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
             <p className="text-gray-600">Manage platform users and their access</p>
           </div>
-          <Button>
+          <Button onClick={handleCreateUser}>
             <Plus className="h-4 w-4 mr-2" />
             Add User
           </Button>
@@ -258,7 +267,7 @@ export default function UsersPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleViewUser()}
+                                onClick={() => handleViewUser(user)}
                                 title="View user"
                               >
                                 <Eye className="h-4 w-4" />
@@ -266,7 +275,7 @@ export default function UsersPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleEditUser()}
+                                onClick={() => handleEditUser(user)}
                                 title="Edit user"
                               >
                                 <Edit className="h-4 w-4" />
@@ -303,6 +312,14 @@ export default function UsersPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* User Modal */}
+      <UserModal
+        open={isUserModalOpen}
+        onOpenChange={setIsUserModalOpen}
+        user={selectedUser}
+        mode={modalMode}
+      />
     </AdminLayout>
   )
 }

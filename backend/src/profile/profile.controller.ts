@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Body, Query, UseGuards, StreamableFile, Header } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -12,6 +12,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserProfileDto } from './dto/user-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { HealthStatsDto } from './dto/health-stats.dto';
+import { ExportType, ExportFormat } from './dto/export-data.dto';
 
 @ApiTags('profile')
 @ApiBearerAuth()
@@ -56,5 +57,28 @@ export class ProfileController {
     @Body() body: UpdateProfileDto,
   ): Promise<UserProfileDto> {
     return this.profileService.updateProfile(user.userId, user.systemId, body);
+  }
+
+  @Get('export')
+  @ApiOperation({ summary: 'Export user data in JSON or CSV format' })
+  @ApiResponse({ status: 200, description: 'User data export' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Header('Content-Type', 'application/octet-stream')
+  async exportData(
+    @CurrentUser() user: any,
+    @Query('type') type: ExportType = ExportType.ALL,
+    @Query('format') format: ExportFormat = ExportFormat.JSON,
+  ): Promise<StreamableFile> {
+    const { data, filename, contentType } = await this.profileService.exportUserData(
+      user.userId,
+      user.systemId,
+      type,
+      format,
+    );
+    
+    return new StreamableFile(Buffer.from(data), {
+      type: contentType,
+      disposition: `attachment; filename="${filename}"`,
+    });
   }
 }

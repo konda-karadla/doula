@@ -97,13 +97,9 @@ export function UserProfileForm({ profile }: UserProfileFormProps) {
       
       // Convert date to ISO 8601 if provided
       if (data.dateOfBirth) {
-        try {
-          const date = new Date(data.dateOfBirth);
-          if (!isNaN(date.getTime())) {
-            updatePayload.dateOfBirth = date.toISOString();
-          }
-        } catch (e) {
-          console.warn('[UserProfileForm] Invalid date format, skipping dateOfBirth');
+        const date = new Date(data.dateOfBirth);
+        if (!isNaN(date.getTime())) {
+          updatePayload.dateOfBirth = date.toISOString();
         }
       }
       

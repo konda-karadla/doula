@@ -4,6 +4,7 @@ import {
   Get,
   Delete,
   Param,
+  Query,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -67,8 +68,12 @@ export class LabsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all lab results for current user' })
-  async getLabResults(@CurrentUser() user: CurrentUserData): Promise<LabResultDto[]> {
-    return this.labsService.getLabResults(user.userId, user.systemId);
+  async getLabResults(
+    @CurrentUser() user: CurrentUserData,
+    @Query('search') search?: string,
+    @Query('status') status?: string,
+  ): Promise<LabResultDto[]> {
+    return this.labsService.getLabResults(user.userId, user.systemId, { search, status });
   }
 
   @Get(':id')

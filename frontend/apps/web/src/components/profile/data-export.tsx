@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,6 @@ import {
   AlertCircle,
   Clock,
   FileSpreadsheet,
-  FileImage,
   Archive
 } from 'lucide-react';
 
@@ -75,8 +74,6 @@ const exportOptions: ExportOption[] = [
 const formatOptions = [
   { id: 'json' as ExportFormat, label: 'JSON', description: 'Machine-readable format', icon: FileText },
   { id: 'csv' as ExportFormat, label: 'CSV', description: 'Spreadsheet format', icon: FileSpreadsheet },
-  { id: 'pdf' as ExportFormat, label: 'PDF', description: 'Human-readable report', icon: FileImage },
-  { id: 'excel' as ExportFormat, label: 'Excel', description: 'Microsoft Excel format', icon: FileSpreadsheet },
 ];
 
 export function DataExport() {
@@ -87,32 +84,32 @@ export function DataExport() {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Cleanup blob URL on unmount or when new export is created
+  useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
+
   const handleExport = async () => {
     setIsExporting(true);
     setError(null);
     setExportStatus('preparing');
 
     try {
-      // TODO: Implement actual API call to generate export
-      // const response = await exportService.generateExport({
-      //   type: selectedType,
-      //   format: selectedFormat
-      // });
+      const { services } = await import('@health-platform/api-client');
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Call the real API
+      const blob = await services.profile.export(selectedType, selectedFormat);
       
-      // Simulate successful export
-      const mockDownloadUrl = `data:application/json;base64,${btoa(JSON.stringify({
-        type: selectedType,
-        format: selectedFormat,
-        generatedAt: new Date().toISOString(),
-        data: 'Mock export data...'
-      }))}`;
-      
-      setDownloadUrl(mockDownloadUrl);
+      // Create download URL from blob
+      const url = window.URL.createObjectURL(blob);
+      setDownloadUrl(url);
       setExportStatus('ready');
     } catch (error) {
+      console.error('[DataExport] Export error:', error);
       setError(error instanceof Error ? error.message : 'Export failed');
       setExportStatus('error');
     } finally {

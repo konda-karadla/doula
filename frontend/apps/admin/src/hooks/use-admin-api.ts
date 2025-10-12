@@ -16,10 +16,10 @@ const queryKeys = {
 }
 
 // Lab Results Hooks
-export const useLabResults = () => {
+export const useLabResults = (filters?: { search?: string; status?: string }) => {
   return useQuery({
-    queryKey: queryKeys.labs,
-    queryFn: services.labs.list,
+    queryKey: [...queryKeys.labs, filters],
+    queryFn: () => services.labs.list(filters),
     staleTime: 5 * 60 * 1000,
   })
 }
@@ -51,11 +51,20 @@ export const useDeleteLabResult = () => {
   })
 }
 
-// Action Plans Hooks
-export const useActionPlans = () => {
+// Action Plans Hooks (for regular users)
+export const useActionPlans = (filters?: { search?: string; status?: string }) => {
   return useQuery({
-    queryKey: queryKeys.actionPlans,
-    queryFn: services.actionPlans.list,
+    queryKey: [...queryKeys.actionPlans, filters],
+    queryFn: () => services.actionPlans.list(filters),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+// Admin Action Plans (all users)
+export const useAdminActionPlans = () => {
+  return useQuery({
+    queryKey: adminQueryKeys.allActionPlans,
+    queryFn: services.admin.getAllActionPlans,
     staleTime: 5 * 60 * 1000,
   })
 }
@@ -65,6 +74,29 @@ export const useActionPlan = (id: string) => {
     queryKey: queryKeys.actionPlan(id),
     queryFn: () => services.actionPlans.get(id),
     enabled: !!id,
+  })
+}
+
+export const useCreateActionPlan = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: services.admin.createActionPlanForUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.allActionPlans })
+    },
+  })
+}
+
+export const useUpdateActionPlan = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      services.actionPlans.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.actionPlans })
+    },
   })
 }
 
@@ -137,7 +169,7 @@ export const useRecentActivities = () => {
   // Add recent lab uploads
   if (labs) {
     const recentLabs = labs
-      .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+      .toSorted((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
       .slice(0, 3)
       .map(lab => ({
         id: `lab-${lab.id}`,
@@ -151,7 +183,7 @@ export const useRecentActivities = () => {
   // Add recent action plans
   if (actionPlans) {
     const recentPlans = actionPlans
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .toSorted((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 2)
       .map(plan => ({
         id: `plan-${plan.id}`,
@@ -163,7 +195,7 @@ export const useRecentActivities = () => {
   }
 
   // Sort by timestamp
-  return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5)
+  return activities.toSorted((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5)
 }
 
 // User Management Hooks

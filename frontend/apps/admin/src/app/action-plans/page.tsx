@@ -7,28 +7,36 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import { Search, Plus, Edit, Trash2, Eye, Filter, Target, Calendar, Loader2 } from 'lucide-react'
-import { useActionPlans, useDeleteActionPlan } from '@/hooks/use-admin-api'
+import { useAdminActionPlans, useDeleteActionPlan, useCreateActionPlan, useUpdateActionPlan, useUsers } from '@/hooks/use-admin-api'
 import { format } from 'date-fns'
 import type { ActionPlan } from '@health-platform/types'
+import { ActionPlanModal } from '@/components/modals/action-plan-modal'
 
 export default function ActionPlansPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterSystem, setFilterSystem] = useState('all')
+  const [isActionPlanModalOpen, setIsActionPlanModalOpen] = useState(false)
+  const [selectedActionPlan, setSelectedActionPlan] = useState<ActionPlan | undefined>(undefined)
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const { toast } = useToast()
 
-  const { data: actionPlans, isLoading, error } = useActionPlans()
+  const { data: actionPlans, isLoading, error } = useAdminActionPlans()
+  const { data: users } = useUsers()
   const deleteActionPlanMutation = useDeleteActionPlan()
+  const createActionPlanMutation = useCreateActionPlan()
+  const updateActionPlanMutation = useUpdateActionPlan()
 
+  // Client-side filtering for search and status (since we're using admin endpoint now)
   const filteredPlans = useMemo(() => {
     if (!actionPlans) return []
     
     return actionPlans.filter(plan => {
-      const matchesSearch = plan.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           plan.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      // Note: Status and system filtering would need additional data
-      const matchesStatus = filterStatus === 'all' // TODO: Add status when available
-      const matchesSystem = filterSystem === 'all' // TODO: Add system filtering when user data available
+      const matchesSearch = !searchTerm || 
+        plan.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        plan.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesStatus = filterStatus === 'all' || plan.status === filterStatus
+      const matchesSystem = filterSystem === 'all' // TODO: Add system filtering when needed
       
       return matchesSearch && matchesStatus && matchesSystem
     })
@@ -70,11 +78,20 @@ export default function ActionPlansPage() {
   }
 
   const handleCreatePlan = () => {
-    // TODO: Open action plan creation modal/page
-    toast({
-      title: 'Create action plan',
-      description: 'Action plan creation form will be opened',
-    })
+    setSelectedActionPlan(undefined)
+    setModalMode('create')
+    setIsActionPlanModalOpen(true)
+  }
+  
+  const handleActionPlanSubmit = async (data: any) => {
+    if (modalMode === 'create') {
+      await createActionPlanMutation.mutateAsync(data)
+    } else if (selectedActionPlan) {
+      await updateActionPlanMutation.mutateAsync({
+        id: selectedActionPlan.id,
+        data,
+      })
+    }
   }
 
   const getProgressPercentage = (completedCount: number, totalCount: number) => {
@@ -352,6 +369,16 @@ export default function ActionPlansPage() {
           </Card>
         </div>
       </div>
+
+      {/* Action Plan Modal */}
+      <ActionPlanModal
+        open={isActionPlanModalOpen}
+        onOpenChange={setIsActionPlanModalOpen}
+        actionPlan={selectedActionPlan}
+        mode={modalMode}
+        onSubmit={handleActionPlanSubmit}
+        users={users || []}
+      />
     </AdminLayout>
   )
 }

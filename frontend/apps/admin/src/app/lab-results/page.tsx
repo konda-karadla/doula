@@ -16,21 +16,20 @@ export default function LabResultsPage() {
   const [filterSystem, setFilterSystem] = useState('all')
   const { toast } = useToast()
 
-  const { data: labResults, isLoading, error } = useLabResults()
+  const { data: labResults, isLoading, error } = useLabResults({
+    search: searchTerm,
+    status: filterStatus !== 'all' ? filterStatus : undefined,
+  })
   const deleteLabMutation = useDeleteLabResult()
 
+  // System filtering is client-side only (would need system field in user data)
   const filteredResults = useMemo(() => {
     if (!labResults) return []
+    if (filterSystem === 'all') return labResults
     
-    return labResults.filter(result => {
-      const matchesSearch = result.fileName?.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus = filterStatus === 'all' || result.processingStatus === filterStatus
-      // Note: System filtering would need user info - for now skip or mock
-      const matchesSystem = filterSystem === 'all' // TODO: Add system filtering when user data available
-      
-      return matchesSearch && matchesStatus && matchesSystem
-    })
-  }, [labResults, searchTerm, filterStatus, filterSystem])
+    // TODO: Add system filtering when systemId is included in response
+    return labResults
+  }, [labResults, filterSystem])
 
   const handleViewResult = () => {
     // TODO: Implement PDF viewer modal

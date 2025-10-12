@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateActionPlanDto } from './dto/create-action-plan.dto';
 import { UpdateActionPlanDto } from './dto/update-action-plan.dto';
@@ -7,7 +7,7 @@ import { UpdateActionItemDto } from './dto/update-action-item.dto';
 
 @Injectable()
 export class ActionPlansService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createActionPlan(
     userId: string,
@@ -28,12 +28,41 @@ export class ActionPlansService {
     });
   }
 
-  async findAllActionPlans(userId: string, systemId: string) {
+  async findAllActionPlans(
+    userId: string,
+    systemId: string,
+    filters?: { search?: string; status?: string },
+  ) {
+    const where: any = {
+      userId,
+      systemId,
+    };
+
+    // Add search filter (search in title and description)
+    if (filters?.search) {
+      where.OR = [
+        {
+          title: {
+            contains: filters.search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          description: {
+            contains: filters.search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+
+    // Add status filter
+    if (filters?.status && filters.status !== 'all') {
+      where.status = filters.status;
+    }
+
     return this.prisma.actionPlan.findMany({
-      where: {
-        userId,
-        systemId,
-      },
+      where,
       include: {
         actionItems: {
           orderBy: {

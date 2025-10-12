@@ -61,6 +61,7 @@ export const apiEndpoints = {
     get: '/profile',
     stats: '/profile/stats',
     update: '/profile',
+    export: (type: string, format: string) => `/profile/export?type=${type}&format=${format}`,
   },
   
   // Consultations (User)
@@ -88,6 +89,10 @@ export const apiEndpoints = {
       users: '/admin/analytics/users',
       labs: '/admin/analytics/labs',
       actionPlans: '/admin/analytics/action-plans',
+    },
+    actionPlans: {
+      list: '/admin/action-plans',
+      create: '/admin/action-plans',
     },
     consultations: {
       doctors: '/admin/consultations/doctors',
