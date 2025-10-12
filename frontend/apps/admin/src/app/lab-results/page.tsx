@@ -31,16 +31,25 @@ export default function LabResultsPage() {
     return labResults
   }, [labResults, filterSystem])
 
-  const handleViewResult = () => {
-    // TODO: Implement PDF viewer modal
+  const handleViewResult = (fileUrl: string, fileName: string) => {
+    // Open PDF in new tab
+    window.open(fileUrl, '_blank')
     toast({
-      title: 'View lab result',
-      description: 'PDF viewer functionality will be implemented',
+      title: 'Opening lab result',
+      description: `Opening ${fileName} in new tab`,
     })
   }
 
   const handleDownloadResult = (fileUrl: string, fileName: string) => {
-    // TODO: Implement file download from S3
+    // Download file from S3
+    const link = document.createElement('a')
+    link.href = fileUrl
+    link.download = fileName
+    link.target = '_blank'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
     toast({
       title: 'Download started',
       description: `Downloading ${fileName}`,
@@ -67,10 +76,10 @@ export default function LabResultsPage() {
   }
 
   const handleUploadResults = () => {
-    // TODO: Implement bulk upload modal
+    // Future Enhancement: Bulk upload modal
     toast({
       title: 'Upload lab results',
-      description: 'Bulk upload functionality will be implemented',
+      description: 'Bulk upload functionality is a future enhancement',
     })
   }
 
@@ -258,7 +267,7 @@ export default function LabResultsPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleViewResult()}
+                                onClick={() => handleViewResult(result.s3Url, result.fileName || 'lab-result.pdf')}
                                 title="View result"
                               >
                                 <Eye className="h-4 w-4" />

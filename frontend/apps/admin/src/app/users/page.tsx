@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +20,7 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<any>(null)
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const { toast } = useToast()
+  const router = useRouter()
 
   const { data: users, isLoading, error } = useUsers()
   const deleteUserMutation = useDeleteUser()
@@ -68,12 +70,7 @@ export default function UsersPage() {
   }
 
   const handleViewUser = (user: any) => {
-    // View user details in a modal (using edit mode for now)
-    toast({
-      title: 'View User',
-      description: `Viewing details for ${user.name || user.username}`,
-    })
-    handleEditUser(user)
+    router.push(`/users/${user.id}`)
   }
 
   const getStatusBadge = (status: string) => {

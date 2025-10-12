@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,6 +21,7 @@ export default function ActionPlansPage() {
   const [selectedActionPlan, setSelectedActionPlan] = useState<ActionPlan | undefined>(undefined)
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const { toast } = useToast()
+  const router = useRouter()
 
   const { data: actionPlans, isLoading, error } = useAdminActionPlans()
   const { data: users } = useUsers()
@@ -42,20 +44,14 @@ export default function ActionPlansPage() {
     })
   }, [actionPlans, searchTerm, filterStatus, filterSystem])
 
-  const handleViewPlan = () => {
-    // TODO: Navigate to action plan detail page
-    toast({
-      title: 'View action plan',
-      description: 'Action plan details will be displayed',
-    })
+  const handleViewPlan = (planId: string) => {
+    router.push(`/action-plans/${planId}`)
   }
 
-  const handleEditPlan = () => {
-    // TODO: Navigate to action plan editor
-    toast({
-      title: 'Edit action plan',
-      description: 'Action plan editor will be opened',
-    })
+  const handleEditPlan = (plan: ActionPlan) => {
+    setSelectedActionPlan(plan)
+    setModalMode('edit')
+    setIsActionPlanModalOpen(true)
   }
 
   const handleDeletePlan = async (planId: string, planTitle: string) => {
@@ -119,7 +115,7 @@ export default function ActionPlansPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleViewPlan()}
+                onClick={() => handleViewPlan(plan.id)}
                 title="View plan"
               >
                 <Eye className="h-4 w-4" />
@@ -127,7 +123,7 @@ export default function ActionPlansPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleEditPlan()}
+                onClick={() => handleEditPlan(plan)}
                 title="Edit plan"
               >
                 <Edit className="h-4 w-4" />
