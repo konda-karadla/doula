@@ -16,7 +16,7 @@ nest-cli.json     # NestJS CLI config (deprecated)
 
 ### 2. ✅ NEW FastAPI Backend (USE THIS)
 ```
-app/              # FastAPI application (ACTIVE)
+backend/              # FastAPI application (ACTIVE)
 requirements.txt  # Python dependencies (ACTIVE)
 alembic/          # Database migrations (ACTIVE)
 start_api.sh      # Start API server (ACTIVE)
@@ -46,7 +46,7 @@ Instead, you need to:
    ./start_api.sh
 
    # Option 2: Directly
-   uvicorn app.main:app --reload --port 3000
+   uvicorn backend.main:app --reload --port 3000
    ```
 
 3. **Verify everything works:**
@@ -101,7 +101,7 @@ Start with these files in order:
 
 ### Option B: Keep NestJS
 If you prefer to stay with NestJS:
-1. Ignore the `app/` directory
+1. Ignore the `backend/` directory
 2. Continue using `npm run build`
 3. Use the original NestJS setup
 

@@ -52,7 +52,7 @@ nano .env
 
 ```
 health-platform/
-├── app/               # FastAPI Backend (Python, PostgreSQL, SQLAlchemy)
+├── backend/               # FastAPI Backend (Python, PostgreSQL, SQLAlchemy)
 │   ├── api/          # API endpoints
 │   ├── core/         # Configuration & security
 │   ├── models/       # SQLAlchemy models

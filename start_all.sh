@@ -99,7 +99,7 @@ trap cleanup SIGINT SIGTERM
 
 # Start API server in background
 echo -e "${BLUE}[1/2] Starting FastAPI server...${NC}"
-uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload &
+uvicorn backend.main:app --host 0.0.0.0 --port 3000 --reload &
 API_PID=$!
 
 # Wait a moment for API to start
@@ -107,7 +107,7 @@ sleep 2
 
 # Start Celery worker in background
 echo -e "${BLUE}[2/2] Starting Celery worker...${NC}"
-celery -A app.core.celery_app worker --loglevel=info &
+celery -A backend.core.celery_app worker --loglevel=info &
 CELERY_PID=$!
 
 # Wait for both processes

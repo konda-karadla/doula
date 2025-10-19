@@ -11,7 +11,7 @@
 - ✅ `doctors.service.ts` - Doctor management
 
 ### **Frontend - Admin Portal**
-Located in: `frontend/apps/admin/src/app/`
+Located in: `frontend/apps/admin/src/backend/`
 
 **Pages:**
 - ✅ `/doctors` - Doctor management list
@@ -30,7 +30,7 @@ Located in: `frontend/apps/admin/src/app/`
 - ✅ View consultation details
 
 ### **Frontend - User Portal**
-Located in: `frontend/apps/web/src/app/`
+Located in: `frontend/apps/web/src/backend/`
 
 **Pages:**
 - ✅ `/book-consultation` - Browse doctors

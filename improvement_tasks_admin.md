@@ -51,7 +51,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 
 ### ✅ Pages Refactored with New Components
 
-1. **Users Page** (`app/users/`)
+1. **Users Page** (`backend/users/`)
    - Full-featured user list with DataTable
    - Mock data setup (30 users)
    - Bulk delete with confirmation
@@ -59,7 +59,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
    - Status and system badges
    - CSV export
 
-2. **Doctors Page** (`app/doctors/`)
+2. **Doctors Page** (`backend/doctors/`)
    - DataTable with sorting, filtering, pagination
    - Mock data (25 doctors with specializations)
    - Bulk delete with confirmation
@@ -68,7 +68,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
    - Action buttons: Edit, Set Availability, Toggle, Delete
    - CSV export
 
-3. **Consultations Page** (`app/consultations/`)
+3. **Consultations Page** (`backend/consultations/`)
    - DataTable with sorting, filtering, pagination
    - Mock data (30 consultations)
    - Status badges for 6 consultation states
@@ -76,7 +76,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
    - View action per row
    - CSV export
 
-4. **Lab Results Page** (`app/lab-results/`)
+4. **Lab Results Page** (`backend/lab-results/`)
    - DataTable with sorting, filtering, pagination
    - Mock data (25 lab results)
    - Bulk delete with confirmation
@@ -103,7 +103,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 - ✅ Mock data setup (30 users) in `mock-data.ts`
 
 **Tasks:**
-- [x] Enhance existing user management in `src/app/users/`:
+- [x] Enhance existing user management in `src/backend/users/`:
   - [x] Add advanced filtering (role, status, date range) - Basic filters implemented
   - [x] Add bulk actions (activate, deactivate, delete) - Bulk delete implemented
   - [x] Add user import/export (CSV/Excel) - CSV export implemented
@@ -149,7 +149,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** Critical - RBAC foundation
 
 **Tasks:**
-- [ ] Create `src/app/roles` directory:
+- [ ] Create `src/backend/roles` directory:
   - [ ] `page.tsx` - Role list
   - [ ] `[id]/page.tsx` - Role details
   - [ ] `new/page.tsx` - Create role
@@ -196,7 +196,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** High
 
 **Tasks:**
-- [ ] Create `src/app/settings` directory structure:
+- [ ] Create `src/backend/settings` directory structure:
   - [ ] `general/page.tsx` - General settings
   - [ ] `security/page.tsx` - Security settings
   - [ ] `email/page.tsx` - Email configuration
@@ -233,7 +233,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** Critical - compliance requirement
 
 **Tasks:**
-- [ ] Create `src/app/audit` directory:
+- [ ] Create `src/backend/audit` directory:
   - [ ] `page.tsx` - Audit log list
   - [ ] `[id]/page.tsx` - Audit log details
 - [ ] Create audit components in `src/components/audit/`:
@@ -273,7 +273,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** High - operational visibility
 
 **Tasks:**
-- [ ] Create `src/app/monitoring` directory:
+- [ ] Create `src/backend/monitoring` directory:
   - [ ] `page.tsx` - Main monitoring dashboard
   - [ ] `performance/page.tsx` - Performance metrics
   - [ ] `errors/page.tsx` - Error tracking
@@ -313,7 +313,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** High
 
 **Tasks:**
-- [ ] Enhance existing doctor management in `src/app/doctors/`:
+- [ ] Enhance existing doctor management in `src/backend/doctors/`:
   - [ ] Add doctor availability management
   - [ ] Add doctor specialization management
   - [ ] Add doctor performance metrics
@@ -379,7 +379,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** Medium-High
 
 **Tasks:**
-- [ ] Create `src/app/labs-admin` directory:
+- [ ] Create `src/backend/labs-admin` directory:
   - [ ] `page.tsx` - All lab results
   - [ ] `orders/page.tsx` - Lab order management
   - [ ] `integrations/page.tsx` - Lab API integrations
@@ -414,7 +414,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** High
 
 **Tasks:**
-- [ ] Create `src/app/reports` directory:
+- [ ] Create `src/backend/reports` directory:
   - [ ] `page.tsx` - Reports dashboard
   - [ ] `operational/page.tsx` - Operational reports
   - [ ] `clinical/page.tsx` - Clinical quality reports
@@ -459,7 +459,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** Medium
 
 **Tasks:**
-- [ ] Create `src/app/notifications` directory:
+- [ ] Create `src/backend/notifications` directory:
   - [ ] `page.tsx` - Notification dashboard
   - [ ] `templates/page.tsx` - Email templates
   - [ ] `campaigns/page.tsx` - Notification campaigns
@@ -497,7 +497,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** Medium
 
 **Tasks:**
-- [ ] Create patient admin tools in `src/app/patients-admin/`:
+- [ ] Create patient admin tools in `src/backend/patients-admin/`:
   - [ ] `page.tsx` - All patients overview
   - [ ] `merge/page.tsx` - Merge duplicate patients
   - [ ] `export/page.tsx` - Bulk data export
@@ -529,7 +529,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** Medium (India: mostly out-of-pocket)
 
 **Tasks:**
-- [ ] Create `src/app/billing` directory:
+- [ ] Create `src/backend/billing` directory:
   - [ ] `page.tsx` - Billing dashboard
   - [ ] `invoices/page.tsx` - Invoice management
   - [ ] `payments/page.tsx` - Payment tracking
@@ -566,7 +566,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** Medium
 
 **Tasks:**
-- [ ] Create `src/app/content` directory:
+- [ ] Create `src/backend/content` directory:
   - [ ] `page.tsx` - Content dashboard
   - [ ] `articles/page.tsx` - Health articles
   - [ ] `faqs/page.tsx` - FAQ management
@@ -597,7 +597,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** High
 
 **Tasks:**
-- [ ] Create `src/app/integrations` directory:
+- [ ] Create `src/backend/integrations` directory:
   - [ ] `page.tsx` - Integration dashboard
   - [ ] `abha/page.tsx` - ABHA integration config
   - [ ] `labs/page.tsx` - Lab integrations
@@ -634,7 +634,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 **Impact:** Medium
 
 **Tasks:**
-- [ ] Create `src/app/support` directory:
+- [ ] Create `src/backend/support` directory:
   - [ ] `page.tsx` - Support dashboard
   - [ ] `tickets/page.tsx` - Support tickets
   - [ ] `knowledge-base/page.tsx` - Knowledge base
@@ -905,7 +905,7 @@ This document outlines improvement tasks for the **admin-facing Next.js 14 appli
 - ✅ Component: `components/dashboard/doctor-dashboard.tsx`
 - ✅ Mock data: `lib/mock-data/dashboard.ts`
 - ✅ Functions: `getTodaySchedule()`, `getPendingLabs()`, `getDoctorStats()`
-- ✅ Replaced old admin dashboard in `app/dashboard/page.tsx`
+- ✅ Replaced old admin dashboard in `backend/dashboard/page.tsx`
 
 ---
 

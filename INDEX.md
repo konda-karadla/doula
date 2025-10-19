@@ -97,7 +97,7 @@ Welcome to the FastAPI migration documentation! This index will help you navigat
 
 ```
 project/
-├── app/                          # FastAPI application
+├── backend/                          # FastAPI application
 │   ├── main.py                   # Entry point
 │   ├── core/                     # Core functionality
 │   │   ├── config.py            # Configuration

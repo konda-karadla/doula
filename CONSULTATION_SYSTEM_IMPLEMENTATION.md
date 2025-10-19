@@ -363,7 +363,7 @@ POST   /admin/consultations/:id/meeting-link - Generate meeting link
    - `TimeSlotPicker.tsx`
 
 ### Step 9: Admin Portal - Management
-1. Create pages in `frontend/apps/admin/src/app/`:
+1. Create pages in `frontend/apps/admin/src/backend/`:
    - `/doctors` - Doctor management
    - `/doctors/new` - Add doctor
    - `/doctors/[id]` - Edit doctor
@@ -376,7 +376,7 @@ POST   /admin/consultations/:id/meeting-link - Generate meeting link
    - `ConsultationNotes.tsx`
 
 ### Step 10: Mobile App - Booking
-1. Create screens in `frontend/apps/mobile/app/`:
+1. Create screens in `frontend/apps/mobile/backend/`:
    - `/book-consultation/index.tsx` - Doctor listing
    - `/book-consultation/[doctorId].tsx` - Booking
    - `/my-consultations.tsx` - User's bookings

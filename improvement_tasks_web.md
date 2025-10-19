@@ -16,7 +16,7 @@ This document outlines improvement tasks for the **user-facing Next.js 14 web ap
 **Impact:** Critical - core feature
 
 **Tasks:**
-- [ ] Create `src/app/patients` directory structure:
+- [ ] Create `src/backend/patients` directory structure:
   - [ ] `page.tsx` - Patient search and list
   - [ ] `[id]/page.tsx` - Patient detail view
   - [ ] `[id]/edit/page.tsx` - Edit patient
@@ -61,7 +61,7 @@ This document outlines improvement tasks for the **user-facing Next.js 14 web ap
 **Impact:** Critical - core clinical feature
 
 **Tasks:**
-- [ ] Create `src/app/clinical-notes` directory:
+- [ ] Create `src/backend/clinical-notes` directory:
   - [ ] `page.tsx` - Notes list
   - [ ] `[id]/page.tsx` - View note
   - [ ] `new/page.tsx` - Create note
@@ -109,7 +109,7 @@ This document outlines improvement tasks for the **user-facing Next.js 14 web ap
 **Impact:** High - core clinical feature
 
 **Tasks:**
-- [ ] Create `src/app/prescriptions` directory:
+- [ ] Create `src/backend/prescriptions` directory:
   - [ ] `page.tsx` - Prescription list
   - [ ] `[id]/page.tsx` - View prescription
   - [ ] `new/page.tsx` - Create prescription
@@ -223,7 +223,7 @@ This document outlines improvement tasks for the **user-facing Next.js 14 web ap
 **Impact:** High
 
 **Tasks:**
-- [ ] Enhance existing consultation features in `src/app/consultations/`:
+- [ ] Enhance existing consultation features in `src/backend/consultations/`:
   - [ ] Add calendar view (day/week/month)
   - [ ] Implement drag-and-drop rescheduling
   - [ ] Add recurring appointment creation
@@ -294,7 +294,7 @@ This document outlines improvement tasks for the **user-facing Next.js 14 web ap
 **Impact:** High
 
 **Tasks:**
-- [ ] Create `src/app/messages` directory:
+- [ ] Create `src/backend/messages` directory:
   - [ ] `page.tsx` - Message inbox
   - [ ] `[conversationId]/page.tsx` - Conversation view
   - [ ] `compose/page.tsx` - New message
@@ -336,7 +336,7 @@ This document outlines improvement tasks for the **user-facing Next.js 14 web ap
 **Impact:** High - patient engagement
 
 **Tasks:**
-- [ ] Create patient portal directory `src/app/portal/`:
+- [ ] Create patient portal directory `src/backend/portal/`:
   - [ ] `dashboard/page.tsx` - Patient dashboard
   - [ ] `records/page.tsx` - View health records
   - [ ] `appointments/page.tsx` - Book/view appointments
@@ -384,7 +384,7 @@ This document outlines improvement tasks for the **user-facing Next.js 14 web ap
 **Impact:** Medium
 
 **Tasks:**
-- [ ] Create `src/app/reports` directory:
+- [ ] Create `src/backend/reports` directory:
   - [ ] `page.tsx` - Report dashboard
   - [ ] `clinical/page.tsx` - Clinical reports
   - [ ] `operational/page.tsx` - Operational reports
@@ -489,7 +489,7 @@ This document outlines improvement tasks for the **user-facing Next.js 14 web ap
 **Impact:** High (post-MVP)
 
 **Tasks:**
-- [ ] Create `src/app/video-call/[id]/page.tsx` - Video call page
+- [ ] Create `src/backend/video-call/[id]/page.tsx` - Video call page
 - [ ] Create video components in `src/components/video/`:
   - [ ] `VideoRoom.tsx` - Video call interface
   - [ ] `VideoControls.tsx` - Mute, camera, screen share
@@ -694,7 +694,7 @@ This document outlines improvement tasks for the **user-facing Next.js 14 web ap
 **Impact:** High - compliance requirement
 
 **Tasks:**
-- [ ] Create privacy pages in `src/app/legal/`:
+- [ ] Create privacy pages in `src/backend/legal/`:
   - [ ] `privacy-policy/page.tsx`
   - [ ] `terms-of-service/page.tsx`
   - [ ] `cookie-policy/page.tsx`

@@ -16,10 +16,10 @@ This document outlines improvement tasks for the React Native (Expo) mobile appl
 
 **Tasks:**
 - [ ] Create patient screens:
-  - [ ] `app/patients/index.tsx` - Patient search and list
-  - [ ] `app/patients/[id].tsx` - Patient detail view
-  - [ ] `app/patients/search.tsx` - Advanced search
-  - [ ] `app/patients/new.tsx` - Quick patient registration
+  - [ ] `backend/patients/index.tsx` - Patient search and list
+  - [ ] `backend/patients/[id].tsx` - Patient detail view
+  - [ ] `backend/patients/search.tsx` - Advanced search
+  - [ ] `backend/patients/new.tsx` - Quick patient registration
 - [ ] Create patient components:
   - [ ] `components/patients/PatientSearchBar.tsx` - Voice + text search
   - [ ] `components/patients/PatientList.tsx` - Swipeable list with actions
@@ -48,10 +48,10 @@ This document outlines improvement tasks for the React Native (Expo) mobile appl
 
 **Tasks:**
 - [ ] Create clinical notes screens:
-  - [ ] `app/clinical-notes/index.tsx` - Notes list
-  - [ ] `app/clinical-notes/[id].tsx` - View note
-  - [ ] `app/clinical-notes/new.tsx` - Quick note entry
-  - [ ] `app/clinical-notes/voice.tsx` - Voice-to-text note
+  - [ ] `backend/clinical-notes/index.tsx` - Notes list
+  - [ ] `backend/clinical-notes/[id].tsx` - View note
+  - [ ] `backend/clinical-notes/new.tsx` - Quick note entry
+  - [ ] `backend/clinical-notes/voice.tsx` - Voice-to-text note
 - [ ] Create clinical note components:
   - [ ] `components/notes/QuickSOAPForm.tsx` - Simplified SOAP entry
   - [ ] `components/notes/VoiceNoteRecorder.tsx` - Voice recording
@@ -124,10 +124,10 @@ This document outlines improvement tasks for the React Native (Expo) mobile appl
 
 **Tasks:**
 - [ ] Create prescription screens:
-  - [ ] `app/prescriptions/index.tsx` - Prescription list
-  - [ ] `app/prescriptions/[id].tsx` - View prescription
-  - [ ] `app/prescriptions/new.tsx` - Create prescription
-  - [ ] `app/prescriptions/voice.tsx` - Voice prescription entry
+  - [ ] `backend/prescriptions/index.tsx` - Prescription list
+  - [ ] `backend/prescriptions/[id].tsx` - View prescription
+  - [ ] `backend/prescriptions/new.tsx` - Create prescription
+  - [ ] `backend/prescriptions/voice.tsx` - Voice prescription entry
 - [ ] Create prescription components:
   - [ ] `components/prescriptions/QuickPrescriptionForm.tsx` - Fast entry
   - [ ] `components/prescriptions/DrugSearchModal.tsx` - Searchable drug list
@@ -269,9 +269,9 @@ This document outlines improvement tasks for the React Native (Expo) mobile appl
 
 **Tasks:**
 - [ ] Create messaging screens:
-  - [ ] `app/messages/index.tsx` - Conversation list
-  - [ ] `app/messages/[conversationId].tsx` - Chat view
-  - [ ] `app/messages/compose.tsx` - New message
+  - [ ] `backend/messages/index.tsx` - Conversation list
+  - [ ] `backend/messages/[conversationId].tsx` - Chat view
+  - [ ] `backend/messages/compose.tsx` - New message
 - [ ] Create messaging components:
   - [ ] `components/messages/ChatBubble.tsx` - Message bubble
   - [ ] `components/messages/MessageInput.tsx` - Rich text input
@@ -379,10 +379,10 @@ This document outlines improvement tasks for the React Native (Expo) mobile appl
 
 **Tasks:**
 - [ ] Create health tracking screens:
-  - [ ] `app/health/vitals.tsx` - Log vitals
-  - [ ] `app/health/symptoms.tsx` - Symptom tracker
-  - [ ] `app/health/medications.tsx` - Med adherence
-  - [ ] `app/health/trends.tsx` - Health trends
+  - [ ] `backend/health/vitals.tsx` - Log vitals
+  - [ ] `backend/health/symptoms.tsx` - Symptom tracker
+  - [ ] `backend/health/medications.tsx` - Med adherence
+  - [ ] `backend/health/trends.tsx` - Health trends
 - [ ] Create tracking components:
   - [ ] `components/health/VitalsInput.tsx` - Quick vitals entry
   - [ ] `components/health/SymptomLogger.tsx` - Log symptoms
@@ -419,8 +419,8 @@ This document outlines improvement tasks for the React Native (Expo) mobile appl
 
 **Tasks:**
 - [ ] Create video call screens:
-  - [ ] `app/video-call/[id].tsx` - Video room
-  - [ ] `app/video-call/waiting-room.tsx` - Pre-call waiting
+  - [ ] `backend/video-call/[id].tsx` - Video room
+  - [ ] `backend/video-call/waiting-room.tsx` - Pre-call waiting
 - [ ] Create video components:
   - [ ] `components/video/VideoRoom.tsx` - Main video interface
   - [ ] `components/video/VideoControls.tsx` - Mute, camera, flip

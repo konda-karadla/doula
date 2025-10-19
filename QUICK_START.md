@@ -46,10 +46,10 @@ redis-server
 ### Development
 ```bash
 # Start API with auto-reload
-uvicorn app.main:app --reload --port 3000
+uvicorn backend.main:app --reload --port 3000
 
 # Start Celery worker
-celery -A app.core.celery_app worker --loglevel=info
+celery -A backend.core.celery_app worker --loglevel=info
 
 # Run tests
 pytest
@@ -152,7 +152,7 @@ psql $DATABASE_URL
 redis-cli ping  # Should return PONG
 
 # Check Celery connection
-celery -A app.core.celery_app inspect ping
+celery -A backend.core.celery_app inspect ping
 ```
 
 ### Database errors

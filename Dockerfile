@@ -18,7 +18,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY app ./app
+COPY backend ./backend
 COPY alembic ./alembic
 COPY alembic.ini .
 
@@ -30,4 +30,4 @@ USER appuser
 EXPOSE 3000
 
 # Default command (can be overridden)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "3000"]

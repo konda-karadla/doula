@@ -141,12 +141,12 @@ Quick Actions
 ## 📝 Files Created
 
 1. ✅ `hooks/use-consultations.ts` (107 lines) - 8 React Query hooks
-2. ✅ `app/consultations/index.tsx` (362 lines) - Consultations hub
-3. ✅ `app/consultations/browse.tsx` (363 lines) - Browse doctors
-4. ✅ `app/consultations/[doctorId].tsx` (447 lines) - Doctor detail & booking
-5. ✅ `app/consultations/my-bookings.tsx` (319 lines) - My consultations
-6. ✅ `app/consultation-detail/[id].tsx` (373 lines) - Consultation detail
-7. ✅ Updated `app/(tabs)/index.tsx` - Added consultations quick action
+2. ✅ `backend/consultations/index.tsx` (362 lines) - Consultations hub
+3. ✅ `backend/consultations/browse.tsx` (363 lines) - Browse doctors
+4. ✅ `backend/consultations/[doctorId].tsx` (447 lines) - Doctor detail & booking
+5. ✅ `backend/consultations/my-bookings.tsx` (319 lines) - My consultations
+6. ✅ `backend/consultation-detail/[id].tsx` (373 lines) - Consultation detail
+7. ✅ Updated `backend/(tabs)/index.tsx` - Added consultations quick action
 
 **Total:** 7 files, ~2,000 lines of code
 

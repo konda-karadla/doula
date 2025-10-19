@@ -139,7 +139,7 @@ The entire NestJS backend has been successfully migrated to FastAPI with full fe
 
 ```
 project/
-├── app/
+├── backend/
 │   ├── main.py                      # Application entry point
 │   ├── core/
 │   │   ├── config.py               # Configuration management

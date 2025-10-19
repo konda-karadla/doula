@@ -49,7 +49,7 @@ src/
 
 ### FastAPI Structure
 ```
-app/
+backend/
 ├── main.py
 ├── core/
 │   ├── config.py

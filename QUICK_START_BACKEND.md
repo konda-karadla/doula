@@ -203,7 +203,7 @@ cd /tmp/cc-agent/58903492/project
 source venv/bin/activate
 
 # Start FastAPI server
-uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload
+uvicorn backend.main:app --host 0.0.0.0 --port 3000 --reload
 
 # Or use the startup script
 ./start_api.sh
@@ -223,7 +223,7 @@ cd /tmp/cc-agent/58903492/project
 source venv/bin/activate
 
 # Start Celery worker
-celery -A app.core.celery_app worker --loglevel=info
+celery -A backend.core.celery_app worker --loglevel=info
 
 # Or use the startup script
 ./start_celery.sh
@@ -265,7 +265,7 @@ redis-cli ping
 ```bash
 # In Python console
 python3
->>> from app.core.database import engine
+>>> from backend.core.database import engine
 >>> # If no errors, database is connected
 ```
 
@@ -324,7 +324,7 @@ lsof -i :3000  # Linux/macOS
 # netstat -ano | findstr :3000  # Windows
 
 # Kill the process or use a different port
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Issue: Celery worker not starting
@@ -337,7 +337,7 @@ redis-cli ping
 echo $CELERY_BROKER_URL
 
 # Try running with verbose logging
-celery -A app.core.celery_app worker --loglevel=debug
+celery -A backend.core.celery_app worker --loglevel=debug
 ```
 
 ---
@@ -387,10 +387,10 @@ When you run `pip install -r requirements.txt`, these are installed:
 
 ```bash
 # Start API server
-uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload
+uvicorn backend.main:app --host 0.0.0.0 --port 3000 --reload
 
 # Start Celery worker
-celery -A app.core.celery_app worker --loglevel=info
+celery -A backend.core.celery_app worker --loglevel=info
 
 # Start Redis
 redis-server

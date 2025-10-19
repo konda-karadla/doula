@@ -17,7 +17,7 @@ PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
 echo -e "${BLUE}Checking Python version...${NC}"
 echo "Found: Python $PYTHON_VERSION"
 
-if ! python3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)"; then
+if ! python3 -c "Python dependencies; sys.exit(0 if sys.version_info >= (3, 10) else 1)"; then
     echo -e "${RED}ERROR: Python 3.10 or higher is required${NC}"
     exit 1
 fi

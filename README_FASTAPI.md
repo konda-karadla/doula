@@ -161,13 +161,13 @@ You need THREE terminal windows:
 **Terminal 1 - API Server:**
 ```bash
 ./start_api.sh
-# Or: uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload
+# Or: uvicorn backend.main:app --host 0.0.0.0 --port 3000 --reload
 ```
 
 **Terminal 2 - Celery Worker:**
 ```bash
 ./start_celery.sh
-# Or: celery -A app.core.celery_app worker --loglevel=info
+# Or: celery -A backend.core.celery_app worker --loglevel=info
 ```
 
 **Terminal 3 - Redis:**
@@ -179,10 +179,10 @@ redis-server
 
 ```bash
 # API Server with multiple workers
-uvicorn app.main:app --host 0.0.0.0 --port 3000 --workers 4
+uvicorn backend.main:app --host 0.0.0.0 --port 3000 --workers 4
 
 # Celery Worker
-celery -A app.core.celery_app worker --loglevel=info --concurrency=4
+celery -A backend.core.celery_app worker --loglevel=info --concurrency=4
 ```
 
 ## 📖 Documentation
@@ -203,7 +203,7 @@ Once running, access:
 ## 🏗️ Project Structure
 
 ```
-app/
+backend/
 ├── main.py                 # Application entry point
 ├── core/
 │   ├── config.py          # Configuration management
@@ -331,7 +331,7 @@ See `.env.fastapi.example` for all available options.
 Logs are output to stdout/stderr. Configure log level:
 
 ```python
-# In app/main.py
+# In backend/main.py
 logging.basicConfig(level=logging.INFO)
 ```
 
@@ -350,7 +350,7 @@ docker-compose up -d
 ### Using Gunicorn
 
 ```bash
-gunicorn app.main:app \
+gunicorn backend.main:app \
   --workers 4 \
   --worker-class uvicorn.workers.UvicornWorker \
   --bind 0.0.0.0:3000

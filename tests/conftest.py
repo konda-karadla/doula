@@ -5,9 +5,9 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
 
-from app.main import app
-from app.core.database import Base, get_db
-from app.core.config import settings
+from backend.main import app
+from backend.core.database import Base, get_db
+from backend.core.config import settings
 
 TEST_DATABASE_URL = "postgresql+asyncpg://test:test@localhost:5432/test_health_platform"
 

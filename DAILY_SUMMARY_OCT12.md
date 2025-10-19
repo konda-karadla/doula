@@ -18,8 +18,8 @@
 - `frontend/apps/mobile/lib/api/services.ts` - Added consultationService
 - `frontend/apps/mobile/hooks/use-consultations.ts` - Fixed imports, added logging
 - `frontend/apps/mobile/lib/api/client.ts` - Added request/response logging
-- `frontend/apps/mobile/app/consultations/browse.tsx` - Enhanced error display
-- `frontend/apps/mobile/app/consultations/my-bookings.tsx` - Enhanced error display
+- `frontend/apps/mobile/backend/consultations/browse.tsx` - Enhanced error display
+- `frontend/apps/mobile/backend/consultations/my-bookings.tsx` - Enhanced error display
 
 **Testing:** ✅ Verified working with real API
 
@@ -111,7 +111,7 @@
 
 **Files Modified:**
 - `frontend/apps/mobile/hooks/use-action-plans.ts` - Added complete/uncomplete hooks with optimistic updates
-- `frontend/apps/mobile/app/plan-detail/[id].tsx` - Wired to mutations
+- `frontend/apps/mobile/backend/plan-detail/[id].tsx` - Wired to mutations
 - `backend/src/action-plans/action-plans.service.ts` - Update status on complete/uncomplete
 
 **Testing:** ✅ Instant UI updates confirmed

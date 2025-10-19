@@ -76,21 +76,21 @@ All NestJS backend APIs have been successfully migrated to FastAPI with full fea
 
 ## 📁 New Files Created
 
-### Models (app/models/)
+### Models (backend/models/)
 - ✅ `consultation.py` - Doctor, AvailabilitySlot, Consultation models
 - ✅ Updated `user.py` - Added role field and consultations relationship
 - ✅ Updated `system.py` - Added doctors relationship
 
-### Schemas (app/schemas/)
+### Schemas (backend/schemas/)
 - ✅ `consultation.py` - All consultation-related DTOs
 - ✅ `admin.py` - All admin-related DTOs
 
-### Services (app/services/)
+### Services (backend/services/)
 - ✅ `consultations_service.py` - Consultation booking and management logic
 - ✅ `doctors_service.py` - Doctor CRUD and availability management
 - ✅ `admin_service.py` - User management and analytics
 
-### API Endpoints (app/api/v1/endpoints/)
+### API Endpoints (backend/api/v1/endpoints/)
 - ✅ `consultations.py` - User-facing consultation endpoints
 - ✅ `admin_consultations.py` - Admin consultation management endpoints
 - ✅ `admin.py` - Admin user and system management endpoints
@@ -120,7 +120,7 @@ The following NestJS files and directories have been removed:
 
 ```
 project/
-├── app/                          # FastAPI Backend
+├── backend/                          # FastAPI Backend
 │   ├── main.py                   # Application entry point
 │   ├── core/                     # Core configuration
 │   │   ├── config.py
@@ -207,14 +207,14 @@ pip install -r requirements.txt
 
 ```bash
 ./start_api.sh
-# Or: uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload
+# Or: uvicorn backend.main:app --host 0.0.0.0 --port 3000 --reload
 ```
 
 ### 4. Start Celery Worker (for OCR processing)
 
 ```bash
 ./start_celery.sh
-# Or: celery -A app.core.celery_app worker --loglevel=info
+# Or: celery -A backend.core.celery_app worker --loglevel=info
 ```
 
 ### 5. Ensure Redis is Running

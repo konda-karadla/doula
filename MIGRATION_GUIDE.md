@@ -136,7 +136,7 @@ chmod +x start_api.sh
 
 Or manually:
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload
+uvicorn backend.main:app --host 0.0.0.0 --port 3000 --reload
 ```
 
 #### Terminal 2: Celery Worker
@@ -147,7 +147,7 @@ chmod +x start_celery.sh
 
 Or manually:
 ```bash
-celery -A app.core.celery_app worker --loglevel=info
+celery -A backend.core.celery_app worker --loglevel=info
 ```
 
 #### Terminal 3: Redis Server
@@ -161,10 +161,10 @@ For production, use a process manager like Supervisor or systemd:
 
 ```bash
 # Start API
-uvicorn app.main:app --host 0.0.0.0 --port 3000 --workers 4
+uvicorn backend.main:app --host 0.0.0.0 --port 3000 --workers 4
 
 # Start Celery worker
-celery -A app.core.celery_app worker --loglevel=info --concurrency=4
+celery -A backend.core.celery_app worker --loglevel=info --concurrency=4
 ```
 
 ## API Documentation
@@ -247,7 +247,7 @@ pytest
 
 ## Performance Considerations
 
-1. **Database Connection Pool**: Configured in `app/core/database.py` with `pool_size=10` and `max_overflow=20`
+1. **Database Connection Pool**: Configured in `backend/core/database.py` with `pool_size=10` and `max_overflow=20`
 2. **Async Operations**: All I/O operations are async for better performance
 3. **Background Tasks**: Heavy operations (OCR) run in Celery workers
 4. **Caching**: Consider adding Redis caching for frequently accessed data

@@ -2,9 +2,9 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.system import System
-from app.models.user import User
-from app.core.security import get_password_hash
+from backend.models.system import System
+from backend.models.user import User
+from backend.core.security import get_password_hash
 
 
 @pytest.mark.asyncio
