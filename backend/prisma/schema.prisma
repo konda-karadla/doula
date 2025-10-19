@@ -1,0 +1,265 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model System {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users         User[]
+  systemConfigs SystemConfig[]
+  featureFlags  FeatureFlag[]
+  labResults    LabResult[]
+  actionPlans   ActionPlan[]
+  doctors       Doctor[]
+
+  @@map("systems")
+}
+
+model User {
+  id                    String    @id @default(uuid())
+  email                 String    @unique
+  username              String    @unique
+  password              String
+  role                  String    @default("user")
+  language              String    @default("en")
+  profileType           String    @map("profile_type")
+  journeyType           String    @map("journey_type")
+  systemId              String    @map("system_id")
+  preferences           Json?
+  firstName             String?   @map("first_name")
+  lastName              String?   @map("last_name")
+  phoneNumber           String?   @map("phone_number")
+  dateOfBirth           DateTime? @map("date_of_birth")
+  healthGoals           String[]  @default([]) @map("health_goals")
+  emergencyContactName  String?   @map("emergency_contact_name")
+  emergencyContactPhone String?   @map("emergency_contact_phone")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  system        System         @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+  labResults    LabResult[]
+  actionPlans   ActionPlan[]
+  consultations Consultation[]
+
+  @@index([systemId])
+  @@index([role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model SystemConfig {
+  id         String   @id @default(uuid())
+  systemId   String   @map("system_id")
+  configKey  String   @map("config_key")
+  configValue String  @map("config_value")
+  dataType   String   @map("data_type")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  system System @relation(fields: [systemId], references: [id], onDelete: Cascade)
+
+  @@unique([systemId, configKey])
+  @@index([systemId])
+  @@map("system_configs")
+}
+
+model FeatureFlag {
+  id                String   @id @default(uuid())
+  systemId          String   @map("system_id")
+  flagName          String   @map("flag_name")
+  isEnabled         Boolean  @default(false) @map("is_enabled")
+  rolloutPercentage Int      @default(0) @map("rollout_percentage")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  system System @relation(fields: [systemId], references: [id], onDelete: Cascade)
+
+  @@unique([systemId, flagName])
+  @@index([systemId])
+  @@map("feature_flags")
+}
+
+model LabResult {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  systemId         String   @map("system_id")
+  fileName         String   @map("file_name")
+  s3Key            String   @map("s3_key")
+  s3Url            String   @map("s3_url")
+  uploadedAt       DateTime @default(now()) @map("uploaded_at")
+  processingStatus String   @default("pending") @map("processing_status")
+  rawOcrText       String?  @map("raw_ocr_text")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  system     System       @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  biomarkers Biomarker[]
+
+  @@index([userId])
+  @@index([systemId])
+  @@map("lab_results")
+}
+
+model Biomarker {
+  id                 String    @id @default(uuid())
+  labResultId        String    @map("lab_result_id")
+  testName           String    @map("test_name")
+  value              String
+  unit               String?
+  referenceRangeLow  String?   @map("reference_range_low")
+  referenceRangeHigh String?   @map("reference_range_high")
+  testDate           DateTime? @map("test_date")
+  notes              String?
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  labResult LabResult @relation(fields: [labResultId], references: [id], onDelete: Cascade)
+
+  @@index([labResultId])
+  @@index([testName])
+  @@map("biomarkers")
+}
+
+model ActionPlan {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  systemId    String    @map("system_id")
+  title       String
+  description String?
+  status      String    @default("active")
+  priority    String?
+  targetDate  DateTime? @map("target_date")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  system      System       @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  actionItems ActionItem[]
+
+  @@index([userId])
+  @@index([systemId])
+  @@map("action_plans")
+}
+
+model ActionItem {
+  id           String    @id @default(uuid())
+  actionPlanId String    @map("action_plan_id")
+  title        String
+  description  String?
+  status       String    @default("pending")
+  dueDate      DateTime? @map("due_date")
+  completedAt  DateTime? @map("completed_at")
+  priority     String    @default("medium")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  actionPlan ActionPlan @relation(fields: [actionPlanId], references: [id], onDelete: Cascade)
+
+  @@index([actionPlanId])
+  @@map("action_items")
+}
+
+// Consultation System Models
+enum ConsultationType {
+  VIDEO
+  PHONE
+  IN_PERSON
+}
+
+enum ConsultationStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model Doctor {
+  id              String   @id @default(uuid())
+  systemId        String   @map("system_id")
+  name            String
+  specialization  String
+  bio             String?  @db.Text
+  qualifications  String[] // Array of degrees/certifications
+  experience      Int      // Years of experience
+  consultationFee Decimal  @map("consultation_fee") @db.Decimal(10, 2)
+  imageUrl        String?  @map("image_url")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  system            System             @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  availabilitySlots AvailabilitySlot[]
+  consultations     Consultation[]
+
+  @@index([systemId])
+  @@index([specialization])
+  @@index([isActive])
+  @@map("doctors")
+}
+
+model AvailabilitySlot {
+  id        String   @id @default(uuid())
+  doctorId  String   @map("doctor_id")
+  dayOfWeek Int      @map("day_of_week") // 0 = Sunday, 6 = Saturday
+  startTime String   @map("start_time") // "09:00"
+  endTime   String   @map("end_time") // "17:00"
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId])
+  @@index([dayOfWeek])
+  @@map("availability_slots")
+}
+
+model Consultation {
+  id           String             @id @default(uuid())
+  userId       String             @map("user_id")
+  doctorId     String             @map("doctor_id")
+  scheduledAt  DateTime           @map("scheduled_at")
+  duration     Int                @default(30) // Minutes
+  type         ConsultationType   @default(VIDEO)
+  status       ConsultationStatus @default(SCHEDULED)
+  meetingLink  String?            @map("meeting_link")
+  notes        String?            @db.Text
+  prescription String?            @db.Text
+  fee          Decimal            @db.Decimal(10, 2)
+  isPaid       Boolean            @default(false) @map("is_paid")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([doctorId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@map("consultations")
+}

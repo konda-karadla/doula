@@ -1,0 +1,286 @@
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
+import { tokenStorage } from '../storage/token-storage';
+import { useAuthStore } from '../../stores/auth';
+import { env } from '../../config/env';
+import type { ApiError } from '@health-platform/types';
+
+// Get API configuration from environment
+const API_BASE_URL = env.API_BASE_URL;
+const API_TIMEOUT = env.API_TIMEOUT;
+
+/**
+ * Mobile API Client with automatic token management
+ * Handles authentication, token refresh, and request/response interceptors
+ */
+class MobileApiClient {
+  private readonly client: AxiosInstance;
+  private isRefreshing = false;
+  private failedQueue: Array<{
+    resolve: (value?: any) => void;
+    reject: (reason?: any) => void;
+  }> = [];
+
+  constructor() {
+    this.client = axios.create({
+      baseURL: API_BASE_URL,
+      timeout: API_TIMEOUT,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    this.setupInterceptors();
+  }
+
+  private setupInterceptors() {
+    // Request interceptor - Add auth token
+    this.client.interceptors.request.use(
+      async (config) => {
+        const token = await tokenStorage.getAccessToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        console.log('[Mobile API Request]', {
+          method: config.method?.toUpperCase(),
+          url: config.url,
+          baseURL: config.baseURL,
+          fullUrl: `${config.baseURL}${config.url}`,
+          hasToken: !!token,
+          headers: config.headers,
+        });
+        return config;
+      },
+      (error) => {
+        console.error('[Mobile API Request Error]', error);
+        return Promise.reject(error instanceof Error ? error : new Error(String(error)));
+      }
+    );
+
+    // Response interceptor - Handle errors and token refresh
+    this.client.interceptors.response.use(
+      (response) => {
+        console.log('[Mobile API Response]', {
+          status: response.status,
+          url: response.config.url,
+          dataLength: JSON.stringify(response.data).length,
+        });
+        return response;
+      },
+      async (error: AxiosError) => {
+        console.error('[Mobile API Response Error]', {
+          url: error.config?.url,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          message: error.message,
+          data: error.response?.data,
+        });
+        const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+
+        // Skip token refresh for auth endpoints (login, register, refresh)
+        const isAuthEndpoint = originalRequest.url?.includes('/auth/login') || 
+                               originalRequest.url?.includes('/auth/register') ||
+                               originalRequest.url?.includes('/auth/refresh');
+
+        // Handle 401 errors (unauthorized) - but not for auth endpoints
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+          if (this.isRefreshing) {
+            // If already refreshing, queue this request
+            return new Promise((resolve, reject) => {
+              this.failedQueue.push({ resolve, reject });
+            })
+              .then((token) => {
+                if (originalRequest.headers) {
+                  originalRequest.headers.Authorization = `Bearer ${token}`;
+                }
+                return this.client(originalRequest);
+              })
+              .catch((err) => {
+                return Promise.reject(err instanceof Error ? err : new Error(String(err)));
+              });
+          }
+
+          originalRequest._retry = true;
+          this.isRefreshing = true;
+
+          try {
+            const refreshToken = await tokenStorage.getRefreshToken();
+
+            if (!refreshToken) {
+              throw new Error('No refresh token available');
+            }
+
+            // Attempt to refresh the token
+            const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+              refreshToken,
+            });
+
+            const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+            // Save new tokens
+            await tokenStorage.setAccessToken(accessToken);
+            await tokenStorage.setRefreshToken(newRefreshToken);
+
+            // Update auth store
+            useAuthStore.getState().setTokens(accessToken, newRefreshToken);
+
+            // Process queued requests
+            this.processQueue(null, accessToken);
+
+            // Retry original request
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            }
+            return this.client(originalRequest);
+          } catch (refreshError) {
+            // Refresh failed - logout user
+            this.processQueue(refreshError, null);
+            await this.handleAuthFailure();
+            const err = refreshError instanceof Error ? refreshError : new Error(String(refreshError));
+            return Promise.reject(err);
+          } finally {
+            this.isRefreshing = false;
+          }
+        }
+
+        const normalizedError = this.normalizeError(error);
+        const errorMessage = Array.isArray(normalizedError.message) 
+          ? normalizedError.message.join(', ') 
+          : normalizedError.message;
+        return Promise.reject(new Error(errorMessage));
+      }
+    );
+  }
+
+  private processQueue(error: any, token: string | null = null) {
+    this.failedQueue.forEach((promise) => {
+      if (error) {
+        promise.reject(error);
+      } else {
+        promise.resolve(token);
+      }
+    });
+    this.failedQueue = [];
+  }
+
+  private async handleAuthFailure() {
+    // Clear all tokens
+    await tokenStorage.clearAll();
+
+    // Reset auth store
+    useAuthStore.getState().logout();
+
+    // Note: Navigation will be handled by the navigation guard in index.tsx
+  }
+
+  private normalizeError(error: AxiosError): ApiError {
+    if (error.response?.data) {
+      const data = error.response.data as any;
+      return {
+        statusCode: error.response.status,
+        message: data.message || error.message || 'An error occurred',
+        error: data.error || 'Internal Server Error',
+      };
+    }
+
+    return {
+      statusCode: error.response?.status || 500,
+      message: error.message || 'Network error',
+      error: 'NetworkError',
+    };
+  }
+
+  // HTTP Methods
+  async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.client.get<T>(url, config);
+      return response.data;
+    } catch (error: any) {
+      console.error('[MobileApiClient.get] Error:', { url, error: error.message });
+      throw error;
+    }
+  }
+
+  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.client.post<T>(url, data, config);
+      return response.data;
+    } catch (error: any) {
+      console.error('[MobileApiClient.post] Error:', { url, error: error.message });
+      throw error;
+    }
+  }
+
+  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.client.put<T>(url, data, config);
+      return response.data;
+    } catch (error: any) {
+      console.error('[MobileApiClient.put] Error:', { url, error: error.message });
+      throw error;
+    }
+  }
+
+  async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.client.patch<T>(url, data, config);
+      return response.data;
+    } catch (error: any) {
+      console.error('[MobileApiClient.patch] Error:', { url, error: error.message });
+      throw error;
+    }
+  }
+
+  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    try {
+      const response = await this.client.delete<T>(url, config);
+      return response.data;
+    } catch (error: any) {
+      console.error('[MobileApiClient.delete] Error:', { url, error: error.message });
+      throw error;
+    }
+  }
+
+  // File upload with progress
+  async uploadFile(
+    url: string,
+    file: any,
+    onProgress?: (progress: number) => void
+  ): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await this.client.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(progress);
+        }
+      },
+    });
+
+    return response.data;
+  }
+
+  // Get base URL
+  getBaseURL(): string {
+    return API_BASE_URL;
+  }
+}
+
+// Export singleton instance
+export const mobileApiClient = new MobileApiClient();
+
+// Export convenience methods
+export const api = {
+  get: <T>(url: string, config?: AxiosRequestConfig) => mobileApiClient.get<T>(url, config),
+  post: <T>(url: string, data?: any, config?: AxiosRequestConfig) => mobileApiClient.post<T>(url, data, config),
+  put: <T>(url: string, data?: any, config?: AxiosRequestConfig) => mobileApiClient.put<T>(url, data, config),
+  patch: <T>(url: string, data?: any, config?: AxiosRequestConfig) => mobileApiClient.patch<T>(url, data, config),
+  delete: <T>(url: string, config?: AxiosRequestConfig) => mobileApiClient.delete<T>(url, config),
+  uploadFile: (url: string, file: any, onProgress?: (progress: number) => void) => 
+    mobileApiClient.uploadFile(url, file, onProgress),
+};
+

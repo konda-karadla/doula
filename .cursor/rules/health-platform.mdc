@@ -1,0 +1,136 @@
+---
+description: Health Platform monorepo architecture rules for React Query hooks and Next.js patterns
+globs: frontend/packages/**/*.ts, frontend/packages/**/*.tsx, frontend/apps/**/*.ts, frontend/apps/**/*.tsx
+alwaysApply: true
+---
+
+## ⚠️ CRITICAL: Monorepo React Query Pattern
+
+- **NEVER export React Query hooks from shared packages** - causes "No QueryClient set" errors
+- **Package structure:**
+  - `@health-platform/api-client`: Export services only (no React Query deps)
+  - `apps/{web,admin,mobile}/src/hooks/`: Create app-specific hooks here
+
+- **✅ Correct pattern:**
+  ```typescript
+  // 1. Shared package - export services
+  // packages/api-client/src/services.ts
+  export const services = {
+    insights: { getHealthScore: () => api.get('/insights/health-score') }
+  }
+
+  // 2. App - create local hooks
+  // apps/web/src/hooks/use-health-score.ts
+  import { useQuery } from '@tanstack/react-query'
+  import { services } from '@health-platform/api-client'
+
+  export function useHealthScore() {
+    return useQuery({
+      queryKey: ['insights', 'health-score'],
+      queryFn: services.insights.getHealthScore,
+      staleTime: 10 * 60 * 1000,
+    })
+  }
+  ```
+
+- **Reference:** [use-health-score.ts](mdc:frontend/apps/web/src/hooks/use-health-score.ts)
+
+## Next.js 14 Client/Server Components
+
+- **Components using hooks must have `'use client'` directive**
+- **Root layout uses ClientProviders wrapper** (never import QueryClientProvider directly)
+- **Reference:** [client-providers.tsx](mdc:frontend/apps/web/src/lib/providers/client-providers.tsx), [layout.tsx](mdc:frontend/apps/web/src/app/layout.tsx)
+
+```typescript
+// layout.tsx (Server Component)
+import { ClientProviders } from "@/lib/providers/client-providers"
+export default function RootLayout({ children }) {
+  return <html><body><ClientProviders>{children}</ClientProviders></body></html>
+}
+
+// client-providers.tsx (Client Component)
+'use client'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
+
+export function ClientProviders({ children }) {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: { queries: { staleTime: 60000, refetchOnWindowFocus: false } }
+  }))
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+}
+
+## Shared Packages
+
+- **Types:** All in [types package](mdc:frontend/packages/types/src/index.ts) - sync with backend DTOs
+- **Endpoints:** All in [config package](mdc:frontend/packages/config/src/index.ts) - never hardcode URLs
+- **Services:** API functions in [api-client](mdc:frontend/packages/api-client/src/services.ts)
+
+## Naming Conventions
+
+- Components: `PascalCase.tsx` (e.g., `HealthScoreCard.tsx`)
+- Hooks: `use-kebab-case.ts` (e.g., `use-health-score.ts`)
+- Services: `kebab-case.service.ts` (e.g., `auth.service.ts`)
+- Types: `PascalCase` interfaces (e.g., `HealthScore`)
+
+## Workflow: Adding New API Feature
+
+```typescript
+// 1. Add type → packages/types/src/index.ts
+export interface NewFeature { id: string; name: string }
+
+// 2. Add endpoint → packages/config/src/index.ts
+export const apiEndpoints = { features: { get: (id) => `/features/${id}` } }
+
+// 3. Add service → packages/api-client/src/services.ts
+export const featureService = {
+  get: (id: string): Promise<NewFeature> => api.get(apiEndpoints.features.get(id))
+}
+
+// 4. Create hook → apps/web/src/hooks/use-feature.ts
+import { useQuery } from '@tanstack/react-query'
+import { services } from '@health-platform/api-client'
+
+export function useFeature(id: string) {
+  return useQuery({
+    queryKey: ['features', id],
+    queryFn: () => services.featureService.get(id),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+// 5. Use in component → apps/web/src/components/feature-card.tsx
+'use client'
+import { useFeature } from '@/hooks/use-feature'
+
+export function FeatureCard({ id }: { id: string }) {
+  const { data, isLoading, error } = useFeature(id)
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>Error</div>
+  return <div>{data.name}</div>
+}
+```
+
+## Common Errors & Solutions
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "No QueryClient set" | Importing hooks from `@health-platform/api-client` | Create local hooks in app's `src/hooks/` |
+| "useQuery is not a function" | Missing `'use client'` directive | Add `'use client'` at top of file |
+| "Cannot use client component in server" | QueryClientProvider in layout.tsx | Use [ClientProviders wrapper](mdc:frontend/apps/web/src/lib/providers/client-providers.tsx) |
+| Hardcoded URLs | String literals for endpoints | Use [apiEndpoints](mdc:frontend/packages/config/src/index.ts) |
+
+## Testing
+
+- Mock data in `__mocks__/` directories
+- Never commit: `SESSION_SUMMARY*.md`, `NEXT_TASK*.md`, `TODAYS_PROGRESS*.md`, `create-test-*.ts`, `*-mock.tsx`
+- See [.gitignore](mdc:.gitignore)
+
+## Stack
+
+- **Frontend:** Next.js 14.2.18 (App Router) - clear `.next` cache when changing providers
+- **State:** Zustand (global) + React Query (server)
+- **Backend:** NestJS + PostgreSQL + Prisma
+- **Monorepo:** npm workspaces + Turborepo
+- **Mobile:** Expo + React Native (shares types/services, creates own hooks)

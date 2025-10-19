@@ -4,6 +4,16 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Production builds
+dist/
+build/
+.next/
+out/
+
+# Common nested build outputs in a monorepo
+**/dist/
+**/build/
+
 # Environment variables
 .env
 .env.local
@@ -11,26 +21,7 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# Build outputs
-dist/
-build/
-*.tsbuildinfo
-
-# Logs
-logs/
-*.log
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-.nyc_output/
-
-# IDE files
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
@@ -46,6 +37,131 @@ coverage/
 ehthumbs.db
 Thumbs.db
 
-# Temporary files
-*.tmp
-*.temp
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Database
+*.db
+*.sqlite
+
+# Prisma
+prisma/migrations/
+
+# Docker
+.dockerignore
+
+# Turbo
+.turbo
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# Local development
+.local
+
+# Testing
+coverage-reports/
+frontend/coverage-reports/
+
+# Backend specific
+backend/dist/
+backend/coverage/
+
+# Frontend specific
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/packages/*/dist/
+frontend/packages/*/build/
+
+# Lockfiles for non-npm managers (we use npm)
+yarn.lock
+pnpm-lock.yaml
+
+# Expo (Mobile App)
+.expo/
+.expo-shared/
+expo-env.d.ts
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.metro-health-check*
+web-build/
+**/android/
+**/ios/
+*.orig.*
+.kotlin/
+
+# Temporary files and session notes
+SESSION_SUMMARY*.md
+NEXT_TASK*.md
+TODAYS_PROGRESS*.md
+**/create-test-*.ts
+**/create-test-*.js
+**/*-mock.tsx
+**/*-mock.ts
