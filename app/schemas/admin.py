@@ -44,6 +44,25 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
+class AdminUserResponse(BaseModel):
+    id: str
+    email: str
+    username: str
+    role: str
+    profile_type: str
+    journey_type: str
+    system_id: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone_number: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 class SystemConfigUpdate(BaseModel):
     config_key: str
     config_value: str

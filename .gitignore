@@ -165,3 +165,77 @@ TODAYS_PROGRESS*.md
 **/create-test-*.js
 **/*-mock.tsx
 **/*-mock.ts
+
+# Python Virtual Environment
+venv/
+env/
+.venv/
+.env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# FastAPI/SQLAlchemy
+# Note: Keep migration files but ignore auto-generated ones
+# alembic/versions/*.py
+# !alembic/versions/__init__.py
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Additional environment files
+.env.bak
+.env.backup
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# FastAPI specific
+*.db-journal
+*.sqlite3-journal
+
+# Uploads and temporary files
+uploads/
+temp_uploads/
+*.tmp
+*.temp
