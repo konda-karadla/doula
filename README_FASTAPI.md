@@ -12,6 +12,9 @@ A complete FastAPI migration of the multi-tenant health platform backend, featur
 - **AWS S3 Integration**: Secure file storage with presigned URLs
 - **Auto Documentation**: Interactive API docs with Swagger UI
 - **Type Safety**: Full Pydantic validation for requests/responses
+- **Consultation System**: Doctor management and appointment booking
+- **Admin Dashboard**: User management, analytics, and system configuration
+- **Role-Based Access**: Admin and user role separation
 
 ## 📋 API Endpoints
 
@@ -49,6 +52,47 @@ All endpoints maintain the same routes as the NestJS version for backward compat
 ### Profile
 - `GET /profile` - Get user profile
 - `GET /profile/stats` - Get health statistics
+
+### Consultations
+- `GET /consultations/doctors` - Get list of available doctors
+- `GET /consultations/doctors/{id}` - Get doctor details
+- `GET /consultations/doctors/{id}/availability` - Get doctor availability slots
+- `POST /consultations/book` - Book a consultation
+- `GET /consultations/my-bookings` - Get user's consultations
+- `GET /consultations/{id}` - Get consultation details
+- `PUT /consultations/{id}/reschedule` - Reschedule a consultation
+- `DELETE /consultations/{id}/cancel` - Cancel a consultation
+
+### Admin - Users
+- `GET /admin/users` - Get all users
+- `GET /admin/users/{id}` - Get user by ID
+- `POST /admin/users` - Create new user
+- `PUT /admin/users/{id}` - Update user
+- `DELETE /admin/users/{id}` - Delete user
+
+### Admin - Consultations
+- `POST /admin/consultations/doctors` - Create doctor
+- `GET /admin/consultations/doctors` - Get all doctors (including inactive)
+- `GET /admin/consultations/doctors/{id}` - Get doctor details
+- `PUT /admin/consultations/doctors/{id}` - Update doctor
+- `DELETE /admin/consultations/doctors/{id}` - Delete doctor
+- `PUT /admin/consultations/doctors/{id}/toggle` - Activate/deactivate doctor
+- `POST /admin/consultations/doctors/{id}/availability` - Set doctor availability
+- `GET /admin/consultations/consultations` - Get all consultations
+- `GET /admin/consultations/consultations/{id}` - Get consultation details
+- `PUT /admin/consultations/consultations/{id}` - Update consultation status
+
+### Admin - Analytics & Config
+- `GET /admin/systems` - Get all systems
+- `GET /admin/system-config` - Get system configuration
+- `PUT /admin/system-config` - Update system configuration
+- `GET /admin/analytics/users` - Get user analytics
+- `GET /admin/analytics/labs` - Get lab analytics
+- `GET /admin/analytics/action-plans` - Get action plan analytics
+- `GET /admin/lab-results` - Get all lab results
+- `GET /admin/action-plans` - Get all action plans
+- `GET /admin/action-plans/{id}` - Get action plan by ID
+- `GET /admin/action-plans/{id}/items` - Get action plan items
 
 ## 🛠️ Tech Stack
 
@@ -171,13 +215,16 @@ app/
 │   ├── user.py
 │   ├── system.py
 │   ├── lab_result.py
-│   └── action_plan.py
+│   ├── action_plan.py
+│   └── consultation.py
 ├── schemas/               # Pydantic schemas
 │   ├── auth.py
 │   ├── lab.py
 │   ├── action_plan.py
 │   ├── insights.py
-│   └── profile.py
+│   ├── profile.py
+│   ├── consultation.py
+│   └── admin.py
 ├── api/
 │   └── v1/
 │       ├── router.py      # Main API router
@@ -187,7 +234,10 @@ app/
 │   ├── labs_service.py
 │   ├── action_plans_service.py
 │   ├── insights_service.py
-│   └── profile_service.py
+│   ├── profile_service.py
+│   ├── consultations_service.py
+│   ├── doctors_service.py
+│   └── admin_service.py
 └── tasks/                 # Celery tasks
     └── ocr_tasks.py
 

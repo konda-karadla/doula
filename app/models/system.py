@@ -20,3 +20,4 @@ class System(Base):
     feature_flags = relationship("FeatureFlag", back_populates="system", cascade="all, delete-orphan")
     lab_results = relationship("LabResult", back_populates="system", cascade="all, delete-orphan")
     action_plans = relationship("ActionPlan", back_populates="system", cascade="all, delete-orphan")
+    doctors = relationship("Doctor", back_populates="system", cascade="all, delete-orphan")

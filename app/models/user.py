@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     username = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
+    role = Column(String, default="user", nullable=False)
     language = Column(String, default="en", nullable=False)
     profile_type = Column(String, nullable=False)
     journey_type = Column(String, nullable=False)
@@ -24,6 +25,7 @@ class User(Base):
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
     lab_results = relationship("LabResult", back_populates="user", cascade="all, delete-orphan")
     action_plans = relationship("ActionPlan", back_populates="user", cascade="all, delete-orphan")
+    consultations = relationship("Consultation", back_populates="user", cascade="all, delete-orphan")
 
 
 class RefreshToken(Base):

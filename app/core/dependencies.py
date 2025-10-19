@@ -12,11 +12,12 @@ security = HTTPBearer()
 
 
 class CurrentUser:
-    def __init__(self, user_id: str, email: str, system_id: str, username: str):
+    def __init__(self, user_id: str, email: str, system_id: str, username: str, role: str = "user"):
         self.userId = user_id
         self.email = email
         self.systemId = system_id
         self.username = username
+        self.role = role
 
 
 async def get_current_user(
@@ -55,11 +56,23 @@ async def get_current_user(
         user_id=user.id,
         email=user.email,
         system_id=user.system_id,
-        username=user.username
+        username=user.username,
+        role=user.role
     )
 
 
 async def verify_tenant_access(
     current_user: CurrentUser = Depends(get_current_user)
 ) -> CurrentUser:
+    return current_user
+
+
+async def require_admin(
+    current_user: CurrentUser = Depends(get_current_user)
+) -> CurrentUser:
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
     return current_user
