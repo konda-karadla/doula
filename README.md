@@ -2,6 +2,26 @@
 
 A comprehensive, production-ready health management system with multi-tenant architecture supporting web, admin, and mobile applications.
 
+## ⚡ Super Quick Start (Backend)
+
+**First time setup:**
+```bash
+# 1. Run automated setup
+./setup_backend.sh
+
+# 2. Edit configuration
+nano .env
+
+# 3. Start everything
+./start_all.sh
+```
+
+**That's it!** API will be at http://localhost:3000/api
+
+📖 **Detailed instructions:** [QUICK_START_BACKEND.md](./QUICK_START_BACKEND.md)
+
+---
+
 ## 🚀 Quick Start
 
 ### For New Developers
