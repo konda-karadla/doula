@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import { Search, Plus, Edit, Trash2, Eye, Filter, Loader2 } from 'lucide-react'
-import { useUsers, useDeleteUser } from '@/hooks/use-admin-api'
-import { format } from 'date-fns'
+import { Plus, Filter, Trash2 } from 'lucide-react'
 import { UserModal } from '@/components/modals/user-modal'
+import { UsersDataTable } from './users-data-table'
+import { mockUsers, type AdminUser } from './mock-data'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -19,11 +19,18 @@ export default function UsersPage() {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<any>(null)
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null)
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
+  const [selectedUsers, setSelectedUsers] = useState<AdminUser[]>([])
   const { toast } = useToast()
   const router = useRouter()
 
-  const { data: users, isLoading, error } = useUsers()
-  const deleteUserMutation = useDeleteUser()
+  // Using mock data per request. Replace with hook when backend is ready.
+  const users = mockUsers
+  const isLoading = false
+  const error = null
+  const deleteUserMutation = { isPending: false, mutateAsync: async (_id: string) => {} }
 
   const filteredUsers = useMemo(() => {
     if (!users) return []
@@ -38,22 +45,50 @@ export default function UsersPage() {
     })
   }, [users, searchTerm, filterSystem, filterStatus])
 
-  const handleDeleteUser = async (userId: string, userName: string) => {
-    if (confirm(`Are you sure you want to delete ${userName}?`)) {
-      try {
-        await deleteUserMutation.mutateAsync(userId)
-        toast({
-          title: 'User deleted',
-          description: `${userName} has been deleted successfully`,
-        })
-      } catch (error) {
-        console.error('Failed to delete user:', error)
-        toast({
-          title: 'Delete failed',
-          description: 'Failed to delete user',
-          variant: 'destructive',
-        })
-      }
+  const handleDeleteUser = (user: AdminUser) => {
+    setUserToDelete(user)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return
+    try {
+      await deleteUserMutation.mutateAsync(userToDelete.id)
+      toast({
+        title: 'User deleted',
+        description: `${userToDelete.name} has been deleted successfully`,
+      })
+    } catch (error) {
+      console.error('Failed to delete user:', error)
+      toast({
+        title: 'Delete failed',
+        description: 'Failed to delete user',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedUsers.length === 0) return
+    setBulkDeleteDialogOpen(true)
+  }
+
+  const confirmBulkDelete = async () => {
+    try {
+      // In real app, call bulk delete API
+      await Promise.all(selectedUsers.map((u) => deleteUserMutation.mutateAsync(u.id)))
+      toast({
+        title: 'Users deleted',
+        description: `${selectedUsers.length} user(s) have been deleted successfully`,
+      })
+      setSelectedUsers([])
+    } catch (error) {
+      console.error('Failed to delete users:', error)
+      toast({
+        title: 'Delete failed',
+        description: 'Failed to delete users',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -73,27 +108,8 @@ export default function UsersPage() {
     router.push(`/users/${user.id}`)
   }
 
-  const getStatusBadge = (status: string) => {
-    const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
-    if (status === 'active') {
-      return `${baseClasses} bg-green-100 text-green-800`
-    }
-    return `${baseClasses} bg-gray-100 text-gray-800`
-  }
 
-  const getSystemBadge = (system: string) => {
-    const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
-    switch (system) {
-      case 'doula':
-        return `${baseClasses} bg-blue-100 text-blue-800`
-      case 'functional_health':
-        return `${baseClasses} bg-purple-100 text-purple-800`
-      case 'elderly_care':
-        return `${baseClasses} bg-orange-100 text-orange-800`
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`
-    }
-  }
+  
 
   return (
     <AdminLayout>
@@ -109,38 +125,21 @@ export default function UsersPage() {
           </Button>
         </div>
 
-        {/* Filters */}
+        {/* Filters - basic quick filter retained for demo but DataTable handles actual filtering */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Filter className="h-5 w-5 mr-2" />
               Filters
             </CardTitle>
+            <CardDescription>Client-side filters with mock data</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label htmlFor="user-search" className="block text-sm font-medium text-gray-700 mb-1">
-                  Search
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="user-search"
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="user-system" className="block text-sm font-medium text-gray-700 mb-1">
-                  System
-                </label>
+                <label htmlFor="filter-system" className="block text-sm font-medium text-gray-700 mb-1">System</label>
                 <select
-                  id="user-system"
+                  id="filter-system"
                   value={filterSystem}
                   onChange={(e) => setFilterSystem(e.target.value)}
                   className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -151,13 +150,10 @@ export default function UsersPage() {
                   <option value="elderly_care">Elderly Care</option>
                 </select>
               </div>
-              
               <div>
-                <label htmlFor="user-status" className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
+                <label htmlFor="filter-status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
-                  id="user-status"
+                  id="filter-status"
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -167,7 +163,6 @@ export default function UsersPage() {
                   <option value="inactive">Inactive</option>
                 </select>
               </div>
-              
               <div className="flex items-end">
                 <Button
                   variant="outline"
@@ -188,124 +183,29 @@ export default function UsersPage() {
         {/* Users Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Users ({filteredUsers.length})</CardTitle>
-            <CardDescription>
-              Manage user accounts and permissions
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Users ({filteredUsers.length})</CardTitle>
+                <CardDescription>
+                  Manage user accounts and permissions
+                </CardDescription>
+              </div>
+              {selectedUsers.length > 0 && (
+                <Button variant="destructive" onClick={handleBulkDelete}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete {selectedUsers.length} selected
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            {isLoading && (
-              <div className="flex justify-center items-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-              </div>
-            )}
-            {error && !isLoading && (
-              <div className="text-center py-8">
-                <p className="text-red-600">Failed to load users</p>
-              </div>
-            )}
-            {!isLoading && !error && (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          User
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          System
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Created
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Last Login
-                        </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredUsers.map((user) => (
-                        <tr key={user.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {user.name}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {user.email}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={getSystemBadge(user.system)}>
-                              {user.system.replace('_', ' ')}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={getStatusBadge(user.status)}>
-                              {user.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {format(new Date(user.createdAt), 'MMM d, yyyy')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {format(new Date(user.lastLogin), 'MMM d, yyyy')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex justify-end space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleViewUser(user)}
-                                title="View user"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEditUser(user)}
-                                title="Edit user"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDeleteUser(user.id, user.name)}
-                                title="Delete user"
-                                className="text-red-600 hover:text-red-700"
-                                disabled={deleteUserMutation.isPending}
-                              >
-                                {deleteUserMutation.isPending ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Trash2 className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                
-                {filteredUsers.length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No users found matching your criteria</p>
-                  </div>
-                )}
-              </>
-            )}
+            <UsersDataTable
+              users={filteredUsers}
+              onView={handleViewUser}
+              onEdit={handleEditUser}
+              onDelete={handleDeleteUser}
+              onSelectionChange={setSelectedUsers}
+            />
           </CardContent>
         </Card>
       </div>
@@ -316,6 +216,34 @@ export default function UsersPage() {
         onOpenChange={setIsUserModalOpen}
         user={selectedUser}
         mode={modalMode}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete User"
+        description={
+          userToDelete
+            ? `Are you sure you want to delete ${userToDelete.name} (${userToDelete.email})? This action cannot be undone.`
+            : ''
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={confirmDeleteUser}
+      />
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={bulkDeleteDialogOpen}
+        onOpenChange={setBulkDeleteDialogOpen}
+        title="Delete Multiple Users"
+        description={`Are you sure you want to delete ${selectedUsers.length} user(s)? This action cannot be undone.`}
+        confirmText={`Delete ${selectedUsers.length} user(s)`}
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={confirmBulkDelete}
       />
     </AdminLayout>
   )

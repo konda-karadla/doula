@@ -1,42 +1,18 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/stores/auth-store'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Target,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  Shield,
-  Stethoscope,
-  Calendar,
-} from 'lucide-react'
-
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Users', href: '/users', icon: Users },
-  { name: 'Doctors', href: '/doctors', icon: Stethoscope },
-  { name: 'Consultations', href: '/consultations', icon: Calendar },
-  { name: 'Lab Results', href: '/lab-results', icon: FileText },
-  { name: 'Action Plans', href: '/action-plans', icon: Target },
-  { name: 'Settings', href: '/settings', icon: Settings },
-]
+import { Shield, Command } from 'lucide-react'
+import { CommandPalette, type UserRole } from '@/components/cmd/command-palette'
+import { ShortcutsModal } from '@/components/help/shortcuts-modal'
+import { HorizontalNav } from './horizontal-nav'
+import { UserSidebar } from './user-sidebar'
 
 interface AdminLayoutProps {
   children: React.ReactNode
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuthStore()
 
@@ -45,145 +21,72 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     router.push('/login')
   }
 
+  const handleHelpClick = () => {
+    // Help modal opens automatically via keyboard shortcut (?)
+    // This is a placeholder for future direct trigger if needed
+  }
+
+  // Map user role to CommandPalette role type
+  const getUserRole = (): UserRole => {
+    const role = user?.role?.toLowerCase()
+    if (role?.includes('admin')) return 'super_admin'
+    if (role?.includes('doctor')) return 'doctor'
+    if (role?.includes('nurse')) return 'nurse'
+    if (role?.includes('reception')) return 'receptionist'
+    if (role?.includes('lab')) return 'lab_tech'
+    return 'doctor' // default
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar */}
-      <div className={cn(
-        'fixed inset-0 z-50 lg:hidden',
-        sidebarOpen ? 'block' : 'hidden'
-      )}>
-        <div 
-          className="fixed inset-0 bg-gray-600 bg-opacity-75" 
-          onClick={() => setSidebarOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              setSidebarOpen(false)
-            }
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Close sidebar"
-        />
-        <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white">
-          <div className="flex h-16 items-center justify-between px-4">
-            <div className="flex items-center">
-              <Shield className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold">Admin Portal</span>
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+      {/* Compact User Sidebar (Left) */}
+      <UserSidebar
+        userName={user?.name}
+        userRole={user?.role}
+        userEmail={user?.email}
+        onLogout={handleLogout}
+        onHelpClick={handleHelpClick}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Navigation Bar */}
+        <div className="sticky top-0 z-40 bg-white dark:bg-gray-900 shadow-sm">
+          {/* Brand + ⌘K Hint */}
+          <div className="flex items-center justify-between h-14 px-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3">
+              <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <span className="text-lg font-bold text-gray-900 dark:text-gray-100">Admin Portal</span>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
-          </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
-                    isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  )}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon
-                    className={cn(
-                      'mr-3 h-5 w-5 flex-shrink-0',
-                      isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
-                    )}
-                  />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </nav>
-        </div>
-      </div>
-
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
-          <div className="flex h-16 items-center px-4">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <span className="ml-2 text-xl font-bold">Admin Portal</span>
-          </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
-                    isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      'mr-3 h-5 w-5 flex-shrink-0',
-                      isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
-                    )}
-                  />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </nav>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="lg:pl-64">
-        {/* Top bar */}
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
-
-          <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <div className="flex flex-1" />
-            <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" />
-              <div className="flex items-center gap-x-2">
-                <div className="text-sm">
-                  <span className="font-medium text-gray-900">{user?.name}</span>
-                  <span className="text-gray-500 ml-2">({user?.role})</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleLogout}
-                  title="Sign out"
-                >
-                  <LogOut className="h-5 w-5" />
-                </Button>
-              </div>
+            
+            {/* Command Palette Hint */}
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-md text-sm text-gray-600 dark:text-gray-300">
+              <Command className="h-4 w-4" />
+              <span>Press</span>
+              <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-xs font-mono">
+                ⌘K
+              </kbd>
+              <span>to search</span>
             </div>
           </div>
+
+          {/* Horizontal Navigation Tabs */}
+          <HorizontalNav userRole={getUserRole()} />
         </div>
 
-        {/* Page content */}
-        <main className="py-6">
+        {/* Page Content */}
+        <main className="flex-1 py-6">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {children}
           </div>
         </main>
       </div>
+
+      {/* Command Palette - Always Available */}
+      <CommandPalette userRole={getUserRole()} />
+      
+      {/* Keyboard Shortcuts Help Modal */}
+      <ShortcutsModal />
     </div>
   )
 }
