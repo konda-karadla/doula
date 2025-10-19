@@ -12,15 +12,15 @@
 
 ```bash
 # 1. Run setup script
-chmod +x setup_fastapi.sh
-./setup_fastapi.sh
+chmod +x backend/setup_fastapi.sh
+./backend/setup_fastapi.sh
 
 # 2. Configure environment
-cp .env.fastapi.example .env
+cp backend/.env.fastapi.example .env
 # Edit .env with your values
 
 # 3. Run database migrations
-alembic upgrade head
+cd backend && alembic upgrade head
 
 # 4. Start services (3 terminals)
 
@@ -28,10 +28,10 @@ alembic upgrade head
 redis-server
 
 # Terminal 2: API
-./start_api.sh
+./backend/start_api.sh
 
 # Terminal 3: Celery
-./start_celery.sh
+./backend/start_celery.sh
 ```
 
 ### Access Points
@@ -55,34 +55,34 @@ celery -A backend.core.celery_app worker --loglevel=info
 pytest
 
 # Verify setup
-python verify_fastapi.py
+python backend/verify_fastapi.py
 ```
 
 ### Database
 ```bash
 # Create migration
-alembic revision --autogenerate -m "description"
+cd backend && alembic revision --autogenerate -m "description"
 
 # Apply migrations
-alembic upgrade head
+cd backend && alembic upgrade head
 
 # Rollback migration
-alembic downgrade -1
+cd backend && alembic downgrade -1
 
 # Check current version
-alembic current
+cd backend && alembic current
 ```
 
 ### Docker
 ```bash
 # Start all services
-docker-compose -f docker-compose.fastapi.yml up -d
+docker-compose -f backend/docker-compose.fastapi.yml up -d
 
 # View logs
-docker-compose -f docker-compose.fastapi.yml logs -f
+docker-compose -f backend/docker-compose.fastapi.yml logs -f
 
 # Stop all services
-docker-compose -f docker-compose.fastapi.yml down
+docker-compose -f backend/docker-compose.fastapi.yml down
 ```
 
 ---

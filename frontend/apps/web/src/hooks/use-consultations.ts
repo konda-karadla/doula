@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { services } from '@health-platform/api-client';
+import { useAuthStore } from '@/lib/stores/auth';
 import type {
   BookConsultationRequest,
   RescheduleConsultationRequest,
@@ -60,19 +61,24 @@ export function useBookConsultation() {
 
 // Fetch user's consultations
 export function useMyConsultations() {
+  const { isAuthenticated, token } = useAuthStore();
+  
   return useQuery({
     queryKey: consultationKeys.myBookings(),
     queryFn: () => services.consultations.getMyBookings(),
+    enabled: isAuthenticated && !!token,
     staleTime: 1 * 60 * 1000, // 1 minute
   });
 }
 
 // Fetch single consultation
 export function useConsultation(id: string) {
+  const { isAuthenticated, token } = useAuthStore();
+  
   return useQuery({
     queryKey: consultationKeys.detail(id),
     queryFn: () => services.consultations.get(id),
-    enabled: !!id,
+    enabled: !!id && isAuthenticated && !!token,
     staleTime: 2 * 60 * 1000,
   });
 }

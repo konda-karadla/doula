@@ -3,10 +3,10 @@ from typing import Optional
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 
     PROJECT_NAME: str = "Health Platform API"
-    PORT: int = 3000
+    PORT: int = 8000
 
     DATABASE_URL: str
 

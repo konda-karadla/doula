@@ -11,13 +11,13 @@ Welcome to the FastAPI migration documentation! This index will help you navigat
    - Authentication examples
    - Troubleshooting tips
 
-2. **[setup_fastapi.sh](setup_fastapi.sh)** - Automated setup script
+2. **[setup_fastapi.sh](backend/setup_fastapi.sh)** - Automated setup script
    - Checks dependencies
    - Creates virtual environment
    - Installs packages
    - Runs verification
 
-3. **[verify_fastapi.py](verify_fastapi.py)** - Verification script
+3. **[verify_fastapi.py](backend/verify_fastapi.py)** - Verification script
    - Checks all imports
    - Validates project structure
    - Reports any issues
@@ -27,7 +27,7 @@ Welcome to the FastAPI migration documentation! This index will help you navigat
 ## 📖 Core Documentation
 
 ### Main Documentation
-- **[README_FASTAPI.md](README_FASTAPI.md)** - Complete FastAPI documentation
+- **[README_FASTAPI.md](backend/README_FASTAPI.md)** - Complete FastAPI documentation
   - Features overview
   - Installation instructions
   - Running the application
@@ -44,7 +44,7 @@ Welcome to the FastAPI migration documentation! This index will help you navigat
   - Key differences from NestJS
   - Troubleshooting
 
-- **[FASTAPI_MIGRATION_COMPLETE.md](FASTAPI_MIGRATION_COMPLETE.md)** - Migration summary
+- **[FASTAPI_MIGRATION_COMPLETE.md](backend/FASTAPI_MIGRATION_COMPLETE.md)** - Migration summary
   - Complete status overview
   - All features implemented
   - Project structure
@@ -52,7 +52,6 @@ Welcome to the FastAPI migration documentation! This index will help you navigat
   - Success criteria
 
 ### Comparison
-- **[NESTJS_VS_FASTAPI.md](NESTJS_VS_FASTAPI.md)** - Side-by-side comparison
   - Technology stack
   - Code examples
   - Performance metrics
@@ -64,29 +63,29 @@ Welcome to the FastAPI migration documentation! This index will help you navigat
 ## 🛠️ Configuration Files
 
 ### Python
-- **[requirements.txt](requirements.txt)** - Python dependencies
-- **[pytest.ini](pytest.ini)** - Test configuration
-- **[alembic.ini](alembic.ini)** - Migration configuration
+- **[requirements.txt](backend/requirements.txt)** - Python dependencies
+- **[pytest.ini](backend/pytest.ini)** - Test configuration
+- **[alembic.ini](backend/alembic.ini)** - Migration configuration
 
 ### Environment
-- **[.env.fastapi.example](.env.fastapi.example)** - Environment template
+- **[.env.fastapi.example](backend/.env.fastapi.example)** - Environment template
 - Copy to `.env` and configure with your values
 
 ### Docker
-- **[Dockerfile](Dockerfile)** - Container image definition
-- **[docker-compose.fastapi.yml](docker-compose.fastapi.yml)** - Multi-container setup
+- **[Dockerfile](backend/Dockerfile)** - Container image definition
+- **[docker-compose.fastapi.yml](backend/docker-compose.fastapi.yml)** - Multi-container setup
 - **[Procfile](Procfile)** - Process definition for deployment
 
 ---
 
 ## 🏃 Startup Scripts
 
-- **[start_api.sh](start_api.sh)** - Start FastAPI server
+- **[start_api.sh](backend/start_api.sh)** - Start FastAPI server
   ```bash
   ./start_api.sh
   ```
 
-- **[start_celery.sh](start_celery.sh)** - Start Celery worker
+- **[start_celery.sh](backend/start_celery.sh)** - Start Celery worker
   ```bash
   ./start_celery.sh
   ```

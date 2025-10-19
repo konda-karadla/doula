@@ -3,7 +3,7 @@ import type { SystemType, ProfileType, JourneyType } from '@health-platform/type
 // Environment configuration
 export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
-  API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3002',
+  API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
   APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'Health Platform',
   APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
   IS_DEVELOPMENT: process.env.NODE_ENV === 'development',

@@ -7,7 +7,7 @@ A comprehensive, production-ready health management system with multi-tenant arc
 **First time setup:**
 ```bash
 # 1. Run automated setup
-./setup_backend.sh
+./backend/setup_backend.sh
 
 # 2. Edit configuration
 nano .env
@@ -18,7 +18,7 @@ nano .env
 
 **That's it!** API will be at http://localhost:3000/api
 
-📖 **Detailed instructions:** [QUICK_START_BACKEND.md](./QUICK_START_BACKEND.md)
+📖 **Detailed instructions:** [QUICK_START_BACKEND.md](./backend/QUICK_START_BACKEND.md)
 
 ---
 
@@ -26,7 +26,7 @@ nano .env
 
 ### For New Developers
 1. **[COMPLETE_MIGRATION_SUMMARY.md](./COMPLETE_MIGRATION_SUMMARY.md)** - **READ THIS FIRST!** FastAPI migration complete
-2. **[Backend Setup](./README_FASTAPI.md)** - Get FastAPI backend running
+2. **[Backend Setup](./backend/README_FASTAPI.md)** - Get FastAPI backend running
 3. **[Frontend Setup](./frontend/README.md)** - Get frontend apps running
 4. **[Mobile Setup](./frontend/apps/mobile/README.md)** - Get mobile app running
 
@@ -138,10 +138,10 @@ health-platform/
 
 ### Must Read
 - **[COMPLETE_MIGRATION_SUMMARY.md](./COMPLETE_MIGRATION_SUMMARY.md)** - **START HERE!** Complete FastAPI migration guide
-- **[README_FASTAPI.md](./README_FASTAPI.md)** - FastAPI backend documentation
+- **[README_FASTAPI.md](./backend/README_FASTAPI.md)** - FastAPI backend documentation
 
 ### Additional Docs
-- **[FASTAPI_MIGRATION_COMPLETE.md](./FASTAPI_MIGRATION_COMPLETE.md)** - Original migration documentation
+- **[FASTAPI_MIGRATION_COMPLETE.md](./backend/FASTAPI_MIGRATION_COMPLETE.md)** - Original migration documentation
 - **[CLIENT_DOCUMENTATION.md](./CLIENT_DOCUMENTATION.md)** - Complete project documentation
 - **[NEXT_STEPS.md](./NEXT_STEPS.md)** - Development roadmap
 - **[Mobile Tasks](./frontend/apps/mobile/MOBILE_TASKS.md)** - Mobile development tasks
@@ -155,25 +155,25 @@ health-platform/
 ### Backend Setup (FastAPI)
 ```bash
 # Install Python dependencies
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 
 # Configure environment
-cp .env.fastapi.example .env  # Edit with your settings
+cp backend/.env.fastapi.example .env  # Edit with your settings
 
 # Run database migrations
-alembic upgrade head
+cd backend && alembic upgrade head
 
 # Start API server
-./start_api.sh
+./backend/start_api.sh
 
 # Start Celery worker (separate terminal)
-./start_celery.sh
+./backend/start_celery.sh
 
 # Start Redis (separate terminal)
 redis-server
 ```
 
-See **[README_FASTAPI.md](./README_FASTAPI.md)** for detailed setup instructions.
+See **[README_FASTAPI.md](./backend/README_FASTAPI.md)** for detailed setup instructions.
 
 ### Frontend Setup
 ```bash
