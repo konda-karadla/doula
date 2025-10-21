@@ -42,7 +42,7 @@ export function LoginForm() {
       await login(data)
       console.log('✅ Login successful')
       
-      // Check if user role is 'user'
+      // Check if user role is 'user' (regular user, not admin/provider)
       const { user } = useAuthStore.getState()
       if (user?.role !== 'user') {
         console.log('🚫 Non-user role blocked from user app')

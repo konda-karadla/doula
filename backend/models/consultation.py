@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 from uuid import uuid4
 import enum
 
-from backend.core.database import Base
+from core.database import Base
 
 
 class ConsultationType(str, enum.Enum):
@@ -77,3 +77,4 @@ class Consultation(Base):
 
     user = relationship("User", back_populates="consultations")
     doctor = relationship("Doctor", back_populates="consultations")
+    soap_notes = relationship("SOAPNote", back_populates="consultation", cascade="all, delete-orphan")

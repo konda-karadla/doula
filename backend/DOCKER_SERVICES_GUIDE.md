@@ -31,7 +31,7 @@ cd backend
 **That's it!** This will:
 1. Start Redis and Celery in Docker containers
 2. Start FastAPI locally with auto-reload
-3. Make API available at http://localhost:3002
+3. Make API available at http://localhost:8000
 
 ---
 
@@ -41,7 +41,7 @@ cd backend
 |---------|----------|------|-------------|
 | **Redis** | Docker | 6379 | Cache and task queue |
 | **Celery Worker** | Docker | - | Background task processing |
-| **FastAPI API** | Local | 3002 | Main API server |
+| **FastAPI API** | Local | 8000 | Main API server |
 | **Database** | AWS RDS | External | PostgreSQL database |
 
 ---
@@ -97,7 +97,7 @@ cd backend
 .\dev_start.ps1   # Windows
 
 # 2. Make code changes - FastAPI auto-reloads
-# 3. Test your changes at http://localhost:3002/docs
+# 3. Test your changes at http://localhost:8000/docs
 # 4. Stop with Ctrl+C
 ```
 
@@ -148,7 +148,7 @@ docker ps
 redis-cli ping
 
 # Test API
-curl http://localhost:3002/docs
+curl http://localhost:8000/docs
 ```
 
 ---
@@ -169,8 +169,8 @@ docker-compose exec redis redis-cli ping
 
 ### FastAPI Issues
 ```bash
-# Check if port 3002 is available
-netstat -an | grep 3002
+# Check if port 8000 is available
+netstat -an | grep 8000
 
 # Check FastAPI logs for errors
 # Look at the terminal where you started the API
@@ -210,7 +210,7 @@ docker-compose restart celery_worker
 - No need to rebuild Docker containers
 
 ### Testing
-- Test API endpoints at http://localhost:3002/docs
+- Test API endpoints at http://localhost:8000/docs
 - Check Redis operations through your application
 - Monitor Celery tasks in Docker logs
 
@@ -219,7 +219,7 @@ docker-compose restart celery_worker
 ## 🚀 Next Steps
 
 1. **Start development**: `cd backend && ./dev_start.sh`
-2. **Open API docs**: http://localhost:3002/docs
+2. **Open API docs**: http://localhost:8000/docs
 3. **Start coding**: Make changes and see them auto-reload!
 
 Happy coding! 🎉

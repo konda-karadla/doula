@@ -3,10 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from fastapi import HTTPException, status
 
-from backend.models.user import User
-from backend.models.lab_result import LabResult
-from backend.models.action_plan import ActionPlan, ActionItem
-from backend.schemas.profile import UserProfileResponse, HealthStatsResponse
+from models.user import User
+from models.lab_result import LabResult
+from models.action_plan import ActionPlan, ActionItem
+from schemas.profile import UserProfileResponse, HealthStatsResponse
 
 
 class ProfileService:
@@ -27,7 +27,7 @@ class ProfileService:
                 detail="User not found"
             )
         
-        return UserProfileResponse.from_orm_with_camel(user)
+        return UserProfileResponse.model_validate(user)
 
     async def get_health_stats(self, user_id: str, system_id: str) -> HealthStatsResponse:
         # Get total lab results
@@ -52,7 +52,7 @@ class ProfileService:
             .join(ActionPlan, ActionItem.action_plan_id == ActionPlan.id)
             .where(ActionPlan.user_id == user_id)
             .where(ActionPlan.system_id == system_id)
-            .where(ActionItem.status == "completed")
+            .where(ActionItem.completed_at.isnot(None))
         )
         completed_items = completed_items_result.scalar() or 0
 
@@ -62,7 +62,7 @@ class ProfileService:
             .join(ActionPlan, ActionItem.action_plan_id == ActionPlan.id)
             .where(ActionPlan.user_id == user_id)
             .where(ActionPlan.system_id == system_id)
-            .where(ActionItem.status == "pending")
+            .where(ActionItem.completed_at.is_(None))
         )
         pending_items = pending_items_result.scalar() or 0
 

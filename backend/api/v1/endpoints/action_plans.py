@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
-from backend.core.database import get_db
-from backend.core.dependencies import verify_tenant_access, CurrentUser
-from backend.schemas.action_plan import (
+from core.database import get_db
+from core.dependencies import verify_tenant_access, CurrentUser
+from schemas.action_plan import (
     ActionPlanResponse,
     ActionItemResponse,
     CreateActionPlanRequest,
@@ -12,7 +12,7 @@ from backend.schemas.action_plan import (
     CreateActionItemRequest,
     UpdateActionItemRequest
 )
-from backend.services.action_plans_service import ActionPlansService
+from services.action_plans_service import ActionPlansService
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def create_action_plan(
     db: AsyncSession = Depends(get_db)
 ):
     service = ActionPlansService(db)
-    return await service.create_action_plan(current_user.userId, current_user.systemId, data)
+    return await service.create_action_plan(data, current_user.userId, current_user.systemId)
 
 
 @router.get("", response_model=List[ActionPlanResponse])
@@ -33,7 +33,7 @@ async def get_all_action_plans(
     db: AsyncSession = Depends(get_db)
 ):
     service = ActionPlansService(db)
-    return await service.find_all_action_plans(current_user.userId, current_user.systemId)
+    return await service.get_action_plans(current_user.userId, current_user.systemId)
 
 
 @router.get("/{id}", response_model=ActionPlanResponse)
@@ -43,7 +43,7 @@ async def get_action_plan_by_id(
     db: AsyncSession = Depends(get_db)
 ):
     service = ActionPlansService(db)
-    return await service.find_action_plan_by_id(id, current_user.userId, current_user.systemId)
+    return await service.get_action_plan(id, current_user.userId, current_user.systemId)
 
 
 @router.put("/{id}", response_model=ActionPlanResponse)
@@ -75,7 +75,7 @@ async def create_action_item(
     db: AsyncSession = Depends(get_db)
 ):
     service = ActionPlansService(db)
-    return await service.create_action_item(planId, current_user.userId, current_user.systemId, data)
+    return await service.create_action_item(planId, data, current_user.userId, current_user.systemId)
 
 
 @router.get("/{planId}/items", response_model=List[ActionItemResponse])
@@ -85,7 +85,7 @@ async def get_action_items(
     db: AsyncSession = Depends(get_db)
 ):
     service = ActionPlansService(db)
-    return await service.find_action_items_by_plan_id(planId, current_user.userId, current_user.systemId)
+    return await service.get_action_items(planId, current_user.userId, current_user.systemId)
 
 
 @router.get("/{planId}/items/{itemId}", response_model=ActionItemResponse)

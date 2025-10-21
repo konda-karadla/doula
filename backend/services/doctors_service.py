@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timedelta
 
-from backend.models.consultation import Doctor, Consultation, ConsultationStatus
-from backend.schemas.consultation import DoctorResponse, AvailableSlot
+from models.consultation import Doctor, Consultation, ConsultationStatus
+from schemas.consultation import DoctorResponse, AvailableSlot
 
 
 class DoctorsService:

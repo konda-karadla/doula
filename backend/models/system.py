@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from uuid import uuid4
 
-from backend.core.database import Base
+from core.database import Base
 
 
 class System(Base):
@@ -21,3 +21,8 @@ class System(Base):
     lab_results = relationship("LabResult", back_populates="system", cascade="all, delete-orphan")
     action_plans = relationship("ActionPlan", back_populates="system", cascade="all, delete-orphan")
     doctors = relationship("Doctor", back_populates="system", cascade="all, delete-orphan")
+    
+    # New relationships
+    staff_members = relationship("Staff", back_populates="system", cascade="all, delete-orphan")
+    departments = relationship("Department", back_populates="system", cascade="all, delete-orphan")
+    lab_orders = relationship("LabTestOrder", back_populates="system", cascade="all, delete-orphan")

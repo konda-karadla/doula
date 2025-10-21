@@ -2,17 +2,17 @@ from typing import List
 from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.database import get_db
-from backend.core.dependencies import get_current_user, CurrentUser
-from backend.schemas.consultation import (
+from core.database import get_db
+from core.dependencies import get_current_user, CurrentUser
+from schemas.consultation import (
     DoctorResponse,
     BookConsultationRequest,
     ConsultationResponse,
     RescheduleConsultationRequest,
     AvailableSlot
 )
-from backend.services.consultations_service import ConsultationsService
-from backend.services.doctors_service import DoctorsService
+from services.consultations_service import ConsultationsService
+from services.doctors_service import DoctorsService
 
 router = APIRouter()
 
@@ -22,7 +22,8 @@ async def get_doctors(
     current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await DoctorsService.find_all(db, current_user.systemId, include_inactive=False)
+    service = DoctorsService(db)
+    return await service.get_doctors(current_user.systemId)
 
 
 @router.get("/doctors/{doctor_id}", response_model=DoctorResponse)
@@ -58,7 +59,8 @@ async def get_my_bookings(
     current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await ConsultationsService.find_all_for_user(db, current_user.userId)
+    service = ConsultationsService(db)
+    return await service.get_user_consultations(current_user.userId, current_user.systemId)
 
 
 @router.get("/{consultation_id}", response_model=ConsultationResponse)

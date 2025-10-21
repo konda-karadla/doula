@@ -4,8 +4,8 @@ from sqlalchemy import select, func, desc
 from fastapi import HTTPException, status
 from datetime import datetime
 
-from backend.models.lab_result import LabResult, Biomarker
-from backend.schemas.insights import HealthInsightResponse, InsightsSummaryResponse, BiomarkerTrendResponse
+from models.lab_result import LabResult, Biomarker
+from schemas.insights import HealthInsightResponse, InsightsSummaryResponse, BiomarkerTrendResponse
 
 
 class InsightsService:

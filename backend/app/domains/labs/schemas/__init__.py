@@ -1,0 +1,1 @@
+# Labs domain schemas

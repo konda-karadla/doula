@@ -1,14 +1,14 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi import HTTPException, status
 import secrets
 
-from backend.models.user import User, RefreshToken
-from backend.models.system import System
-from backend.schemas.auth import RegisterRequest, LoginRequest, AuthResponse, UserResponse, SystemResponse
-from backend.core.security import (
+from models.user import User, RefreshToken
+from models.system import System
+from schemas.auth import RegisterRequest, LoginRequest, AuthResponse, UserResponse, SystemResponse
+from core.security import (
     verify_password, 
     get_password_hash, 
     create_access_token, 
@@ -16,7 +16,7 @@ from backend.core.security import (
     decode_refresh_token,
     parse_expires_in
 )
-from backend.core.config import settings
+from core.config import settings
 
 
 class AuthService:
@@ -85,7 +85,7 @@ class AuthService:
         refresh_token_obj = RefreshToken(
             user_id=user.id,
             token=refresh_token,
-            expires_at=datetime.utcnow() + parse_expires_in(settings.REFRESH_TOKEN_EXPIRES_IN)
+            expires_at=datetime.now(timezone.utc) + parse_expires_in(settings.REFRESH_TOKEN_EXPIRES_IN)
         )
         self.db.add(refresh_token_obj)
         await self.db.commit()
@@ -95,6 +95,7 @@ class AuthService:
                 id=user.id,
                 email=user.email,
                 username=user.username,
+                role=user.role,
                 profile_type=user.profile_type,
                 journey_type=user.journey_type,
                 system=SystemResponse(
@@ -146,7 +147,7 @@ class AuthService:
         refresh_token_obj = RefreshToken(
             user_id=user.id,
             token=refresh_token,
-            expires_at=datetime.utcnow() + parse_expires_in(settings.REFRESH_TOKEN_EXPIRES_IN)
+            expires_at=datetime.now(timezone.utc) + parse_expires_in(settings.REFRESH_TOKEN_EXPIRES_IN)
         )
         self.db.add(refresh_token_obj)
         await self.db.commit()
@@ -156,6 +157,7 @@ class AuthService:
                 id=user.id,
                 email=user.email,
                 username=user.username,
+                role=user.role,
                 profile_type=user.profile_type,
                 journey_type=user.journey_type,
                 system=SystemResponse(
@@ -183,7 +185,7 @@ class AuthService:
         )
         stored_token = result.scalar_one_or_none()
         
-        if not stored_token or stored_token.expires_at < datetime.utcnow():
+        if not stored_token or stored_token.expires_at < datetime.now(timezone.utc):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired refresh token"
@@ -222,6 +224,7 @@ class AuthService:
                 id=user.id,
                 email=user.email,
                 username=user.username,
+                role=user.role,
                 profile_type=user.profile_type,
                 journey_type=user.journey_type,
                 system=SystemResponse(

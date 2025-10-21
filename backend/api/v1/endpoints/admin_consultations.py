@@ -2,9 +2,9 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.database import get_db
-from backend.core.dependencies import require_admin, CurrentUser
-from backend.schemas.consultation import (
+from core.database import get_db
+from core.dependencies import require_admin, CurrentUser
+from schemas.consultation import (
     DoctorCreate,
     DoctorUpdate,
     DoctorResponse,
@@ -13,8 +13,8 @@ from backend.schemas.consultation import (
     UpdateConsultationRequest,
     ConsultationResponse
 )
-from backend.services.consultations_service import ConsultationsService
-from backend.services.doctors_service import DoctorsService
+from services.consultations_service import ConsultationsService
+from services.doctors_service import DoctorsService
 
 router = APIRouter()
 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from uuid import uuid4
 
-from backend.core.database import Base
+from core.database import Base
 
 
 class ActionPlan(Base):

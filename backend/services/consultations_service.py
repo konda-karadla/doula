@@ -4,8 +4,8 @@ from sqlalchemy import select, and_
 from fastapi import HTTPException, status
 from datetime import datetime, timedelta
 
-from backend.models.consultation import Consultation, Doctor, ConsultationType, ConsultationStatus
-from backend.schemas.consultation import (
+from models.consultation import Consultation, Doctor, ConsultationType, ConsultationStatus
+from schemas.consultation import (
     DoctorResponse, BookConsultationRequest, ConsultationResponse, 
     RescheduleConsultationRequest, AvailableSlot
 )

@@ -7,9 +7,41 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from backend.core.config import settings
-from backend.core.database import Base
-from backend.models import *
+from core.config import settings
+from core.database import Base
+
+# Import all models to ensure they are registered with SQLAlchemy
+from models import (
+    System,
+    User,
+    RefreshToken,
+    SystemConfig,
+    FeatureFlag,
+    LabResult,
+    Biomarker,
+    ActionPlan,
+    ActionItem,
+    Doctor,
+    AvailabilitySlot,
+    Consultation,
+    Staff,
+    Department,
+    SOAPNote,
+    SOAPNoteAttachment,
+    VitalsRecord,
+    VitalsAlert,
+    NutritionAssessment,
+    MealPlan,
+    MealPlanDay,
+    MealPlanMeal,
+    NutritionFeedback,
+    LabTestOrder,
+    MedicalHistory,
+    Medication,
+    AuditLog,
+    ModulePermission,
+    ApplicationAccess,
+)
 
 config = context.config
 
@@ -18,10 +50,14 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-config.set_main_option(
-    "sqlalchemy.url",
-    settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
-)
+# Escape % in URL for ConfigParser (% needs to be %%)
+# Also remove sslmode parameter as asyncpg handles SSL differently
+db_url = settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+# Remove sslmode query parameter for asyncpg
+if "?sslmode=" in db_url:
+    db_url = db_url.split("?sslmode=")[0]
+db_url = db_url.replace("%", "%%")
+config.set_main_option("sqlalchemy.url", db_url)
 
 
 def run_migrations_offline() -> None:
@@ -45,8 +81,19 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
+    # For asyncpg, we need to handle SSL context manually
+    import ssl
+    config_section = config.get_section(config.config_ini_section, {})
+    
+    # Add SSL context for asyncpg
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    
+    config_section["connect_args"] = {"ssl": ssl_context}
+    
     connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        config_section,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

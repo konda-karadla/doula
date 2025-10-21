@@ -26,12 +26,13 @@ Write-Host ""
 Write-Host "✅ Docker services are running!" -ForegroundColor Green
 Write-Host ""
 Write-Host "🚀 Now starting FastAPI locally..." -ForegroundColor Cyan
-Write-Host "📊 API will be available at: http://localhost:3002" -ForegroundColor White
-Write-Host "📚 API docs will be at: http://localhost:3002/docs" -ForegroundColor White
+Write-Host "📊 API will be available at: http://localhost:8000" -ForegroundColor White
+Write-Host "📚 API docs will be at: http://localhost:8000/docs" -ForegroundColor White
 Write-Host ""
 Write-Host "💡 To stop: Ctrl+C for FastAPI, then 'docker-compose down' for Docker services" -ForegroundColor Gray
 Write-Host ""
 
 # Start FastAPI locally
 Write-Host "Starting FastAPI server..." -ForegroundColor Green
-uvicorn backend.main:app --host 0.0.0.0 --port 3002 --reload
+Set-Location backend
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload

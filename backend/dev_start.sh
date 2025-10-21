@@ -28,12 +28,13 @@ echo ""
 echo "✅ Docker services are running!"
 echo ""
 echo "🚀 Now starting FastAPI locally..."
-echo "📊 API will be available at: http://localhost:3002"
-echo "📚 API docs will be at: http://localhost:3002/docs"
+echo "📊 API will be available at: http://localhost:8000"
+echo "📚 API docs will be at: http://localhost:8000/docs"
 echo ""
 echo "💡 To stop: Ctrl+C for FastAPI, then 'docker-compose down' for Docker services"
 echo ""
 
 # Start FastAPI locally
 echo "Starting FastAPI server..."
-uvicorn backend.main:app --host 0.0.0.0 --port 3002 --reload
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
