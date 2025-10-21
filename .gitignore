@@ -166,6 +166,14 @@ TODAYS_PROGRESS*.md
 **/*-mock.tsx
 **/*-mock.ts
 
+# Test reports and temporary test files
+*_test_report.json
+*api_test_report.json
+*comprehensive_api_test_report.json
+*simple_api_test_report.json
+pytest-*.txt
+test-*.txt
+
 # Python Virtual Environment
 venv/
 env/
