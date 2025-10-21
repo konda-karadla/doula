@@ -20,6 +20,8 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.docker
+.env.*
 
 # IDE and editor files
 .vscode/
